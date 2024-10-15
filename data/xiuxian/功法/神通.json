@@ -1,0 +1,1112 @@
+{
+    "8001": {
+        "name": "玄光符印",
+        "skill_type": 1,
+        "atkvalue": [
+            1.2
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.3,
+        "turncost": 1,
+        "desc": "印来！",
+        "rate": 100,
+        "rank": "后天品级",
+        "level": "55"
+    },
+    "8002": {
+        "name": "崩岩术",
+        "skill_type": 1,
+        "atkvalue": [
+            1.3
+        ],
+        "hpcost": 0,
+        "mpcost": 0.4,
+        "turncost": 0,
+        "desc": "落石纷飞！",
+        "rate": 50,
+        "rank": "后天品级",
+        "level": "55"
+    },
+    "8003": {
+        "name": "坤元金印",
+        "skill_type": 2,
+        "atkvalue": 0.4,
+        "hpcost": 0,
+        "mpcost": 0.8,
+        "turncost": 3,
+        "desc": "印来！",
+        "rate": 100,
+        "rank": "后天品级",
+        "level": "55"
+    },
+    "8004": {
+        "name": "云涟剑法",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 0.4,
+        "hpcost": 0,
+        "mpcost": 0.8,
+        "turncost": 3,
+        "desc": "剑舞云飘，意动涟漪！",
+        "rate": 100,
+        "rank": "后天品级",
+        "level": "55"
+    },
+    "8005": {
+        "name": "气劲",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.05,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 2,
+        "desc": "真气护体！！！",
+        "rate": 100,
+        "rank": "后天品级",
+        "level": "55"
+    },
+    "8101": {
+        "name": "化尘剑法",
+        "skill_type": 1,
+        "atkvalue": [
+            1.3,
+            0.2
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.5,
+        "turncost": 1,
+        "desc": "化尘为剑！",
+        "rate": 100,
+        "rank": "先天品级",
+        "level": "67"
+    },
+    "8102": {
+        "name": "三昧真火",
+        "skill_type": 1,
+        "atkvalue": [
+            1.6
+        ],
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 0,
+        "desc": "焚尽！",
+        "rate": 50,
+        "rank": "先天品级",
+        "level": "67"
+    },
+    "8103": {
+        "name": "截脉",
+        "skill_type": 2,
+        "atkvalue": 0.44,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 3,
+        "desc": "截！",
+        "rate": 100,
+        "rank": "先天品级",
+        "level": "67"
+    },
+    "8104": {
+        "name": "灵息术",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 0.44,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 3,
+        "desc": "调息凝神！",
+        "rate": 100,
+        "rank": "先天品级",
+        "level": "67"
+    },
+    "8105": {
+        "name": "真气盾",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.1,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 2,
+        "desc": "气劲成盾！",
+        "rate": 100,
+        "rank": "先天品级",
+        "level": "67"
+    },
+    "8201": {
+        "name": "竹山剑法",
+        "skill_type": 1,
+        "atkvalue": [
+            1.4,
+            0.4
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.3,
+        "turncost": 1,
+        "desc": "万竹化剑！",
+        "rate": 100,
+        "rank": "神丹品级",
+        "level": "75"
+    },
+    "8202": {
+        "name": "散锋诀",
+        "skill_type": 1,
+        "atkvalue": [
+            2.1
+        ],
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 0,
+        "desc": "碎剑破锋！",
+        "rate": 50,
+        "rank": "神丹品级",
+        "level": "75"
+    },
+    "8203": {
+        "name": "玄光印",
+        "skill_type": 2,
+        "atkvalue": 0.7,
+        "hpcost": 0,
+        "mpcost": 0.4,
+        "turncost": 3,
+        "desc": "印来！",
+        "rate": 100,
+        "rank": "神丹品级",
+        "level": "75"
+    },
+    "8204": {
+        "name": "凝剑",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 0.47,
+        "hpcost": 0,
+        "mpcost": 0.4,
+        "turncost": 3,
+        "desc": "万物皆可为剑!",
+        "rate": 100,
+        "rank": "神丹品级",
+        "level": "75"
+    },
+    "8205": {
+        "name": "真气光罩",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.15,
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 2,
+        "desc": "光盾再现！",
+        "rate": 100,
+        "rank": "神丹品级",
+        "level": "75"
+    },
+    "8301": {
+        "name": "五毒摄魂阵",
+        "skill_type": 1,
+        "atkvalue": [
+            1.5,
+            1.2
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.4,
+        "turncost": 0,
+        "desc": "五毒摄魂，阵起！",
+        "rate": 100,
+        "rank": "虚劫品级",
+        "level": "95"
+    },
+    "8302": {
+        "name": "矢神刺",
+        "skill_type": 1,
+        "atkvalue": [
+            2.4
+        ],
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 0,
+        "desc": "吔屎啦！",
+        "rate": 50,
+        "rank": "虚劫品级",
+        "level": "95"
+    },
+    "8303": {
+        "name": "摧血掌",
+        "skill_type": 2,
+        "atkvalue": 0.7,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 3,
+        "desc": "吔屎啦！",
+        "rate": 100,
+        "rank": "虚劫品级",
+        "level": "95"
+    },
+    "8304": {
+        "name": "归元剑气",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 0.75,
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 3,
+        "desc": "万元归一，剑气凝炼！",
+        "rate": 100,
+        "rank": "虚劫品级",
+        "level": "95"
+    },
+    "8305": {
+        "name": "灵光盾",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.2,
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 2,
+        "desc": "灵光照!",
+        "rate": 100,
+        "rank": "虚劫品级",
+        "level": "95"
+    },
+    "8401": {
+        "name": "降魔锁骨阵",
+        "skill_type": 1,
+        "atkvalue": [
+            1.6,
+            1.2
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.3,
+        "turncost": 1,
+        "desc": "降魔锁骨，阵起！",
+        "rate": 100,
+        "rank": "生死品级",
+        "level": "100"
+    },
+    "8402": {
+        "name": "鹤喙针",
+        "skill_type": 1,
+        "atkvalue": [
+            3
+        ],
+        "hpcost": 0,
+        "mpcost": 0.4,
+        "turncost": 0,
+        "desc": "刺！",
+        "rate": 50,
+        "rank": "生死品级",
+        "level": "100"
+    },
+    "8403": {
+        "name": "祭血罩",
+        "skill_type": 2,
+        "atkvalue": 0.84,
+        "hpcost": 0.05,
+        "mpcost": 0.6,
+        "turncost": 10,
+        "desc": "化血为攻！",
+        "rate": 100,
+        "rank": "生死品级",
+        "level": "100"
+    },
+    "8404": {
+        "name": "分金印",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 1.44,
+        "hpcost": 0,
+        "mpcost": 0.4,
+        "turncost": 3,
+        "desc": "分金化印！",
+        "rate": 100,
+        "rank": "生死品级",
+        "level": "100"
+    },
+    "8405": {
+        "name": "灵气护盾",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.25,
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 2,
+        "desc": "开盾！",
+        "rate": 100,
+        "rank": "生死品级",
+        "level": "100"
+    },
+    "8501": {
+        "name": "苍云荫月",
+        "skill_type": 1,
+        "atkvalue": [
+            1.7,
+            1.3
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.3,
+        "turncost": 1,
+        "desc": "苍云藏杀机，荫月一招现！",
+        "rate": 100,
+        "rank": "神海品级",
+        "level": "110"
+    },
+    "8502": {
+        "name": "寸芒",
+        "skill_type": 1,
+        "atkvalue": [
+            3.1
+        ],
+        "hpcost": 0,
+        "mpcost": 0.4,
+        "turncost": 0,
+        "desc": "芒光一现！",
+        "rate": 50,
+        "rank": "神海品级",
+        "level": "110"
+    },
+    "8503": {
+        "name": "月华流照",
+        "skill_type": 2,
+        "atkvalue": 1.8,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 3,
+        "desc": "月华流照！",
+        "rate": 100,
+        "rank": "神海品级",
+        "level": "110"
+    },
+    "8504": {
+        "name": "九转游身剑",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 2.2,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 5,
+        "desc": "身法九转，万剑游身！",
+        "rate": 100,
+        "rank": "神海品级",
+        "level": "110"
+    },
+    "8505": {
+        "name": "金刚护罩",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.2,
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 3,
+        "desc": "坚不可摧！",
+        "rate": 50,
+        "rank": "神海品级",
+        "level": "110"
+    },
+    "8601": {
+        "name": "开山诀",
+        "skill_type": 1,
+        "atkvalue": [
+            1.8,
+            1.2
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.3,
+        "turncost": 1,
+        "desc": "一念，开山！",
+        "rate": 100,
+        "rank": "神劫品级",
+        "level": "117"
+    },
+    "8602": {
+        "name": "离火绝炎",
+        "skill_type": 1,
+        "atkvalue": [
+            3.2
+        ],
+        "hpcost": 0,
+        "mpcost": 0.4,
+        "turncost": 0,
+        "desc": "乾坤离火，绝炎焚尽！",
+        "rate": 50,
+        "rank": "神劫品级",
+        "level": "117"
+    },
+    "8603": {
+        "name": "凝水归流",
+        "skill_type": 2,
+        "atkvalue": 2.3,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 3,
+        "desc": "灵机凝水，万法归流！",
+        "rate": 100,
+        "rank": "神劫品级",
+        "level": "117"
+    },
+    "8604": {
+        "name": "五行颠倒术",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 3.3,
+        "hpcost": 0,
+        "mpcost": 0.7,
+        "turncost": 3,
+        "desc": "逆乱五行！",
+        "rate": 100,
+        "rank": "神极品级",
+        "level": "129"
+    },
+    "8605": {
+        "name": "化甲术",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.25,
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 2,
+        "desc": "真气化甲！",
+        "rate": 50,
+        "rank": "神极品级",
+        "level": "123"
+    },
+    "8701": {
+        "name": "怒水天殇",
+        "skill_type": 1,
+        "atkvalue": [
+            1.9,
+            1.3
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.3,
+        "turncost": 1,
+        "desc": "怒水杀机，翻天为殇！",
+        "rate": 100,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8702": {
+        "name": "炙炎轮回",
+        "skill_type": 1,
+        "atkvalue": [
+            3.5
+        ],
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 0,
+        "desc": "炙炎，焚尽！",
+        "rate": 50,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8703": {
+        "name": "血魂煞",
+        "skill_type": 2,
+        "atkvalue": 2.4,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 3,
+        "desc": "血魂化煞，缠身！",
+        "rate": 100,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8704": {
+        "name": "万剑诀",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 3.4,
+        "hpcost": 0,
+        "mpcost": 0.7,
+        "turncost": 3,
+        "desc": "万剑凝一剑！",
+        "rate": 100,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8705": {
+        "name": "天光盾",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.3,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 2,
+        "desc": "盾来！",
+        "rate": 50,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8801": {
+        "name": "天星若雨",
+        "skill_type": 1,
+        "atkvalue": [
+            2,
+            1.8
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.3,
+        "turncost": 1,
+        "desc": "天星乱坠，杀机若雨！",
+        "rate": 100,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8802": {
+        "name": "金虹贯日",
+        "skill_type": 1,
+        "atkvalue": [
+            3.8
+        ],
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 0,
+        "desc": "通天金虹，一招贯日！",
+        "rate": 50,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8803": {
+        "name": "都天烈火仙阵",
+        "skill_type": 2,
+        "atkvalue": 2.67,
+        "hpcost": 0,
+        "mpcost": 0.7,
+        "turncost": 3,
+        "desc": "都天烈火，化阵！",
+        "rate": 100,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8804": {
+        "name": "星微神灭诀",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 3.67,
+        "hpcost": 0,
+        "mpcost": 0.7,
+        "turncost": 3,
+        "desc": "星微凝神！",
+        "rate": 100,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8805": {
+        "name": "人盾合一",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.35,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 2,
+        "desc": "!",
+        "rate": 50,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8901": {
+        "name": "横扫千军",
+        "skill_type": 1,
+        "atkvalue": [
+            1,
+            1,
+            1.8
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.5,
+        "turncost": 1,
+        "desc": "一技横扫千军倒！",
+        "rate": 100,
+        "rank": "神变品级",
+        "level": "128"
+    },
+    "8902": {
+        "name": "玄冰凝骨术",
+        "skill_type": 1,
+        "atkvalue": [
+            4.2
+        ],
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 0,
+        "desc": "玄冰极寒，冰源凝骨！",
+        "rate": 50,
+        "rank": "界主品级",
+        "level": "132"
+    },
+    "8903": {
+        "name": "凤灵妖火",
+        "skill_type": 2,
+        "atkvalue": 4.0,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 3,
+        "desc": "凤灵化身，妖火焚尽！",
+        "rate": 100,
+        "rank": "界主品级",
+        "level": "132"
+    },
+    "8905": {
+        "name": "灵光护体术",
+        "skill_type": 3,
+        "bufftype": 2,
+        "buffvalue": 0.4,
+        "hpcost": 0,
+        "mpcost": 0.65,
+        "turncost": 2,
+        "desc": "!",
+        "rate": 60,
+        "rank": "界主品级",
+        "level": "132"
+    },
+    "8906": {
+        "name": "日月乾坤",
+        "skill_type": 4,
+        "hpcost": 0,
+        "mpcost": 0.3,
+        "turncost": 3,
+        "desc": "日月斗转，乾坤封禁！",
+        "rate": 50,
+        "success": 70,
+        "rank": "界主品级",
+        "level": "132"
+    },
+    "8907": {
+        "name": "雷霆十闪",
+        "skill_type": 1,
+        "atkvalue": [
+            0.1,
+            0.2,
+            0.3,
+            0.4,
+            0.5,
+            0.7,
+            0.8,
+            0.9
+        ],
+        "hpcost": 0.05,
+        "mpcost": 0.4,
+        "turncost": 0,
+        "desc": "雷霆，极意，闪，闪，闪，闪，闪，闪，闪，闪，闪，闪！",
+        "rate": 90,
+        "rank": "界主品级",
+        "level": "132"
+    },
+    "8904": {
+        "name": "大吞焰术",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 3.8,
+        "hpcost": 0,
+        "mpcost": 0.6,
+        "turncost": 4,
+        "desc": "吞焰熔魂，绝火随身！",
+        "rate": 90,
+        "rank": "界主品级",
+        "level": "132"
+    },
+    "8908": {
+        "name": "天地同寿",
+        "skill_type": 1,
+        "atkvalue": [
+            5.5
+        ],
+        "hpcost": 0.2,
+        "mpcost": 0.5,
+        "turncost": 5,
+        "desc": "天地一瞬，须臾同寿！",
+        "rate": 50,
+        "rank": "界主品级",
+        "level": "132"
+    },
+    "8911": {
+        "name": "大罗仙印",
+        "skill_type": 1,
+        "atkvalue": [
+            1.6,
+            2.5
+        ],
+        "hpcost": 0.1,
+        "mpcost": 0.7,
+        "turncost": 0,
+        "desc": "大罗神威，仙印翻天！",
+        "rate": 90,
+        "rank": "界主品级",
+        "level": "132"
+    },
+    "8912": {
+        "name": "封神剑",
+        "skill_type": 4,
+        "hpcost": 0.1,
+        "mpcost": 1.0,
+        "turncost": 2,
+        "desc": "逆转阴阳，一剑封神！！",
+        "rate": 80,
+        "success": 100,
+        "rank": "界主品级",
+        "level": "132"
+    },
+    "8913": {
+        "name": "大荒星陨指",
+        "skill_type": 1,
+        "atkvalue": [
+            4.7
+        ],
+        "hpcost": 0.05,
+        "mpcost": 0.7,
+        "turncost": 0,
+        "desc": "这一击！贯穿星辰！！",
+        "rate": 70,
+        "rank": "天尊品级",
+        "level": "137"
+    },
+    "8914": {
+        "name": "死灭之咒",
+        "skill_type": 2,
+        "atkvalue": 4.5,
+        "hpcost": 0.05,
+        "mpcost": 0.8,
+        "turncost": 4,
+        "desc": "桀桀桀桀桀桀桀桀桀桀桀桀桀桀",
+        "rate": 100,
+        "rank": "天尊品级",
+        "level": "137"
+    },
+    "8920": {
+        "name": "万剑归宗",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 3.7,
+        "hpcost": 0,
+        "mpcost": 1.65,
+        "turncost": 4,
+        "desc": "万剑朝宗，尽归吾念！！！",
+        "rate": 70,
+        "rank": "天尊品级",
+        "level": "137"
+    },
+    "8921": {
+        "name": "华光猎影",
+        "skill_type": 2,
+        "atkvalue": 4.8,
+        "hpcost": 0.03,
+        "mpcost": 0.6,
+        "turncost": 4,
+        "desc": "刹诀！华光猎影！！",
+        "rate": 100,
+        "rank": "天尊品级",
+        "level": "137"
+    },
+    "8922": {
+        "name": "灭剑血胧",
+        "skill_type": 1,
+        "atkvalue": [
+            4.9
+        ],
+        "hpcost": 0.03,
+        "mpcost": 0.65,
+        "turncost": 0,
+        "desc": "灭！！！！",
+        "rate": 85,
+        "rank": "天尊品级",
+        "level": "137"
+    },
+    "8923": {
+        "name": "千慄鬼噬",
+        "skill_type": 1,
+        "atkvalue": [
+            1.5,
+            1.5,
+            1.2,
+            1.6,
+            0.6,
+            0.9,
+            1.5
+        ],
+        "hpcost": 0.03,
+        "mpcost": 6,
+        "turncost": 1,
+        "desc": "千鬼噬身，诸神尽慄！！！",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "143"
+    },
+    "15600": {
+        "name": "紫玄掌",
+        "skill_type": 2,
+        "atkvalue": 9.5,
+        "hpcost": 0,
+        "mpcost": 13,
+        "turncost": 4,
+        "desc": "",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "1100"
+    },
+    "15601": {
+        "name": "血刹碎乾坤",
+        "skill_type": 2,
+        "atkvalue": 9,
+        "hpcost": 0,
+        "mpcost": 13,
+        "turncost": 4,
+        "desc": "",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "1000"
+    },
+    "15602": {
+        "name": "无暇七绝剑",
+        "skill_type": 2,
+        "atkvalue": 9,
+        "hpcost": 0,
+        "mpcost": 12,
+        "turncost": 5,
+        "desc": "剑指苍天，灭世间神魔！！！！！！",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "1000"
+    },
+    "15603": {
+        "name": "子龙朱雀",
+        "skill_type": 2,
+        "atkvalue": 9.5,
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 4,
+        "desc": "",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "1000"
+    },
+    "15604": {
+        "name": "天煞震狱功",
+        "skill_type": 2,
+        "atkvalue": 8.5,
+        "hpcost": 0,
+        "mpcost": 10,
+        "turncost": 4,
+        "desc": "",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "1000"
+    },
+    "15605": {
+        "name": "大德琉璃金刚身",
+        "skill_type": 2,
+        "atkvalue": 9.5,
+        "hpcost": 0,
+        "mpcost": 1.5,
+        "turncost": 5,
+        "desc": "",
+        "rate": 90,
+        "rank": "真神品级",
+        "level": "1000"
+    },
+    "8930": {
+        "name": "冥途引",
+        "skill_type": 2,
+        "atkvalue": 11,
+        "hpcost": 0,
+        "mpcost": 15,
+        "turncost": 3,
+        "desc": "",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "141"
+    },
+    "19331": {
+        "name": "九转",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 9,
+        "hpcost": 0,
+        "mpcost": 21,
+        "turncost": 3,
+        "desc": "九*转！！！",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "1000"
+    },
+    "19332": {
+        "name": "三界神风起",
+        "skill_type": 1,
+        "atkvalue": [
+            10
+        ],
+        "hpcost": 0,
+        "mpcost": 7.5,
+        "turncost": 0,
+        "desc": "三味神风，久未用也！！",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "1000"
+    },
+    "19333": {
+        "name": "青龙天座印",
+        "skill_type": 1,
+        "atkvalue": [
+            9.5
+        ],
+        "hpcost": 0,
+        "mpcost": 6,
+        "turncost": 0,
+        "desc": "！！",
+        "rate": 100,
+        "rank": "真神品级",
+        "level": "1000"
+    },
+    "8932": {
+        "name": "星宿劫",
+        "skill_type": 1,
+        "atkvalue": [
+            6.5
+        ],
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 0,
+        "desc": "寰宇星宿，须臾入劫，万星破灭！！",
+        "rate": 90,
+        "rank": "荒神品级",
+        "level": "143"
+    },
+    "8931": {
+        "name": "苍寰变",
+        "skill_type": 1,
+        "atkvalue": [
+            3.4,
+            2.6
+        ],
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 1,
+        "desc": "天地为苍，宇内为寰，一念皆变，逆乱阴阳！！",
+        "rate": 100,
+        "rank": "荒神品级",
+        "level": "143"
+    },
+    "19446": {
+        "name": "痛心",
+        "skill_type": 1,
+        "atkvalue": [
+            6.5
+        ],
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 0,
+        "desc": "痛！！",
+        "rate": 100,
+        "rank": "荒神品级",
+        "level": "1000"
+    },
+    "19447": {
+        "name": "爱的鞭答",
+        "skill_type": 1,
+        "atkvalue": [
+            1,
+            1.3,
+            1.5,
+            1.7
+        ],
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 0,
+        "desc": "！！",
+        "rate": 100,
+        "rank": "荒神品级",
+        "level": "1000"
+    },
+    "19448": {
+        "name": "万物永劫",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 5.5,
+        "hpcost": 0,
+        "mpcost": 1,
+        "turncost": 3,
+        "desc": "世道尽灭，天地混沌，与我何干？万物不入我眼，皆为蝼蚁！！！！",
+        "rate": 90,
+        "rank": "荒神品级",
+        "level": "1000"
+    },
+    "19449": {
+        "name": "D4C",
+        "skill_type": 1,
+        "atkvalue": [
+            6.5
+        ],
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 0,
+        "desc": "我是无限的！！",
+        "rate": 100,
+        "rank": "荒神品级",
+        "level": "1000"
+    },
+    "19500": {
+        "name": "神魔斩",
+        "skill_type": 1,
+        "atkvalue": [
+            6.5
+        ],
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 0,
+        "desc": "魔凯化为魔刃。一念为神一念成魔，斩！！！！！",
+        "rate": 100,
+        "rank": "荒神品级",
+        "level": "1000"
+    },
+    "19501": {
+        "name": "炎杀黑龙波",
+        "skill_type": 1,
+        "atkvalue": [
+            9.5
+        ],
+        "hpcost": 0,
+        "mpcost": 1.4,
+        "turncost": 0,
+        "desc": "炎杀黑龙波！！！！！",
+        "rate": 100,
+        "rank": "荒神品级",
+        "level": "1000"
+    },
+    "19502": {
+        "name": "问情",
+        "skill_type": 1,
+        "atkvalue": [
+            6.5
+        ],
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 0,
+        "desc": "！！！！！",
+        "rate": 100,
+        "rank": "荒神品级",
+        "level": "1000"
+    },
+    "19503": {
+        "name": "噬魂幡",
+        "skill_type": 1,
+        "atkvalue": [
+            6.5
+        ],
+        "hpcost": 0,
+        "mpcost": 0.5,
+        "turncost": 0,
+        "desc": "！！！！！",
+        "rate": 100,
+        "rank": "荒神品级",
+        "level": "1000"
+    },
+    "30606": {
+        "name": "冰魄领域",
+        "skill_type": 3,
+        "bufftype": 1,
+        "buffvalue": 4.5,
+        "hpcost": 0,
+        "mpcost": 0.9,
+        "turncost": 3,
+        "desc": "！！！！",
+        "rate": 100,
+        "rank": "荒神品级",
+        "level": "1000"
+    }
+}

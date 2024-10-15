@@ -1,0 +1,35 @@
+{
+	"folders": {},
+	"connections": {
+		"sqlite_jdbc-1925d14599d-628634a21ad27a07": {
+			"provider": "sqlite",
+			"driver": "sqlite_jdbc",
+			"name": ".db",
+			"save-password": true,
+			"configuration": {
+				"database": "C:\\Users\\AnLang\\Downloads\\xiuxian (1).db",
+				"url": "jdbc:sqlite:C:\\Users\\AnLang\\Downloads\\xiuxian (1).db",
+				"configurationType": "MANUAL",
+				"type": "dev",
+				"closeIdleConnection": true,
+				"auth-model": "native"
+			}
+		}
+	},
+	"connection-types": {
+		"dev": {
+			"name": "开发",
+			"color": "255,255,255",
+			"description": "常规开发数据库",
+			"auto-commit": true,
+			"confirm-execute": false,
+			"confirm-data-change": false,
+			"smart-commit": false,
+			"smart-commit-recover": true,
+			"auto-close-transactions": true,
+			"close-transactions-period": 1800,
+			"auto-close-connections": true,
+			"close-connections-period": 14400
+		}
+	}
+}

@@ -1,0 +1,841 @@
+{
+    "2000": {
+        "name": "洗髓丹",
+        "desc": "回复状态的20%，凝气境以上可以使用,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 0.2,
+        "buff_type": "hp",
+        "all_num": 999999,
+        "rank": 71,
+        "境界": "凝气境一重",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 6,
+            "3": 6
+        }
+    },
+    "2001": {
+        "name": "养气丹",
+        "desc": "回复状态的25%，聚元境以上可以使用,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 0.25,
+        "buff_type": "hp",
+        "all_num": 999999,
+        "rank": 80,
+        "境界": "聚元境一重",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 12,
+            "3": 12
+        }
+    },
+    "2002": {
+        "name": "九转丹",
+        "desc": "回复状态的30%，归元境以上可以使用,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 0.3,
+        "buff_type": "hp",
+        "all_num": 999999,
+        "rank": 89,
+        "境界": "归元境一重",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 24,
+            "3": 24
+        }
+    },
+    "2003": {
+        "name": "易筋丹",
+        "desc": "回复状态的35%，通玄境以上可以使用,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 0.35,
+        "buff_type": "hp",
+        "all_num": 999999,
+        "rank": 98,
+        "境界": "通玄境一重",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 48,
+            "3": 48
+        }
+    },
+    "2004": {
+        "name": "天尘丹",
+        "desc": "回复状态的40%，踏虚境以上可以使用,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 0.4,
+        "buff_type": "hp",
+        "all_num": 999999,
+        "rank": 107,
+        "境界": "踏虚境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 96,
+            "3": 96
+        }
+    },
+    "2005": {
+        "name": "天元神丹",
+        "desc": "回复状态的45%，天人境以上可以使用,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 0.45,
+        "buff_type": "hp",
+        "all_num": 999999,
+        "rank": 110,
+        "境界": "天人境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 192,
+            "3": 192
+        }
+    },
+    "2006": {
+        "name": "太乙碧莹丹",
+        "desc": "回复状态的50%，悟道境以上可以使用,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 0.5,
+        "buff_type": "hp",
+        "all_num": 999999,
+        "rank": 114,
+        "境界": "悟道境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 384,
+            "3": 384
+        }
+    },
+    "2007": {
+        "name": "六阳长生丹",
+        "desc": "回复状态的60%，炼神境以上可以使用,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 0.6,
+        "buff_type": "hp",
+        "all_num": 999999,
+        "rank": 117,
+        "境界": "炼神境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 768,
+            "3": 768
+        }
+    },
+    "2008": {
+        "name": "道源丹",
+        "desc": "回复全部状态，逆虚境以上可以使用,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 0,
+        "buff_type": "all",
+        "all_num": 999999,
+        "rank": 120,
+        "境界": "逆虚境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 1536,
+            "3": 1536
+        }
+    },
+    "1400": {
+        "name": "筑基丹",
+        "type": "丹药",
+        "rank": 64,
+        "desc": "筑基丹，冲击感气境必备的丹药，使突破到感气境的概率提升30%，只可使用三颗！",
+        "境界": "炼体境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 30,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 2,
+            "4": 2
+        }
+    },
+    "1401": {
+        "name": "聚顶丹",
+        "type": "丹药",
+        "rank": 67,
+        "desc": "聚顶丹，冲击引气境必备的2种丹药之一，使突破到引气境的概率提升20%，只可使用三颗！",
+        "境界": "感气境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 4,
+            "4": 4
+        }
+    },
+    "1402": {
+        "name": "朝元丹",
+        "type": "丹药",
+        "rank": 67,
+        "desc": "朝元丹，冲击引气境必备的2种丹药之一，使突破到引气境的概率提升20%，只可使用三颗！",
+        "境界": "感气境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 8,
+            "4": 8
+        }
+    },
+    "1403": {
+        "name": "锻脉丹",
+        "type": "丹药",
+        "rank": 70,
+        "desc": "锻脉丹，冲击凝气境必备的2种丹药之一，使突破到凝气境的概率提升20%，只可使用三颗！",
+        "境界": "引气境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 12,
+            "4": 12
+        }
+    },
+    "1404": {
+        "name": "护脉丹",
+        "type": "丹药",
+        "rank": 70,
+        "desc": "护脉丹，冲击凝气境必备的2种丹药之一，使突破到凝气境的概率提升20%，只可使用三颗！",
+        "境界": "引气境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 16,
+            "4": 16
+        }
+    },
+    "1405": {
+        "name": "天命淬体丹",
+        "type": "丹药",
+        "rank": 79,
+        "desc": "天命淬体丹，冲击聚元境必备的3种丹药之一，使突破到聚元境的概率提升10%，只可使用三颗！",
+        "境界": "凝气境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 10,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 20,
+            "4": 20
+        }
+    },
+    "1406": {
+        "name": "澄心塑魂丹",
+        "type": "丹药",
+        "rank": 79,
+        "desc": "澄心塑魂丹，冲击聚元境必备的3种丹药之一，使突破到聚元境的概率提升10%，只可使用三颗！",
+        "境界": "凝气境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 10,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 24,
+            "4": 24
+        }
+    },
+    "1407": {
+        "name": "混元仙体丹",
+        "type": "丹药",
+        "rank": 79,
+        "desc": "混元仙体丹，冲击聚元境必备的3种丹药之一，使突破到聚元境的概率提升10%，只可使用三颗！",
+        "境界": "凝气境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 10,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 32,
+            "4": 32
+        }
+    },
+    "1408": {
+        "name": "黑炎丹",
+        "type": "丹药",
+        "rank": 88,
+        "desc": "黑炎丹，冲击归元境必备的2种丹药之一，使突破到归元境的概率提升10%，只可使用三颗！",
+        "境界": "聚元境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 10,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 48,
+            "4": 48
+        }
+    },
+    "1409": {
+        "name": "金血丸",
+        "type": "丹药",
+        "rank": 88,
+        "desc": "金血丸，冲击归元境必备的2种丹药之一，使突破到归元境的概率提升10%，只可使用三颗！",
+        "境界": "聚元境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 10,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 64,
+            "4": 64
+        }
+    },
+    "1410": {
+        "name": "虚灵丹",
+        "type": "丹药",
+        "rank": 97,
+        "desc": "虚灵丹，冲击通玄境必备的2种丹药之一，使突破到通玄境的概率提升10%，只可使用三颗！",
+        "境界": "归元境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 10,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 96,
+            "4": 96
+        }
+    },
+    "1411": {
+        "name": "净明丹",
+        "type": "丹药",
+        "rank": 97,
+        "desc": "净明丹，冲击通玄境必备的2种丹药之一，使突破到通玄境的概率提升10%，只可使用三颗！",
+        "境界": "归元境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 10,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 128,
+            "4": 128
+        }
+    },
+    "1412": {
+        "name": "安神灵液",
+        "type": "丹药",
+        "rank": 106,
+        "desc": "安神灵液，冲击踏虚境必备的2种丹药之一，使突破到踏虚境的概率提升10%，只可使用三颗！",
+        "境界": "通玄境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 10,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 160,
+            "4": 160
+        }
+    },
+    "1413": {
+        "name": "魇龙之血",
+        "type": "丹药",
+        "rank": 106,
+        "desc": "魇龙之血，冲击踏虚境必备的2种丹药之一，使突破到踏虚境的概率提升10%，只可使用三颗！",
+        "境界": "通玄境九重",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 10,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 192,
+            "4": 192
+        }
+    },
+    "1414": {
+        "name": "化劫丹",
+        "type": "丹药",
+        "rank": 109,
+        "desc": "化劫丹，冲击天人境必备的丹药，使突破到天人境的概率提升20%，只可使用三颗！",
+        "境界": "踏虚境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 256,
+            "4": 256
+        }
+    },
+    "1415": {
+        "name": "太上玄门丹",
+        "type": "丹药",
+        "rank": 113,
+        "desc": "太上玄门丹，冲击悟道境必备的丹药，使突破到悟道境的概率提升20%，只可使用三颗！",
+        "境界": "天人境圆满",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 384,
+            "4": 384
+        }
+    },
+    "1416": {
+        "name": "金仙破厄丹",
+        "type": "丹药",
+        "rank": 116,
+        "desc": "金仙破厄丹，冲击炼神境必备的丹药，使突破到炼神境的概率提升20%，只可使用三颗！",
+        "境界": "悟道境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 768,
+            "4": 768
+        }
+    },
+    "1417": {
+        "name": "太乙炼髓丹",
+        "type": "丹药",
+        "rank": 119,
+        "desc": "太乙炼髓丹，冲击逆虚境必备的丹药，使突破到逆虚境的概率提升20%，只可使用三颗！",
+        "境界": "炼神境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 1536,
+            "4": 1536
+        }
+    },
+    "1418": {
+        "name": "合道丹",
+        "type": "丹药",
+        "rank": 122,
+        "desc": "合道丹，冲击合道境必备的丹药，使突破到合道境的概率提升20%，只可使用三颗！",
+        "境界": "逆虚境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 2048,
+            "4": 2048
+        }
+    },
+    "1419": {
+        "name": "虚劫丹",
+        "type": "丹药",
+        "rank": 125,
+        "desc": "虚劫丹，冲击虚劫境必备的丹药，使突破到虚劫境的概率提升20%，只可使用三颗！",
+        "境界": "合道境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 2560,
+            "4": 2560
+        }
+    },
+    "1420": {
+        "name": "极品合道丹",
+        "type": "丹药",
+        "rank": 122,
+        "desc": "极品合道丹，拍卖行仙品炼丹师炼制，使突破到合道境的概率提升80%，只可使用三颗！",
+        "境界": "逆虚境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 80,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 2304,
+            "4": 2304
+        }
+    },
+    "1421": {
+        "name": "极品虚劫丹",
+        "type": "丹药",
+        "rank": 125,
+        "desc": "极品虚劫丹，拍卖行仙品炼丹师炼制，使突破到虚劫境的概率提升40%，只可使用3颗！",
+        "境界": "合道境后期",
+        "buff_type": "level_up_big",
+        "all_num": 3,
+        "buff": 80,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 2816,
+            "4": 2816
+        }
+    },
+    "15151": {
+        "name": "太清玉液丹",
+        "type": "丹药",
+        "buff_type": "level_up_rate",
+        "buff": 2,
+        "price": 100000,
+        "selling": 100,
+        "desc": "使下一次突破成功几率增加2%，虚劫境以上可使用",
+        "境界": "羽化境初期",
+        "status": 1,
+        "quantity": 1,
+        "day_num": 10,
+        "all_num": 100,
+        "rank": 129,
+        "elixir_config": {
+            "2": 9999,
+            "6": 9999
+        }
+    },
+    "15152": {
+        "name": "一气鸿蒙丹",
+        "type": "丹药",
+        "buff_type": "level_up_rate",
+        "buff": 3,
+        "price": 100000,
+        "selling": 100,
+        "desc": "使下一次突破成功几率增加3%，羽化境以上可使用",
+        "境界": "登仙境初期",
+        "status": 1,
+        "quantity": 1,
+        "day_num": 10,
+        "all_num": 100,
+        "rank": 11,
+        "elixir_config": {
+            "2": 9999,
+            "6": 9999
+        }
+    },
+    "15153": {
+        "name": "三纹清灵丹",
+        "type": "丹药",
+        "buff_type": "level_up_rate",
+        "buff": 5,
+        "price": 100000,
+        "selling": 100,
+        "desc": "使下一次突破成功几率增加5%，登仙境以上可使用",
+        "境界": "凡仙境初期",
+        "status": 1,
+        "quantity": 1,
+        "day_num": 10,
+        "all_num": 100,
+        "rank": 8,
+        "elixir_config": {
+            "2": 9999,
+            "6": 9999
+        }
+    },
+    "15100": {
+        "name": "九天蕴仙丹",
+        "type": "丹药",
+        "rank": 128,
+        "desc": "九天蕴仙丹，触及仙道必备的丹药，使突破到羽化境的概率提升20%，只可使用两颗！",
+        "境界": "虚劫境后期",
+        "buff_type": "level_up_big",
+        "all_num": 2,
+        "buff": 20,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 3072,
+            "4": 3072
+        }
+    },
+    "15101": {
+        "name": "羽化登仙丹",
+        "type": "丹药",
+        "rank": 131,
+        "desc": "羽化登仙丹，冲击仙道领域必备的丹药，使突破到登仙境的概率提升15%，只可使用两颗！",
+        "境界": "羽化境后期",
+        "buff_type": "level_up_big",
+        "all_num": 2,
+        "buff": 15,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 3328,
+            "4": 3328
+        }
+    },
+    "15102": {
+        "name": "大道归一丹",
+        "type": "丹药",
+        "rank": 134,
+        "desc": "大道归一丹，向真仙前行必备的丹药，使突破到凡仙境的概率提升15%，只可使用两颗！",
+        "境界": "登仙境后期",
+        "buff_type": "level_up_big",
+        "all_num": 2,
+        "buff": 15,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 3840,
+            "4": 3840
+        }
+    },
+    "15103": {
+        "name": "菩提证道丹",
+        "type": "丹药",
+        "rank": 137,
+        "desc": "菩提证道丹，仙道第一次蜕变必备的丹药，据说其丹方已经彻底失传了...使突破到地仙境的概率提升15%，只可使用一颗！",
+        "境界": "凡仙境后期",
+        "buff_type": "level_up_big",
+        "all_num": 2,
+        "buff": 15,
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 4864,
+            "4": 4864
+        }
+    },
+    "2009": {
+        "name": "摄魂鬼丸",
+        "desc": "使用后可以永久增加720点攻击力",
+        "type": "丹药",
+        "buff": 720,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 71,
+        "境界": "凝气境一重",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 10,
+        "elixir_config": {
+            "2": 6,
+            "6": 6
+        }
+    },
+    "2010": {
+        "name": "化煞魔丸",
+        "desc": "使用后可以永久增加1760点攻击力",
+        "type": "丹药",
+        "buff": 1760,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 80,
+        "境界": "聚元境一重",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 12,
+            "6": 12
+        }
+    },
+    "2011": {
+        "name": "素心真丸",
+        "desc": "使用后可以永久增加4160点攻击力",
+        "type": "丹药",
+        "buff": 4160,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 89,
+        "境界": "归元境一重",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 24,
+            "6": 24
+        }
+    },
+    "2012": {
+        "name": "灭神古丸",
+        "desc": "使用后可以永久增加9600点攻击",
+        "type": "丹药",
+        "buff": 9600,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 98,
+        "境界": "通玄境一重",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 48,
+            "6": 48
+        }
+    },
+    "2013": {
+        "name": "静禅魔丸",
+        "desc": "使用后可以永久增加21760点攻击力",
+        "type": "丹药",
+        "buff": 21760,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 107,
+        "境界": "踏虚境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 96,
+            "6": 96
+        }
+    },
+    "2014": {
+        "name": "地仙玄丸",
+        "desc": "使用后可以永久增加48640点攻击力",
+        "type": "丹药",
+        "buff": 48640,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 110,
+        "境界": "天人境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 192,
+            "6": 192
+        }
+    },
+    "2015": {
+        "name": "消冰宝丸",
+        "desc": "使用后可以永久增加104840点攻击力",
+        "type": "丹药",
+        "buff": 104840,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 114,
+        "境界": "悟道境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 384,
+            "6": 384
+        }
+    },
+    "2016": {
+        "name": "无涯鬼丸",
+        "desc": "使用后可以永久增加304840点攻击力",
+        "type": "丹药",
+        "buff": 304840,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 117,
+        "境界": "炼神境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 768,
+            "6": 768
+        }
+    },
+    "2017": {
+        "name": "太一仙丸",
+        "desc": "使用后可以永久增加604840点攻击力,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 604840,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 120,
+        "境界": "逆虚境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 1536,
+            "6": 1536
+        }
+    },
+    "1998": {
+        "name": "渡厄金丹",
+        "type": "丹药",
+        "buff_type": "level_up",
+        "buff": 0,
+        "price": 100000,
+        "selling": 100,
+        "desc": "使下一次突破丢失的修为减少为0！并且增加一成修为！！",
+        "境界": "天人境初期",
+        "status": 1,
+        "quantity": 1,
+        "rank": 51,
+        "elixir_config": {
+            "2": 9999,
+            "6": 9999
+        }
+    },
+    "2018": {
+        "name": "外道兴奋剂",
+        "desc": "使用后可以永久增加3000000点攻击力,器师可以无视境界限制使用！",
+        "type": "丹药",
+        "buff": 3000000,
+        "buff_type": "atk_buff",
+        "all_num": 999999,
+        "rank": 2,
+        "境界": "合道境初期",
+        "mix_need_time": 60,
+        "mix_exp": 10,
+        "mix_all": 100,
+        "elixir_config": {
+            "2": 9999,
+            "6": 9999
+        }
+    }
+}
