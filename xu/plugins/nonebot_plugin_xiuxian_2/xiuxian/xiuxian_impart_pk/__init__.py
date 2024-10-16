@@ -41,20 +41,20 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_pk_now.finish()
     user_id = user_info['user_id']
     sql_message.update_last_check_info_time(user_id)  # 更新查看修仙信息时间
     impart_data_draw = await impart_pk_check(user_id)
     if impart_data_draw is None:
         msg = f"发生未知错误，多次尝试无果请找晓楠！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_pk_now.finish()
     user_data = impart_pk.find_user_data(user_info['user_id'])
 
     if user_data["pk_num"] <= 0:
         msg = f"道友今日次数耗尽，明天再来吧！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_pk_now.finish()
 
     player_1_stones = 0
@@ -87,7 +87,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent):
 
     combined_msg += f"总计：道友{user_info['user_name']}获得思恋结晶{player_1_stones}颗\n"
 
-    await bot.send_group_msg(group_id=int(send_group_id), message=combined_msg)
+    await bot.send(event=event, message=combined_msg)
     await impart_pk_now.finish()
 
 
@@ -98,7 +98,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent):
     user_type = 5  # 状态0为无事件
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_pk_exp.finish()
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
@@ -107,14 +107,14 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent):
         if int(impart_data_draw['exp_day']) > 0:
             sql_message.in_closing(user_id, user_type)
             msg = f"进入虚神界，开始闭关，余剩虚神界内加速修炼时间：{int(impart_data_draw['exp_day'])}分钟，如需出关，发送【出关】！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await impart_pk_exp.finish()
         else:
             msg = "道友虚神界内修炼余剩时长不足"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await impart_pk_exp.finish()
     else:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_pk_exp.finish()
 
 

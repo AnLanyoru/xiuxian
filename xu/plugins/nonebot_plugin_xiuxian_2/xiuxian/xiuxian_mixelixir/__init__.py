@@ -73,30 +73,30 @@ async def mix_elixir_sqdj_up_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir_sqdj_up.finish()
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
         msg = f"道友还没有洞天福地呢，请发送洞天福地购买吧~"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir_sqdj_up.finish()
     SQDJCONFIG = MIXELIXIRCONFIG['收取等级']
     mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
     now_level = mix_elixir_info['收取等级']
     if now_level >= len(SQDJCONFIG):
         msg = f"道友的收取等级已达到最高等级，无法升级了"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir_sqdj_up.finish()
     next_level_cost = SQDJCONFIG[str(now_level + 1)]['level_up_cost']
     if mix_elixir_info['炼丹经验'] < next_level_cost:
         msg = f"下一个收取等级所需要的炼丹经验为{next_level_cost}点，道友请炼制更多的丹药再来升级吧~"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir_sqdj_up.finish()
     mix_elixir_info['炼丹经验'] = mix_elixir_info['炼丹经验'] - next_level_cost
     mix_elixir_info['收取等级'] = now_level + 1
     save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
     msg = f"道友的收取等级目前为：{mix_elixir_info['收取等级']}级，可以使灵田收获的药材增加{mix_elixir_info['收取等级']}个！"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await mix_elixir_sqdj_up.finish()
 
 
@@ -106,7 +106,7 @@ async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir_dykh_up.finish()
     user_id = user_info['user_id']
     DYKHCONFIG = MIXELIXIRCONFIG['丹药控火']
@@ -114,18 +114,18 @@ async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
     now_level = mix_elixir_info['丹药控火']
     if now_level >= len(DYKHCONFIG):
         msg = f"道友的丹药控火等级已达到最高等级，无法升级了"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir_dykh_up.finish()
     next_level_cost = DYKHCONFIG[str(now_level + 1)]['level_up_cost']
     if mix_elixir_info['炼丹经验'] < next_level_cost:
         msg = f"下一个丹药控火等级所需要的炼丹经验为{next_level_cost}点，道友请炼制更多的丹药再来升级吧~"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir_dykh_up.finish()
     mix_elixir_info['炼丹经验'] = mix_elixir_info['炼丹经验'] - next_level_cost
     mix_elixir_info['丹药控火'] = now_level + 1
     save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
     msg = f"道友的丹药控火等级目前为：{mix_elixir_info['丹药控火']}级，可以使炼丹收获的丹药增加{mix_elixir_info['丹药控火']}个！"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await mix_elixir_dykh_up.finish()
 
 
@@ -135,13 +135,13 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await yaocai_get.finish()
 
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
         msg = f"道友还没有洞天福地呢，请发送洞天福地购买吧~"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await yaocai_get.finish()
     mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
     GETCONFIG = {
@@ -188,14 +188,14 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
                     sql_message.send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
             mix_elixir_info['收取时间'] = nowtime
             save_player_info(user_id, mix_elixir_info, "mix_elixir_info")
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await yaocai_get.finish()
         else:
             user_buff_data = UserBuffDate(user_id).BuffInfo
             next_get_time = round(GETCONFIG['time_cost'] * (1 - (GETCONFIG['加速基数'] * mix_elixir_info['药材速度'])),
                                   2) - timedeff
             msg = f"道友的灵田还不能收取，下次收取时间为：{round(next_get_time, 2)}小时之后"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await yaocai_get.finish()
 
 
@@ -205,7 +205,7 @@ async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await my_mix_elixir_info.finish()
     user_id = user_info['user_id']
     mix_elixir_info = get_player_info(user_id, 'mix_elixir_info')
@@ -231,16 +231,16 @@ async def elixir_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Com
     """炼丹帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
+        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await elixir_help.finish()
     else:
         msg = __elixir_help__
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             cache_help[session_id] = pic
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            await bot.send(event=event, message=MessageSegment.image(pic))
         else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
         await elixir_help.finish()
 
 
@@ -249,7 +249,7 @@ async def mix_elixir_help_(bot: Bot, event: GroupMessageEvent):
     """炼丹配方帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     msg = __mix_elixir_help__
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await mix_elixir_help.finish()
 
 
@@ -263,7 +263,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir.finish()
     user_id = user_info['user_id']
     user_back = sql_message.get_back_msg(user_id)
@@ -281,27 +281,27 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
 
     if user_back is None:
         msg = "道友的背包空空如也，无法炼丹"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir.finish()
 
     if yaocai_dict == {}:
         msg = "道友的背包内没有药材，无法炼丹！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir.finish()
 
     if not user_ldl_flag[user_id]:
         msg = "道友背包内没有炼丹炉，无法炼丹！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir.finish()
 
     msg = "正在生成丹方，请稍候..."
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
 
     yaocai_dict = await make_dict(yaocai_dict)
     finall_mix_elixir_msg = await get_mix_elixir_msg(yaocai_dict)
     if finall_mix_elixir_msg == {}:
         msg = "系统未检测到丹方，道友背包内的药材不满足！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_elixir.finish()
     else:
         ldl_name = sorted(user_ldl_dict[user_id].items(), key=lambda x: x[0], reverse=False)[0][1]
@@ -333,7 +333,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
     matched = re.search(pattern, mode)
     if matched is None:
         msg = f"请输入正确的配方！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await mix_make.finish()
     else:
         zhuyao_name = matched.groups()[0]
@@ -341,47 +341,47 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
         check, zhuyao_goods_id = await check_yaocai_name_in_back(user_id, zhuyao_name, zhuyao_num)
         if not check:
             msg = f"请检查药材：{zhuyao_name} 是否在背包中，或者数量是否足够！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await mix_make.finish()
         yaoyin_name = matched.groups()[2]
         yaoyin_num = int(matched.groups()[3])  # 数量一定会有
         check, yaoyin_goods_id = await check_yaocai_name_in_back(user_id, yaoyin_name, yaoyin_num)
         if not check:
             msg = f"请检查药材：{yaoyin_name} 是否在背包中，或者数量是否足够！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await mix_make.finish()
         fuyao_name = matched.groups()[4]
         fuyao_num = int(matched.groups()[5])
         check, fuyao_goods_id = await check_yaocai_name_in_back(user_id, fuyao_name, fuyao_num)
         if not check:
             msg = f"请检查药材：{fuyao_name} 是否在背包中，或者数量是否足够！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await mix_make.finish()
         if zhuyao_name == fuyao_name:
             check, fuyao_goods_id = await check_yaocai_name_in_back(user_id, fuyao_name, fuyao_num + zhuyao_num)
             if not check:
                 msg = f"请检查药材：{zhuyao_name} 是否在背包中，或者数量是否足够！"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await mix_make.finish()
         if yaoyin_name == fuyao_name:
             check, fuyao_goods_id = await check_yaocai_name_in_back(user_id, fuyao_name, fuyao_num + yaoyin_num)
             if not check:
                 msg = f"请检查药材：{yaoyin_name} 是否在背包中，或者数量是否足够！"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await mix_make.finish()
 
         ldl_name = matched.groups()[6]
         check, ldl_info = await check_ldl_name_in_back(user_id, ldl_name)
         if not check:
             msg = f"请检查炼丹炉：{ldl_name} 是否在背包中！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await mix_make.finish()
         # 检测通过
         zhuyao_info = Items().get_data_by_item_id(zhuyao_goods_id)
         yaoyin_info = Items().get_data_by_item_id(yaoyin_goods_id)
         if await tiaohe(zhuyao_info, zhuyao_num, yaoyin_info, yaoyin_num):  # 调和失败
             msg = f"冷热调和失败！小心炸炉哦~"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await mix_make.finish()
         else:
             elixir_config = {
@@ -438,11 +438,11 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                     mix_elixir_info['炼丹经验'] += (goods_info['mix_exp'] + main_exp) * num
                     msg += f"获得炼丹经验{(goods_info['mix_exp'] + main_exp) * num}点"
                 save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await mix_make.finish()
             else:
                 msg = f"没有炼成丹药哦~就不扣你药材啦"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await mix_make.finish()
 
 
@@ -455,7 +455,7 @@ async def elixir_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await elixir_back.finish()
     user_id = user_info['user_id']
     msg = get_user_elixir_back_msg(user_id)
@@ -472,7 +472,7 @@ async def elixir_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     page = int(page[0])
     if page_all < page != 1:
         msg = "道友的丹药背包没有那么广阔！！！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await elixir_back.finish()
     if len(msg) != 0:
         # 获取页数物品数量
@@ -499,7 +499,7 @@ async def yaocai_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await yaocai_back.finish()
     user_id = user_info['user_id']
     msg = get_user_yaocai_back_msg(user_id)
@@ -516,7 +516,7 @@ async def yaocai_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     page = int(page[0])
     if page_all < page != 1:
         msg = "道友的药材背包没有那么广阔！！！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await yaocai_back.finish()
     if len(msg) != 0:
         # 获取页数物品数量

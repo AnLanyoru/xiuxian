@@ -64,7 +64,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await last_work.finish()
     user_id = user_info['user_id']
     user_level = user_info['level']
@@ -87,7 +87,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         )
         if exp_time < time2:
             msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await last_work.finish()
         else:
             msg, give_stone, s_o_f, item_id, big_suc = workhandle().do_work(
@@ -114,7 +114,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
                     msg += f"，额外获得奖励：{item_msg}!"
                 else:
                     msg += "!"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await last_work.finish()
 
             else:
@@ -127,16 +127,16 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
                         msg += f"，额外获得奖励：{item_msg}!"
                     else:
                         msg += "!"
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                     await last_work.finish()
 
                 else:  # 失败
                     msg += "!"
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                     await last_work.finish()
     else:
         msg = "不满足使用条件！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await last_work.finish()
 
 
@@ -145,7 +145,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await do_work.finish()
     user_id = user_info['user_id']
     sql_message.update_last_check_info_time(user_id)  # 更新查看修仙信息时间
@@ -153,30 +153,30 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
     if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message['type'] == 2:
         sql_message.do_work(user_id, 0)
         msg = "悬赏令已更新，已重置道友的状态！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await do_work.finish()
     mode = args[0]  # 刷新、终止、结算、接取
     user_level = user_info['level']
     if int(user_info['exp']) >= int(OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit:
         # 获取下个境界需要的修为 * 1.5为闭关上限
         msg = "道友的修为已经到达上限，悬赏令已无法再获得经验！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await do_work.finish()
     if user_cd_message['type'] == 1:
         msg = "已经在闭关中，请输入【出关】结束后才能获取悬赏令！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await do_work.finish()
     if user_cd_message['type'] == 3:
         msg = "道友在秘境中，请等待结束后才能获取悬赏令！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await do_work.finish()
     if user_cd_message['type'] == 4:
         msg = "道友还在修炼中，请等待结束后才能获取悬赏令！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await do_work.finish()
     if user_cd_message['type'] == 5:
         msg = "道友还在虚神界修炼中，请等待结束后才能获取悬赏令！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await do_work.finish()
     if user_cd_message['type'] == -1:
         # 赶路检测
@@ -190,7 +190,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
         place_name = Place().get_place_name(move_info["to_id"])
         if pass_time < need_time:
             msg = f"道友现在正在赶往【{place_name}】中！预计还有{need_time - pass_time:.1f}分钟到达目的地！！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await do_work.finish()
         else:  # 移动结算逻辑
             sql_message.do_work(user_id, 0)
@@ -215,7 +215,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                 msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
         else:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await do_work.finish()
 
     if mode == "刷新":  # 刷新逻辑
@@ -229,13 +229,13 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                 msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
             else:
                 msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await do_work.finish()
         usernums = sql_message.get_work_num(user_id)
 
         is_user, user_info, msg = check_user(event)
         if not is_user:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await do_work.finish()
 
         freenum = count - usernums - 1
@@ -257,7 +257,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                 pass
             else:
                 msg = f"道友今日的悬赏令次数已然用尽！！"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await do_work.finish()
 
         work_msg = workhandle().do_work(0, level=user_level, exp=user_info['exp'], user_id=user_id)
@@ -276,7 +276,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
         work[user_id].world = work_list
         sql_message.update_work_num(user_id, usernums + 1)
         msg = work[user_id].msg
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         state["user_id"] = user_info['user_id']  # 将用户信息存储在状态中
 
     elif mode == "终止":
@@ -284,11 +284,11 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
         if is_type:
             sql_message.do_work(user_id, 0)
             msg = f"悬赏令已终止！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await do_work.finish()
         else:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await do_work.finish()
 
     elif mode == "结算":
@@ -306,7 +306,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
             time2 = 0
             if exp_time < time2:
                 msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await do_work.finish()
             else:
                 msg, give_exp, s_o_f, item_id, big_suc = workhandle().do_work(2,
@@ -332,7 +332,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                         msg += f"，额外获得奖励：{item_msg}!"
                     else:
                         msg += "!"
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                     await do_work.finish()
 
                 else:
@@ -345,16 +345,16 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                             msg += f"，额外获得奖励：{item_msg}!"
                         else:
                             msg += "!"
-                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                        await bot.send(event=event, message=msg)
                         await do_work.finish()
 
                     else:  # 失败
                         msg += "!"
-                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                        await bot.send(event=event, message=msg)
                         await do_work.finish()
         else:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await do_work.finish()
 
     elif mode == "接取":
@@ -363,7 +363,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
         if is_type:  # 接取逻辑
             if num is None or str(num) not in ['1', '2', '3']:
                 msg = '请输入正确的任务序号'
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await do_work.finish()
             work_num = 1
             try:
@@ -374,26 +374,26 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                     sql_message.do_work(user_id, 2, get_work[0])
                     del work[user_id]
                     msg = f"接取任务【{get_work[0]}】成功"
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                     await do_work.finish()
 
                 except IndexError:
                     msg = "没有这样的任务"
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                     await do_work.finish()
 
             except KeyError:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await do_work.finish()
         else:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await do_work.finish()
 
     elif mode == "帮助":
         msg = __work_help__
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await do_work.finish()
 
 
@@ -406,7 +406,7 @@ async def get_work_num(bot: Bot, event: GroupMessageEvent, state: T_State):
     if is_type:  # 接取逻辑
         if not num:
             msg = '请输入正确的任务序号'
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await do_work.finish()
         try:
             if work[user_id]:
@@ -416,16 +416,16 @@ async def get_work_num(bot: Bot, event: GroupMessageEvent, state: T_State):
                 sql_message.do_work(user_id, 2, get_work[0])
                 del work[user_id]
                 msg = f"接取任务【{get_work[0]}】成功"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await do_work.finish()
             except IndexError:
                 msg = "没有这样的任务"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await do_work.finish()
                 pass
         except KeyError:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await do_work.finish()
 
 

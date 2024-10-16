@@ -199,7 +199,7 @@ async def save_boss_():
 async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
+        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await boss_help.finish()
     else:
         if str(send_group_id) in groups:
@@ -209,9 +209,9 @@ async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             cache_help[session_id] = pic
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            await bot.send(event=event, message=MessageSegment.image(pic))
         else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
         await boss_help.finish()
 
 
@@ -221,7 +221,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
 
     user_id = user_info['user_id']
@@ -234,7 +234,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     if not isInGroup:  # 不在配置表内
         msg = f"世界Boss暂未开放，敬请期待!"
         sql_message.update_user_stamina(user_id, 60, 1)
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
 
     if boss_num:
@@ -242,7 +242,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     else:
         msg = f"请输入正确的世界Boss编号!"
         sql_message.update_user_stamina(user_id, 60, 1)
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
     bosss = None
     try:
@@ -250,20 +250,20 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     except:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         sql_message.update_user_stamina(user_id, 60, 1)
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
 
     if not bosss:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         sql_message.update_user_stamina(user_id, 60, 1)
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
 
     index = len(group_boss[group_id])
 
     if not (0 < boss_num <= index):
         msg = f"请输入正确的世界Boss编号!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
 
     if user_info['hp'] is None or user_info['hp'] == 0:
@@ -275,7 +275,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         msg = f"重伤未愈，动弹不得！距离脱离危险还需要{time}分钟！\n"
         msg += f"请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
         sql_message.update_user_stamina(user_id, 60, 1)
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
 
     player = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '防御': 0}
@@ -319,7 +319,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     user_rank = convert_rank(userinfo['level'])[0]
     if user_rank - boss_rank >= 12:
         msg = f"道友已是{userinfo['level']}之人，妄图抢小辈的Boss，可耻！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
     boss_old_hp = bossinfo['气血']  # 打之前的血量
     more_msg = ''
@@ -363,7 +363,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await send_msg_handler(bot, event, result)
         except ActionFailed:
             msg += f"Boss战消息发送错误,可能被风控!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
 
     elif victor == "群友赢了":
@@ -410,7 +410,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await send_msg_handler(bot, event, result)
         except ActionFailed:
             msg += f"Boss战消息发送错,可能被风控!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await battle.finish()
 
 
@@ -422,14 +422,14 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
         msg = f"世界Boss暂未开放，敬请期待!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_info.finish()
     bosss = None
     try:
         bosss = group_boss[group_id]
     except:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_info.finish()
 
     msg = args.extract_plain_text().strip()
@@ -437,7 +437,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 
     if not bosss:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_info.finish()
 
     Flag = False  # True查对应Boss
@@ -446,7 +446,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         index = len(group_boss[group_id])
         if not (0 < boss_num <= index):
             msg = f"请输入正确的世界Boss编号!"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await boss_info.finish()
 
         Flag = True
@@ -469,9 +469,9 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             boss_name = boss["name"]
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg, boss_name=boss_name)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            await bot.send(event=event, message=MessageSegment.image(pic))
         else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
         await boss_info.finish()
     else:
         i = 1
@@ -479,7 +479,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             bossmsgs += f"编号{i}、{boss['jj']}Boss:{boss['name']} \n"
             i += 1
         msg = bossmsgs
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_info.finish()
 
 
@@ -494,7 +494,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
     if mode == '开启':
         if isInGroup:
             msg = f"本群已开启世界Boss,请勿重复开启!"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await set_group_boss.finish()
         else:
             info = {
@@ -506,7 +506,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
             config['open'].update(info)
             savef_boss(config)
             msg = f"已开启本群世界Boss!"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await set_group_boss.finish()
 
     elif mode == '关闭':
@@ -517,11 +517,11 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
                 pass
             savef_boss(config)
             msg = f"已关闭本群世界Boss!"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await set_group_boss.finish()
         else:
             msg = f"本群未开启世界Boss!"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await set_group_boss.finish()
 
     elif mode == '':
@@ -529,11 +529,11 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
             msg = __boss_help__ + f"非指令:1、拥有定时任务:每{groups[str(send_group_id)]['hours']}小时{groups[str(send_group_id)]['minutes']}分钟生成一只随机大境界的世界Boss"
         else:
             msg = __boss_help__
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await set_group_boss.finish()
     else:
         msg = f"请输入正确的指令:世界boss开启或关闭!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await set_group_boss.finish()
 
 
@@ -543,14 +543,14 @@ async def boss_integral_info_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_integral_info.finish()
 
     user_id = user_info['user_id']
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
         msg = f"世界Boss暂未开放，敬请期待!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_integral_info.finish()
 
     user_boss_fight_info = get_user_boss_fight_info(user_id)
@@ -574,7 +574,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_integral_use.finish()
 
     user_id = user_info['user_id']
@@ -584,7 +584,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
     is_in_group = isInGroups(event)
     if not is_in_group:
         msg = f"世界Boss暂未开放，敬请期待!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_integral_use.finish()
 
     if shop_info:
@@ -592,7 +592,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
         quantity = int(shop_info[0][1]) if shop_info[0][1] else 1
     else:
         msg = f"请输入正确的商品编号！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_integral_use.finish()
 
     boss_integral_shop = config['世界积分商品']
@@ -608,14 +608,14 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
                 break
     else:
         msg = f"世界积分商店内空空如也！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_integral_use.finish()
     if is_in:
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         total_cost = cost * quantity
         if user_boss_fight_info['boss_integral'] < total_cost:
             msg = f"道友的世界积分不满足兑换条件呢"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await boss_integral_use.finish()
         else:
             user_boss_fight_info['boss_integral'] -= total_cost
@@ -623,11 +623,11 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
             item_info = Items().get_data_by_item_id(item_id)
             sql_message.send_back(user_id, item_id, item_info['name'], item_info['type'], quantity)  # 兑换指定数量
             msg = f"道友成功兑换获得：{item_info['name']}{quantity}个"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await boss_integral_use.finish()
     else:
         msg = f"该编号不在商品列表内哦，请检查后再兑换"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await boss_integral_use.finish()
 
 

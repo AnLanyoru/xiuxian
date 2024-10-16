@@ -49,7 +49,7 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
     user_type = 4  # 状态4为修炼中
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await exp_up.finish()
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
@@ -57,13 +57,13 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
         if msg == "道友正在修炼中，请抱元守一，聚气凝神，勿要分心！\n若是调用修炼看到此消息，道友大概率需要：\n【停止修炼】！！！":
             pass
         else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await exp_up.finish()
     sql_message.in_closing(user_id, user_type)  # 进入修炼状态
     exp_time = 6  # 闭关时长计算(分钟) = second // 60
     sleep_time = exp_time * 10
     msg = f"\n{user_info['user_name']}道友开始屏息凝神，感受道韵流动，进入{int(sleep_time)}秒修炼"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await asyncio.sleep(sleep_time)
     user_mes = sql_message.get_user_info_with_id(user_id)  # 获取用户信息
     level = user_mes['level']
@@ -111,7 +111,7 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
                                                          int(exp * mp_speed))
         sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
         msg = f"\n{user_mes['user_name']}道友修炼结束，本次修炼触及瓶颈，共增加修为：{number_to(user_get_exp_max)}{result_msg[0]}{result_msg[1]}"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await exp_up.finish()
     else:
         sql_message.in_closing(user_id, user_type)
@@ -121,7 +121,7 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
                                                          int(exp * mp_speed))
         sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
         msg = f"\n{user_mes['user_name']}道友修炼结束，本次修炼增加修为：{number_to(exp)}{result_msg[0]}{result_msg[1]}"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await exp_up.finish()
 
 
@@ -132,7 +132,7 @@ async def exp_up_end_(bot: Bot, event: GroupMessageEvent):
     user_type = 0  # 状态为空闲
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await exp_up_end.finish()
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 4)
@@ -141,7 +141,7 @@ async def exp_up_end_(bot: Bot, event: GroupMessageEvent):
         msg = "道友收敛心神，停止了修炼。"
     else:
         msg = "道友现在没在修炼呢！！"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await exp_up_end.finish()
 
 
@@ -151,9 +151,9 @@ async def all_end_(bot: Bot, event: GroupMessageEvent, state: T_State):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await all_end.finish()
-    await bot.send_group_msg(group_id=int(send_group_id), message="正在申请测试用重置状态，请在10秒内输入后台获取的代码")
+    await bot.send(event=event, message="正在申请测试用重置状态，请在10秒内输入后台获取的代码")
     key = ""
     key_pre = "qwert-yuioppppp-asdffghjk-llzxcvb-nm12345-67890"
     for e in range(20):
@@ -177,11 +177,11 @@ async def all_end_(bot: Bot, event: GroupMessageEvent, state: T_State):
     user_id = user_info['user_id']
     if input_key == state["key"]:
         sql_message.in_closing(user_id, 0)  # 重置状态
-        await bot.send_group_msg(group_id=int(send_group_id), message="成功重置道友的状态！！！")
+        await bot.send(event=event, message="成功重置道友的状态！！！")
         await all_end.finish()
     else:
         msg = "密钥错误！！请不要随意调用调试接口！！！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await all_end.finish()
 
 
@@ -191,12 +191,12 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await world_rank_up.finish()
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
     if not is_type:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await world_rank_up.finish()
 
     else:
@@ -204,7 +204,7 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
         now_world = Place().get_world_id(now_place)
         if now_world == 3:
             msg = "神域之上，谜团重重，敬请期待！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await world_rank_up.finish()
         next_world = now_world + 1
         user_rank = convert_rank(user_info["level"])[0]
@@ -216,10 +216,10 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
             msg = (f"道友修为超凡，已然足矣踏破虚空离开【{now_world_name}】前往【{next_world_name}】"
                    f"\n注意：突破位面后将不可回到【{now_world_name}】，确认踏破虚空请回复我：确认飞升")
             state["world_up"] = next_world
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
         else:
             msg = f"道友修为暂且不达离开【{now_world_name}】的最低要求{need_level}，还不足矣踏破虚空离开【{now_world_name}】!!!!"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await world_rank_up.finish()
 
 
@@ -242,7 +242,7 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
         msg = f"恭喜大能{user_name}踏破虚空离开【{now_world_name}】，前往【{next_world_name}:{next_place_name}】！！！！"
     else:
         msg = "回答有误，取消飞升！！"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await world_rank_up.finish()
 
 
@@ -252,7 +252,7 @@ async def power_break_up_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await power_break_up.finish()
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
@@ -264,7 +264,7 @@ async def power_break_up_(bot: Bot, event: GroupMessageEvent):
         power = limit_dict[user_id].is_get_gift['world_power']
         if power == 0:
             msg = "道友体内没有天地精华！！！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await power_break_up.finish()
         user_rank = convert_rank(user_info['level'])[0] + 1
         exp_time = power
@@ -291,7 +291,7 @@ async def power_break_up_(bot: Bot, event: GroupMessageEvent):
         limit_dict[user_id].is_get_gift['world_power'] = 0
     else:
         pass
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await power_break_up.finish()
 
 
@@ -301,7 +301,7 @@ async def power_break_up_help_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await power_break_up_help.finish()
     user_id = user_info['user_id']
     try:
@@ -311,7 +311,7 @@ async def power_break_up_help_(bot: Bot, event: GroupMessageEvent):
     power = limit_dict[user_id].is_get_gift['world_power']
     msg = (f"道友体内拥有天地精华：{power}\n天地精华由使用天地奇物获得\n可以发送 吸收天地精华 将体内天地精华吸收！！\n增加少许修为与突破概率"
            f"\n天地精华还是练就顶级神通的必备能量！！\n请尽快使用天地精华，否则天地精华将会归于天地之间！！！")
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await power_break_up_help.finish()
 
 
@@ -321,10 +321,10 @@ async def active_gift_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await active_gift.finish()
     msg = f"国庆已经结束啦！！明年国庆再来吧！"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await active_gift.finish()
 
 

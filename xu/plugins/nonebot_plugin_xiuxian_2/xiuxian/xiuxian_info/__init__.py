@@ -67,7 +67,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent, args: Message = C
         args = None
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await xiuxian_message.finish()
     user_id = user_info['user_id']
     user_info = sql_message.get_user_real_info(user_id)
@@ -181,4 +181,4 @@ ID: {user_id}
 修为排行: 道友的修为排在第{int(user_rank)}位
 灵石排行: 道友的灵石排在第{int(user_stone)}位
 """
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)

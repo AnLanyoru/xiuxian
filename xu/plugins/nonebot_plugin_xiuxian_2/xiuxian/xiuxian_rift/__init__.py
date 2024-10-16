@@ -101,11 +101,11 @@ async def rift_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
     """秘境帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
+        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await rift_help.finish()
     else:
         msg = __rift_help__
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await rift_help.finish()
 
 
@@ -147,14 +147,14 @@ async def _(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await explore_rift.finish()
 
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)  # 需要无状态的用户
     if not is_type:
         sql_message.update_user_stamina(user_id, 240, 1)
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await explore_rift.finish()
     else:
         place_id = Place().get_now_place_id(user_id)
@@ -166,7 +166,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         except KeyError:
             msg = f'道友所在位面【{world_name}】尚未有秘境出世，请道友耐心等待!'
             sql_message.update_user_stamina(user_id, 240, 1)
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await explore_rift.finish()
         if place_id == world_rift[world_id].place:
             msg = f"道友进入秘境：{world_rift[world_id].name}，探索需要花费体力240点！！，余剩体力{user_info['user_stamina']}/2400！"
@@ -178,13 +178,13 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
             save_rift_data(user_id, rift_data)
             sql_message.do_work(user_id, 3, rift_data["time"])
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await explore_rift.finish()
         else:
             far, start_place, to_place = Place().get_distance(place_id, world_rift[world_id].place)
             sql_message.update_user_stamina(user_id, 240, 1)
             msg = f"道友所在位置没有秘境出世，当前位面【{world_name}】的秘境【{world_rift[world_id].name}】在距你{far:.1f}万里的：【{to_place}】，"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await explore_rift.finish()
 
 
@@ -194,14 +194,14 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await complete_rift.finish()
 
     user_id = user_info['user_id']
 
     is_type, msg = check_user_type(user_id, 3)  # 需要在秘境的用户
     if not is_type:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await complete_rift.finish()
     else:
         rift_info = None
@@ -210,29 +210,29 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
         except:
             msg = '发生未知错误！'
             sql_message.do_work(user_id, 0)
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await complete_rift.finish()
         sql_message.do_work(user_id, 0)
         rift_rank = rift_info["rank"]  # 秘境等级
         rift_type = get_story_type()  # 无事、宝物、战斗
         if rift_type == "无事":
             msg = random.choice(NONEMSG)
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await complete_rift.finish()
         elif rift_type == "战斗":
             rift_type = get_battle_type()
             if rift_type == "掉血事件":
                 msg = get_dxsj_info("掉血事件", user_info)
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await complete_rift.finish()
             elif rift_type == "Boss战斗":
                 result, msg = await get_boss_battle_info(user_info, rift_rank, bot.self_id)
                 await send_msg_handler(bot, event, result)
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await complete_rift.finish()
         elif rift_type == "宝物":
             msg = get_treasure_info(user_info, rift_rank)
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await complete_rift.finish()
 
 

@@ -40,13 +40,13 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await get_map.finish()
     user_id = user_info['user_id']
 
     is_type, msg = check_user_type(user_id, 0)  # 需要空闲的用户
     if not is_type:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await complete_move.finish()
     msg_text = args.extract_plain_text()
     start_id = Place().get_now_place_id(user_id)
@@ -59,7 +59,7 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
         place_id = int(num[0])
     if place_id is None:
         msg = "请输入正确的地点或地点id！！！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await go_to.finish()
     far, name_1, name_2 = Place().get_distance(start_id, place_id)
     if far == "unachievable":
@@ -79,7 +79,7 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
         sql_message.do_work(user_id, -1, need_time)
         msg = f"道友开始从【{name_1}】移动至【{name_2}】, 距离约：{far:.1f}万里, 预计耗时{need_time:.1f}分钟！"
 
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await go_to.finish()
 
 
@@ -89,7 +89,7 @@ async def stop_move_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await stop_move.finish()
 
     user_id = user_info['user_id']
@@ -100,7 +100,7 @@ async def stop_move_(bot: Bot, event: GroupMessageEvent):
         sql_message.do_work(user_id, 0)
     else:
         pass
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await stop_move.finish()
 
 
@@ -110,14 +110,14 @@ async def complete_move_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await complete_move.finish()
 
     user_id = user_info['user_id']
 
     is_type, msg = check_user_type(user_id, int(-1))  # 需要在移动中的用户
     if not is_type:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await complete_move.finish()
     else:
         user_cd_message = sql_message.get_user_cd(user_id)
@@ -130,14 +130,14 @@ async def complete_move_(bot: Bot, event: GroupMessageEvent):
         place_name = Place().get_place_name(move_info["to_id"])
         if pass_time < need_time:
             msg = f"向【{place_name}】的移动，预计{need_time - pass_time:.1f}分钟后可结束"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await complete_move.finish()
         else:  # 移动结算逻辑
             sql_message.do_work(user_id, 0)
             place_id = move_info["to_id"]
             Place().set_now_place_id(user_id, place_id)
             msg = f"道友雷厉风行，成功到达【{place_name}】！"
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
             await complete_move.finish()
 
 
@@ -146,7 +146,7 @@ async def get_map_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await get_map.finish()
     user_id = user_info['user_id']
     user_cd_message = sql_message.get_user_cd(user_id)
@@ -166,5 +166,5 @@ async def get_map_(bot: Bot, event: GroupMessageEvent):
         else:
             pass
     msg += "——————————\ntips: 发送【前往】+【目的地ID】来进行移动哦"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await get_map.finish()

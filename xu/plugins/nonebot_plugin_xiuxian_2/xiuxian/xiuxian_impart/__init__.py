@@ -85,11 +85,11 @@ async def impart_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Com
     """传承帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
+        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await impart_help.finish()
     else:
         msg = __impart_help__
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_help.finish()
 
 
@@ -105,7 +105,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         pass
     except KeyError:
         msg = f"没有找到此卡图！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_img.finish()
     msg = f"\n传承卡图：{img_name}\n效果：\n"
     if all_data[x]["type"] == "impart_two_exp":
@@ -130,7 +130,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         msg += "灵田收取数量增加：" + str(all_data[x]["vale"])
     else:
         pass
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await impart_img.finish()
 
 
@@ -140,7 +140,7 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_draw_fast.finish()
 
     user_id = user_info['user_id']
@@ -153,16 +153,16 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
         msg = f"发生未知错误，多次尝试无果请找晓楠！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_draw_fast.finish()
     if impart_data_draw['stone_num'] < num:
         msg = f"道友思恋结晶不足{num}个！！无法进行{num}次抽卡!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_draw_fast.finish()
 
     if 100 < num:
         msg = f"{num}次抽卡也太多拉！！100次100次慢慢来吧！！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_draw_fast.finish()
     else:
         time_count = 0
@@ -208,7 +208,7 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
         msg += f"累计共获得{all_time}分钟余剩虚神界内闭关时间!\n"
         msg += f"抽卡{10 * num}次结果如下：\n{card_all}5分钟虚神界闭关时间 X{none_count}\n"
         await re_impart_data(user_id)
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_draw_fast.finish()
 
 
@@ -218,18 +218,18 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_draw.finish()
 
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
         msg = f"发生未知错误，多次尝试无果请找晓楠！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_draw.finish()
     if impart_data_draw['stone_num'] < 1:
         msg = f"道友没有思恋结晶,无法抽卡!"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_draw.finish()
     else:
         if get_rank(user_id):
@@ -239,7 +239,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 reap_img = random.choice(img_list)
             except:
                 msg = f"请检查卡图数据完整！"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await impart_draw.finish()
             list_tp = []
             if impart_data_json.data_person_add(user_id, reap_img):
@@ -250,10 +250,10 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 msg += f"累计共获得90分钟余剩虚神界内闭关时间!\n"
                 msg += f"抽卡10次结果如下:\n{reap_img}\n5分钟虚神界闭关时间*9\n"
                 try:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                 except ActionFailed:
                     msg = f"未知原因，抽卡失败!"
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                     await impart_draw.finish()
                 xiuxian_impart.add_impart_exp_day(90, user_id)
                 xiuxian_impart.update_stone_num(1, user_id, 2)
@@ -267,10 +267,10 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 msg += f"累计共获得45分钟余剩虚神界内闭关时间!\n"
                 msg += f"抽卡10次结果如下：\n新的传承卡片{reap_img}\n5分钟虚神界闭关时间*9\n"
                 try:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                 except ActionFailed:
                     msg = f"消息发送失败，抽卡失败!"
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                     await impart_draw.finish()
                 xiuxian_impart.add_impart_exp_day(45, user_id)
                 xiuxian_impart.update_stone_num(1, user_id, 2)
@@ -284,10 +284,10 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
             msg += f"累计共获得50分钟余剩虚神界内闭关时间!\n"
             msg += f"抽卡10次结果如下!\n5分钟虚神界闭关时间*10\n——tips——\n如果思恋结晶太多的话，可以连续抽卡！！\n"
             try:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
             except ActionFailed:
                 msg = f"未知原因，抽卡失败!"
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await bot.send(event=event, message=msg)
                 await impart_draw.finish()
             xiuxian_impart.add_impart_exp_day(50, user_id)
             xiuxian_impart.update_stone_num(1, user_id, 2)
@@ -301,13 +301,13 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_back.finish()
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
         msg = f"发生未知错误，多次尝试无果请找晓楠！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_back.finish()
 
     msg = ""
@@ -337,10 +337,10 @@ boss战攻击提升:{int(impart_data_draw['boss_atk'] * 100)}%
     for x in range(len(img_tp)):
         msg += str(img_tp[x]) + "\n"
     try:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
     except ActionFailed:
         msg = f"获取传承背包数据失败！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_back.finish()
     await impart_back.finish()
 
@@ -351,13 +351,13 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await re_impart_load.finish()
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
         msg = f"发生未知错误，多次尝试无果请找晓楠！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await re_impart_load.finish()
     # 更新传承数据
     info = await re_impart_data(user_id)
@@ -365,7 +365,7 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
         msg = f"传承数据加载完成！"
     else:
         msg = f"传承数据加载失败！"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await re_impart_load.finish()
 
 
@@ -375,13 +375,13 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_info.finish()
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
         msg = f"发生未知错误，多次尝试无果请找晓楠！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await impart_info.finish()
     img_tp = impart_data_json.data_person_list(user_id)
     msg = f"""--道友{user_info['user_name']}的传承物资--
@@ -390,5 +390,5 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
 传承卡图数量：{len(img_tp)}/108
 余剩虚神界内闭关时间：{impart_data_draw['exp_day']}分钟
     """
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await impart_info.finish()

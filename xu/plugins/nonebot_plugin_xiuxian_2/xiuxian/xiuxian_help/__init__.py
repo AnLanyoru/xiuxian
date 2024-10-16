@@ -96,7 +96,7 @@ async def sect_help_(bot: Bot, event: GroupMessageEvent):
     """宗门帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     msg = __sect_help__
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await sect_help.finish()
 
 
@@ -114,7 +114,7 @@ async def sect_help_control_(bot: Bot, event: GroupMessageEvent):
 ———tips———
 每日{config["发放宗门资材"]["时间"]}点发放{config["发放宗门资材"]["倍率"]}倍对应宗门建设度的资材
 """
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await sect_help_control.finish()
 
 
@@ -142,7 +142,7 @@ async def sect_help_owner_(bot: Bot, event: GroupMessageEvent):
 ———tips———
 每日{config["发放宗门资材"]["时间"]}点发放{config["发放宗门资材"]["倍率"]}倍对应宗门建设度的资材
 """
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await sect_help_owner.finish()
 
 
@@ -184,7 +184,7 @@ async def sect_help_member_(bot: Bot, event: GroupMessageEvent):
 宗门任务获得修为上限分别为：
 {jsondata.sect_config_data()[str(0)]["max_exp"]}|{jsondata.sect_config_data()[str(1)]["max_exp"]}|{jsondata.sect_config_data()[str(2)]["max_exp"]}|{jsondata.sect_config_data()[str(3)]["max_exp"]}|{jsondata.sect_config_data()[str(4)]["max_exp"]}
 """
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await sect_help_member.finish()
 
 
@@ -193,7 +193,7 @@ async def buff_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
     """功法帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     msg = __buff_help__
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await buff_help.finish()
 
 
@@ -202,5 +202,5 @@ async def buff_home_(bot: Bot, event: GroupMessageEvent):
     """灵田帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     msg = __home_help__
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await buff_home.finish()

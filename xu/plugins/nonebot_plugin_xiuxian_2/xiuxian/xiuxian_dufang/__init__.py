@@ -33,14 +33,14 @@ dufang_help = on_command("金银阁帮助", permission=GROUP, priority=7, block=
 async def dufang_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
+        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await dufang_help.finish()
     else:
         msg = __dufang_help__
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             cache_help[session_id] = pic
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            await bot.send(event=event, message=MessageSegment.image(pic))
         else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
         await dufang_help.finish()

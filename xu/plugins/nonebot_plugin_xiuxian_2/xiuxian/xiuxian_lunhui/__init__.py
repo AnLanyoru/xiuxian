@@ -60,16 +60,16 @@ async def warring_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Co
     """轮回重修帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help_fk:
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help_fk[session_id]))
+        await bot.send(event=event, message=MessageSegment.image(cache_help_fk[session_id]))
         await warring_help.finish()
     else:
         msg = __warring_help__
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             cache_help_fk[session_id] = pic
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            await bot.send(event=event, message=MessageSegment.image(pic))
         else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send(event=event, message=msg)
         await warring_help.finish()
 
 
@@ -78,7 +78,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await lunhui.finish()
 
     user_id = user_info['user_id']
@@ -90,22 +90,22 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
 
     if user_root == '轮回灵根':
         msg = "道友已是轮回之身！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await lunhui.finish()
 
     if user_root == '源宇道根':
         msg = "道友已然感悟源宇之秘！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await lunhui.finish()
     if user_root == '道之本源':
         msg = "道友已然触及道之本源！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await lunhui.finish()
     is_type, msg = check_user_type(user_id, 0)
     if is_type:
         pass
     else:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await lunhui.finish()
 
     if list_level_all.index(level) >= list_level_all.index(XiuConfig().lunhui_min_level):
@@ -119,11 +119,11 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         savef(user_id, json.dumps({}, ensure_ascii=False))
         sql_message.update_root(user_id, 6)  # 更换轮回灵根
         msg = f"数世轮回磨不灭，重回绝颠谁能敌，恭喜大能{user_name}轮回成功！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await lunhui.finish()
     else:
         msg = f"道友境界未达要求，进入轮回的最低境界为{XiuConfig().lunhui_min_level}"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await lunhui.finish()
 
 
@@ -132,7 +132,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await twolun.finish()
 
     user_id = user_info['user_id']
@@ -144,22 +144,22 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
 
     if user_root == '源宇道根':
         msg = "道友已然感悟源宇之秘！！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await twolun.finish()
     if user_root == '道之本源':
         msg = "道友已然触及道之本源！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await twolun.finish()
 
     if user_root != '轮回灵根':
         msg = "道友还未轮回过，请先进入轮回！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await twolun.finish()
     is_type, msg = check_user_type(user_id, 0)
     if is_type:
         pass
     else:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await twolun.finish()
 
     if list_level_all.index(level) >= list_level_all.index(XiuConfig().twolun_min_level) and user_root == '轮回灵根':
@@ -173,11 +173,11 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         savef(user_id, json.dumps({}, ensure_ascii=False))
         sql_message.update_root(user_id, 7)  # 更换轮回灵根
         msg = f"求道散尽半仙躯，堪能窥得源宇秘，恭喜大能{user_name}成功感悟源宇之秘！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await twolun.finish()
     else:
         msg = f"道友境界未达要求，感悟源宇之秘的最低境界为{XiuConfig().twolun_min_level}！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await twolun.finish()
 
 
@@ -186,7 +186,7 @@ async def threelun_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await threelun.finish()
 
     user_id = user_info['user_id']
@@ -198,18 +198,18 @@ async def threelun_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
 
     if user_root == '道之本源':
         msg = "道友已然触及道之本源！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await threelun.finish()
 
     if user_root != '源宇道根':
         msg = "道友根基未牢，请先感悟源宇之秘！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await threelun.finish()
     is_type, msg = check_user_type(user_id, 0)
     if is_type:
         pass
     else:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await threelun.finish()
 
     if list_level_all.index(level) >= list_level_all.index(
@@ -224,11 +224,11 @@ async def threelun_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
         savef(user_id, json.dumps({}, ensure_ascii=False))
         sql_message.update_root(user_id, 8)  # 更换灵根
         msg = f"帝蕴浸灭求一道，触及本源登顶峰，恭喜大能{user_name}成功感悟道之本源！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await threelun.finish()
     else:
         msg = f"道友境界未达要求，感悟道之本源的最低境界为{XiuConfig().threelun_min_level}！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await threelun.finish()
 
 
@@ -237,7 +237,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await resetting.finish()
 
     user_id = user_info['user_id']
@@ -252,11 +252,11 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         sql_message.update_j_exp(user_id, now_exp)  # 重置用户修为
         sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
         msg = f"{user_name}现在是一介凡人了！！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await resetting.finish()
     else:
         msg = f"道友境界未达要求，仅有练体境可自废修为！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await resetting.finish()
 
 
@@ -265,9 +265,9 @@ async def gettest_(bot: Bot, event: GroupMessageEvent, state: T_State):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await gettest.finish()
-    await bot.send_group_msg(group_id=int(send_group_id), message="正在申请测试用灵石，请在10秒内输入后台获取的代码")
+    await bot.send(event=event, message="正在申请测试用灵石，请在10秒内输入后台获取的代码")
     key = ""
     key_pre = "qwert-yuioppppp-asdffghjk-llzxcvb-nm12345-67890"
     for e in range(20):
@@ -288,11 +288,11 @@ async def gettest_(bot: Bot, event: GroupMessageEvent, state: T_State):
         user_name = user_msg['user_name']
         sql_message.update_ls(user_id, int(100000000000000), 1)
         msg = f"{user_name}获取灵石成功，共获取100000000000000 | {number_to(100000000000000)}枚灵石，别嫌少肯定够用了"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await gettest.finish()
     else:
         msg = "密钥错误！！请不要随意调用调试接口！！！"
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await gettest.finish()
 
 
@@ -301,7 +301,7 @@ async def timeback_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await timeback.finish()
     print("连接数据库中")
     conn = sqlite3.connect(Path() / "data" / "xiuxian" / "xiuxian.db")
@@ -320,7 +320,7 @@ async def timeback_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
     conn.commit()
     conn.close()
     msg = f"{user_name}逆转时间，让世界对你的记忆回到过去！！！"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await timeback.finish()
 
 
@@ -329,7 +329,7 @@ async def time_set_now_(bot: Bot, event: GroupMessageEvent, session_id: int = Co
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await bot.send(event=event, message=msg)
         await time_set_now.finish()
     sql_message.sign_remake()
     sql_message.day_num_reset()
@@ -340,5 +340,5 @@ async def time_set_now_(bot: Bot, event: GroupMessageEvent, session_id: int = Co
     sql_message.sect_task_reset()
     sql_message.sect_elixir_get_num_reset()
     msg = f"逆转时空，让一切重置次数！！！"
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await bot.send(event=event, message=msg)
     await time_set_now.finish()
