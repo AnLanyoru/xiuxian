@@ -69,7 +69,7 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
         msg = f"道友已在【{name_1}】！！"
 
     else:
-        need_time = far / (convert_rank(user_info["level"])[0] + 60) * 60 * 10
+        need_time = far / (convert_rank(user_info["level"])[0] + 60) * 60  # * 10
         move_data = {
             "start_id": start_id,
             "to_id": place_id,

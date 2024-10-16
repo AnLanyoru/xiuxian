@@ -5,6 +5,7 @@ from ..xiuxian_utils.item_json import Items
 
 sql_message = XiuxianDateManage()  # sql类
 
+
 class workhandle(XiuxianJsonDate):
 
     def do_work(self, key, work_list=None, name=None, level="求道者", exp=None, user_id=None):

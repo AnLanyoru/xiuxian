@@ -30,7 +30,7 @@ refreshnum: Dict[str, int] = {}  # 用户悬赏令刷新次数记录
 sql_message = XiuxianDateManage()  # sql类
 items = Items()
 lscost = 1000000000  # 刷新灵石消耗
-count = 3  # 免费次数
+count = 10  # 免费次数
 
 # 重置悬赏令刷新次数（已改被动）
 # @resetrefreshnum.scheduled_job("cron", hour=3, minute=0)
@@ -303,6 +303,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                 key=1, name=user_cd_message['scheduled_time'], level=user_level, exp=user_info['exp'],
                 user_id=user_info['user_id']
             )
+            time2 = 0
             if exp_time < time2:
                 msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
