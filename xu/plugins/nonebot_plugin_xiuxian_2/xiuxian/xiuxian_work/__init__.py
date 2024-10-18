@@ -30,7 +30,7 @@ refreshnum: Dict[str, int] = {}  # 用户悬赏令刷新次数记录
 sql_message = XiuxianDateManage()  # sql类
 items = Items()
 lscost = 1000000000  # 刷新灵石消耗
-count = 10  # 免费次数
+count = 9  # 免费次数
 
 # 重置悬赏令刷新次数（已改被动）
 # @resetrefreshnum.scheduled_job("cron", hour=3, minute=0)
@@ -200,7 +200,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
     if mode is None:  # 接取逻辑
         if (user_cd_message['scheduled_time'] is None) or (user_cd_message['type'] == 0):
             try:
-                msg = work[user_id].msg
+                msg = work[user_id].msg + "\n——————————————\n使用 悬赏令接取【序号】 接取对应悬赏令！"
             except KeyError:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
         elif user_cd_message['type'] == 2:
@@ -268,16 +268,16 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
             work_list.append([i[0], i[3]])
             work_msg_f += f"{n}、{get_work_msg(i)}"
             n += 1
-        work_msg_f += f"(悬赏令每日次数：{count}, 今日余剩新次数：{freenum}次)\n——————————————\n在10秒内直接回复我需要接取的悬赏令序号快速接取对应悬赏令！"
+        work_msg_f += f"(悬赏令每日次数：{count}, 今日余剩新次数：{freenum}次)"
         if item_use:
             work_msg_f += f"\n道友消耗悬赏衙牌一枚，成功刷新悬赏令，余剩衙牌{goods_num - 1}枚。"
+        else:
+            sql_message.update_work_num(user_id, usernums + 1)
         work[user_id] = do_is_work(user_id)
         work[user_id].msg = work_msg_f
         work[user_id].world = work_list
-        sql_message.update_work_num(user_id, usernums + 1)
-        msg = work[user_id].msg
+        msg = work[user_id].msg + "\n——————————————\n在10秒内直接回复我需要接取的悬赏令序号快速接取对应悬赏令！"
         await bot.send(event=event, message=msg)
-        state["user_id"] = user_info['user_id']  # 将用户信息存储在状态中
 
     elif mode == "终止":
         is_type, msg = check_user_type(user_id, 2)  # 需要在悬赏令中的用户
@@ -362,7 +362,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
         is_type, msg = check_user_type(user_id, 0)  # 需要无状态的用户
         if is_type:  # 接取逻辑
             if num is None or str(num) not in ['1', '2', '3']:
-                msg = '请输入正确的任务序号'
+                msg = '请输入正确的任务序号，悬赏令接取后直接接数字，不要用空格隔开！'
                 await bot.send(event=event, message=msg)
                 await do_work.finish()
             work_num = 1
@@ -401,7 +401,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
 async def get_work_num(bot: Bot, event: GroupMessageEvent, state: T_State):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     num = get_num_from_str(event.get_plaintext())
-    user_id = state["user_id"]
+    user_id = event.user_id
     is_type, msg = check_user_type(user_id, 0)  # 需要无状态的用户
     if is_type:  # 接取逻辑
         if not num:
@@ -409,6 +409,7 @@ async def get_work_num(bot: Bot, event: GroupMessageEvent, state: T_State):
             await bot.send(event=event, message=msg)
             await do_work.finish()
         try:
+            work_num = 1
             if work[user_id]:
                 work_num = int(num[0])  # 任务序号
             try:

@@ -1059,7 +1059,7 @@ async def gm_command_miss_(bot: Bot, event: GroupMessageEvent, args: Message = C
         await bot.send(event=event, message=msg)
         await gm_command_miss.finish()
     elif command_target == "all":
-        sql_message.update_ls_all(give_stone_num)
+        xiuxian_impart.update_impart_stone_all(give_stone_num)
         msg = f"赠送所有用户{give_stone_num}思恋结晶,请注意查收！"
         await bot.send(event=event, message=msg)
     else:

@@ -102,7 +102,7 @@ def check_user_type(user_id, need_type):
                 sql_message.do_work(user_id, 0)
                 place_id = move_info["to_id"]
                 Place().set_now_place_id(user_id, place_id)
-                isType = True
+                msg = f"道友成功抵达【{place_name}】！！！"
 
     return isType, msg
 
@@ -474,7 +474,7 @@ async def send_msg_handler(bot, event, *args):
             name, uin, msgs = args
             messages = '\n'.join(msgs)
             if isinstance(event, GroupMessageEvent):
-                await bot.send_group_msg(group_id=event.group_id, message=messages)
+                await bot.send(event=event, message=messages)
             else:
                 await bot.send_private_msg(user_id=event.user_id, message=messages)
         elif len(args) == 1 and isinstance(args[0], list):
@@ -484,7 +484,7 @@ async def send_msg_handler(bot, event, *args):
             except TypeError:
                 messages = '\n'.join([str(msg) for msg in messages])
             if isinstance(event, GroupMessageEvent):
-                await bot.send_group_msg(group_id=event.group_id, message=messages)
+                await bot.send(event=event, message=messages)
             else:
                 await bot.send_private_msg(user_id=event.user_id, message=messages)
         else:

@@ -85,7 +85,7 @@ class XiuConfig:
         self.stamina_open = True  # 体力系统开关
         self.level_up_cd = 0  # 突破CD(分钟)
         self.closing_exp = 60  # 闭关每分钟获取的修为
-        self.two_exp = 300000000  # 闭关每分钟获取的修为
+        self.two_exp = 1000000000  # 双修获取的修为上限
         self.put_bot = []  # 接收消息qq,主qq，框架将只处理此qq的消息
         self.main_bo = []  # 负责发送消息的qq
         self.shield_group = []  # 屏蔽的群聊

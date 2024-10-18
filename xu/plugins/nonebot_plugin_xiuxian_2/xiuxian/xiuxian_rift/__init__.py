@@ -142,7 +142,7 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
 
 
 @explore_rift.handle(parameterless=[Cooldown(stamina_cost=240, at_sender=False)])
-async def _(bot: Bot, event: GroupMessageEvent):
+async def explore_rift_(bot: Bot, event: GroupMessageEvent):
     """探索秘境"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -201,6 +201,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
 
     is_type, msg = check_user_type(user_id, 3)  # 需要在秘境的用户
     if not is_type:
+        msg += "\n道友现在没在探索秘境呢"
         await bot.send(event=event, message=msg)
         await complete_rift.finish()
     else:
@@ -208,7 +209,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
         try:
             rift_info = read_rift_data(user_id)
         except:
-            msg = '发生未知错误！'
+            msg = '没有道友的秘境探索记录！！！'
             sql_message.do_work(user_id, 0)
             await bot.send(event=event, message=msg)
             await complete_rift.finish()
