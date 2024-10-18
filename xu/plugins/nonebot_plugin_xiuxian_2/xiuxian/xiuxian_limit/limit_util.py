@@ -1,34 +1,42 @@
 from limit_database import LimitData
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian import XiuConfig
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_utils.xiuxian2_handle import UserBuffDate, XIUXIAN_IMPART_BUFF
+
+xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
 
-# 初始化合成表对象
-class Active:
+class LimitHandle:
     def __init__(self):
-        self.active_id = None
-        self.need_items_id = []
-        self.need_items_num = []
-        self.state = []
-        self.is_bind_mixture = 0
+        self.two_exp_limit = XiuConfig().two_exp_limit
         pass
 
+    def two_exp_limit_check(self, user_id_1, user_id_2) -> [bool, str]:
+        user_limit_1 = LimitData().get_limit_by_user_id(user_id_1)
+        user_limit_2 = LimitData().get_limit_by_user_id(user_id_2)
+        user_exp_1 = user_limit_1['two_exp_up']
+        user_exp_2 = user_limit_2['two_exp_up']
+        # 加入传承
+        impart_data_1 = xiuxian_impart.get_user_info_with_id(user_id_1)
+        impart_data_2 = xiuxian_impart.get_user_info_with_id(user_id_2)
+        impart_two_exp_1 = impart_data_1['impart_two_exp'] if impart_data_1 is not None else 0
+        impart_two_exp_2 = impart_data_2['impart_two_exp'] if impart_data_2 is not None else 0
 
-class Mixture:
-    def __init__(self):
-        self.all_table = {}
-
-    def get_all_table_cls(self) -> dict | None:
-        tables = LimitData().get_all_table()
-        if tables:
-            for table_id in range(len(tables)):
-                table = tables[table_id]
-                cls = MixtureTable()
-                self.all_table[table_id] = cls
-                self.all_table[table_id].item_id = table['item_id']
-                self.all_table[table_id].need_items_id = list(table['need_items_id'])
-                self.all_table[table_id].need_items_num = list(table['need_items_num'])
-                self.all_table[table_id].state = table['state']
-                self.all_table[table_id].is_bind_mixture = table['is_bind_mixture']
-            return self.all_table
-        else:
-            return None
+        main_two_data_1 = UserBuffDate(user_id_1).get_user_main_buff_data()  # 功法双修次数提升
+        main_two_data_2 = UserBuffDate(user_id_2).get_user_main_buff_data()
+        main_two_1 = main_two_data_1['two_buff'] if main_two_data_1 is not None else 0
+        main_two_2 = main_two_data_2['two_buff'] if main_two_data_2 is not None else 0
+        if user_exp_1 >= (self.two_exp_limit + impart_two_exp_1 + main_two_1):
+            msg = "道友今天双修次数已经到达上限！"
+            return False, msg
+        if user_exp_2 >= (self.two_exp_limit + impart_two_exp_2 + main_two_2):
+            msg = "对方今天双修次数已经到达上限！"
+            return False, msg
+        user_exp_1 -= 1
+        user_exp_2 -= 1
+        user_limit_1['two_exp_up'] = user_exp_1
+        user_limit_2['two_exp_up'] = user_exp_2
+        LimitData().update_limit_with_key(user_limit_1, 'two_exp_up')
+        LimitData().update_limit_with_key(user_limit_2, 'two_exp_up')
+        msg = "pass"
+        return True, msg
         pass

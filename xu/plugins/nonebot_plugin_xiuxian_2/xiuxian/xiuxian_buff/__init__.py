@@ -38,7 +38,7 @@ sql_message = XiuxianDateManage()  # sql类
 limit_dict = {}  # dict
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 BLESSEDSPOTCOST = 3500000
-two_exp_limit = 7  # 默认双修次数上限，修仙之人一天7次也不奇怪（
+two_exp_limit = XiuConfig().two_exp_limit  # 默认双修次数上限，修仙之人一天7次也不奇怪（
 
 two_exp_cd_up = require("nonebot_plugin_apscheduler").scheduler
 

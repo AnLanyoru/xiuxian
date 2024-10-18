@@ -1,19 +1,10 @@
 import operator
 import time
-from ..xiuxian_place import Place
-
-try:
-    import ujson as json
-except ImportError:
-    import json
 import os
 import random
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from nonebot.log import logger
-from ..xiuxian_config import XiuConfig, convert_rank
-from .. import DRIVER
 import threading
 
 DATABASE = Path() / "data" / "xiuxian" / "players_database"
@@ -45,7 +36,7 @@ class LimitData:
             else:
                 self.database_path /= "limit.db"
                 self.conn = sqlite3.connect(self.database_path, check_same_thread=False)
-            logger.opt(colors=True).info(f"<green>记录数据库已连接！</green>")
+            print(f"记录数据库已连接！")
             self.sql_limit = ["user_id", "stone_exp_up", "send_stone", "receive_stone",
                               "impart_pk", "two_exp_up", "last_time", "state"]
             self.sql_active = ["active_id", "active_msg", "last_time", "daily_update"]
@@ -53,7 +44,7 @@ class LimitData:
 
     def close(self):
         self.conn.close()
-        logger.opt(colors=True).info(f"<green>记录数据库关闭！</green>")
+        print(f"记录数据库关闭！")
 
     def _check_data(self):
         """检查数据完整性"""
@@ -99,18 +90,18 @@ class LimitData:
             try:
                 c.execute(f"select {i} from user_limit")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>user_limit有字段不存在，开始创建\n</yellow>")
+                print("user_limit有字段不存在，开始创建\n")
                 sql = f"ALTER TABLE user_limit ADD COLUMN {i} INTEGER DEFAULT 0;"
-                logger.opt(colors=True).info(f"<green>{sql}</green>")
+                print(f"{sql}")
                 c.execute(sql)
 
         for i in self.sql_active:  # 自动补全
             try:
                 c.execute(f"select {i} from active")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>active有字段不存在，开始创建\n</yellow>")
+                print("active有字段不存在，开始创建\n")
                 sql = f"ALTER TABLE active ADD COLUMN {i} INTEGER DEFAULT 0;"
-                logger.opt(colors=True).info(f"<green>{sql}</green>")
+                print(f"{sql}")
                 c.execute(sql)
 
         self.conn.commit()
@@ -216,39 +207,4 @@ class LimitData:
                               offset_get, active_get, now_time, state))
         self.conn.commit()
 
-    def update_limit_with_key(self, limit_dict: dict, update_key: str):
-        """
-        定向值更新用户限制
-        :param update_key: 欲定向更新的列值
-        :param limit_dict: 限制列表
-        :return: result
-        """
-        now_time = datetime.now()
-        cur = self.conn.cursor()
-        user_id = limit_dict['user_id']
-        goal = limit_dict[update_key]
-        table, is_pass = self.get_limit_by_user_id(user_id)
-        if is_pass:
-            # 判断是否存在，存在则update
-            sql = f"UPDATE user_limit set {update_key}=? WHERE user_id=?"
-            cur.execute(sql, (goal, user_id))
-        else:
-            # 判断是否存在，不存在则INSERT
-            stone_exp_up = limit_dict['stone_exp_up']
-            send_stone = limit_dict['send_stone']
-            receive_stone = limit_dict['receive_stone']
-            impart_pk = limit_dict['impart_pk']
-            two_exp_up = limit_dict['two_exp_up']
-            offset_get = limit_dict['offset_get']
-            active_get = limit_dict['active_get']
-            state = limit_dict['state']
-            sql = f"""INSERT INTO user_limit (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up, offset_get, active_get, last_time, state)
-                VALUES (?,?,?,?,?,?,?,?)"""
-            cur.execute(sql, (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up,
-                              offset_get, active_get, now_time, state))
-        self.conn.commit()
 
-
-@DRIVER.on_shutdown
-async def close_db():
-    LimitData().close()

@@ -1,3 +1,4 @@
+from .limit_database import LimitData
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from nonebot.params import CommandArg
 from nonebot import on_command
@@ -17,6 +18,7 @@ from ..xiuxian_utils.item_json import Items
 
 items = Items()
 sql_message = XiuxianDateManage()  # sql类
+limit = LimitData()
 offset = on_command('补偿', priority=15, permission=GROUP, block=True)
 
 
