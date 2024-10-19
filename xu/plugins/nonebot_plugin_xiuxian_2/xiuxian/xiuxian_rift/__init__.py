@@ -183,7 +183,9 @@ async def explore_rift_(bot: Bot, event: GroupMessageEvent):
         else:
             far, start_place, to_place = Place().get_distance(place_id, world_rift[world_id].place)
             sql_message.update_user_stamina(user_id, 240, 1)
-            msg = f"道友所在位置没有秘境出世，当前位面【{world_name}】的秘境【{world_rift[world_id].name}】在距你{far:.1f}万里的：【{to_place}】，"
+            msg = (f"\n道友所在位置没有秘境出世!!\n"
+                   f"当前位面【{world_name}】的秘境【{world_rift[world_id].name}】在距你{far:.1f}万里的：【{to_place}】\n"
+                   f"可以发送【前往 {to_place}】来前去秘境所在位置探索哦！")
             await bot.send(event=event, message=msg)
             await explore_rift.finish()
 
