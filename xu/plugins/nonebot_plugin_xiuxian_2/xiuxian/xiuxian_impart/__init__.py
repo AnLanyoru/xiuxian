@@ -316,7 +316,7 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     msg += f"""--道友{user_info['user_name']}的传承物资--
 思恋结晶：{impart_data_draw['stone_num']}颗
 抽卡次数：{impart_data_draw['wish']}/90次
-传承卡图数量：{len(img_tp)}/108
+传承卡图数量：{len(img_tp)}/106
 余剩虚神界内闭关时间：{impart_data_draw['exp_day']}分钟
 """
     msg += f"""--道友{user_info['user_name']}的传承总属性--
@@ -387,7 +387,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
     msg = f"""--道友{user_info['user_name']}的传承物资--
 思恋结晶：{impart_data_draw['stone_num']}颗
 抽卡次数：{impart_data_draw['wish']}/90次
-传承卡图数量：{len(img_tp)}/108
+传承卡图数量：{len(img_tp)}/106
 余剩虚神界内闭关时间：{impart_data_draw['exp_day']}分钟
     """
     await bot.send(event=event, message=msg)

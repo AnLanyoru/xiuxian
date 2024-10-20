@@ -140,7 +140,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         await last_work.finish()
 
 
-@do_work.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
+@do_work.handle(parameterless=[Cooldown(cd_time=6, stamina_cost=0, at_sender=False)])
 async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tuple[Any, ...] = RegexGroup()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
