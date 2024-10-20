@@ -469,7 +469,7 @@ async def send_msg_handler(bot, event, *args):
                 await bot.call_api("send_private_forward_msg", user_id=event.user_id, messages=messages)
         else:
             raise ValueError("参数数量或类型不匹配")
-    elif XiuConfig().merge_forward_send == 2:
+    elif XiuConfig().merge_forward_send == 2:  # 合并作为文本发送
         if len(args) == 3:
             name, uin, msgs = args
             messages = '\n'.join(msgs)

@@ -4,6 +4,8 @@ from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_utils.xiuxian2_handle i
 
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
+# 施工中
+
 
 class LimitHandle:
     def __init__(self):

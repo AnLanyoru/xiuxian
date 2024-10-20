@@ -300,7 +300,7 @@ class LimitHandle:
         else:
             return None
 
-    def get_offset_msg(self):
+    def get_offset_list(self):
         idmap = LimitData().get_offset_idmap()
         msg = "\n"
         if idmap:
@@ -324,12 +324,31 @@ class LimitHandle:
                 msg += "包含物品：\n"
                 for item_id in items:
                     msg += f"物品id：{item_id}  物品数量：{items[item_id]}\n"
-            msg += f"补偿领取截止时间：{last_time}(到期补偿记得及时销毁)\n"
+            msg += f"补偿领取截止时间：{last_time}\n"
             if daily_update:
-                msg += "每日刷新领取"
+                msg += "每日刷新领取\n"
             else:
-                msg += "只可领取一次"
+                msg += "只可领取一次\n"
             return msg
+
+    def get_offset_msg(self, offset_id):
+        offset_info = LimitData().get_offset_by_id(offset_id)
+        offset_msg = self.change_offset_info_to_msg(offset_info)
+        return offset_msg
+
+    def get_all_user_offset_msg(self, user_id) -> list:
+        idmap = LimitData().get_offset_idmap()
+        offset_list = []
+        for offset_name, offset_id in idmap:
+            is_get_offset = self.check_user_offset(user_id, offset_id)
+            offset_msg = self.get_offset_msg(offset_id)
+            if is_get_offset:
+                offset_msg += "可领取\n\n"
+            else:
+                offset_msg += "已领取\n\n"
+            offset_list.append(offset_msg)
+        return offset_list
+
 
     def update_user_limit(self, user_id, limit_num: int, update_data: int, update_type: int = 0):
         """
@@ -413,6 +432,37 @@ class LimitHandle:
             return True  # 返回检查成功
         return False  # 流程均检查失败 返回检查失败
 
+
+    def check_user_offset(self, user_id, offset_id: int) -> bool:
+        """
+        仅检查限制，通过获取参数传出布尔值用于检查限制
+        :param user_id: 用户ID
+        :param offset_id: 补偿ID
+        :return: bool
+        """
+        now_date = date.today()
+        # day_replace = 1  # 测试日期补正
+        # now_date = now_date.replace(day=now_date.day + day_replace)
+        now_date = str(now_date)
+        object_key = 'offset_get'  # 可变参数，记得修改方法
+        offset_info = LimitData().get_offset_by_id(offset_id)
+        daily = offset_info['daily_update']
+        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        offset_get = limit_dict[object_key]
+        offset_state = offset_get.get(offset_id)
+        if offset_state:
+            # 如果有该补偿数据则获取最后日期
+            if daily:  # 检查补偿类型
+                if now_date == offset_state[1]:  # 日刷新判断
+                    pass  # 同日则不变
+                else:
+                    # 非同日则更新
+                    return True  # 返回检查成功
+        else:
+            # 若无则初始化 返回True
+            # 数据为列表形式，格式为，[次数，日期]
+            return True  # 返回检查成功
+        return False  # 流程均检查失败 返回检查失败
 
 
 @DRIVER.on_shutdown
