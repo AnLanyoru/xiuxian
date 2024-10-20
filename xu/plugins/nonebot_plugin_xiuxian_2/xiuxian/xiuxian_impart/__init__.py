@@ -172,6 +172,7 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
         card_all = ""
         msg = f""
         msg += f"\n道友{user_info['user_name']}的传承抽卡\n"
+        xiuxian_impart.update_stone_num(num, user_id, 2)
         for i in range(num):
             if get_rank(user_id):
                 img_list = impart_data_json.data_all_keys()
@@ -182,7 +183,6 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
                     had_card += reap_img + "、"
                     card_all += reap_img + "\n"
                     xiuxian_impart.add_impart_exp_day(90, user_id)
-                    xiuxian_impart.update_stone_num(1, user_id, 2)
                     xiuxian_impart.update_impart_wish(0, user_id)
                     # 更新传承数据
                 else:
@@ -195,7 +195,6 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
             else:
                 time_count += 50
                 xiuxian_impart.add_impart_exp_day(50, user_id)
-                xiuxian_impart.update_stone_num(1, user_id, 2)
                 xiuxian_impart.add_impart_wish(10, user_id)
 
         none_count = int(time_count/5)
