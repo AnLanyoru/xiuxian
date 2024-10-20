@@ -339,13 +339,14 @@ class LimitHandle:
     def get_all_user_offset_msg(self, user_id) -> list:
         idmap = LimitData().get_offset_idmap()
         offset_list = []
-        for offset_name, offset_id in idmap:
+        for offset_name in idmap:
+            offset_id = idmap[offset_name]
             is_get_offset = self.check_user_offset(user_id, offset_id)
             offset_msg = self.get_offset_msg(offset_id)
             if is_get_offset:
-                offset_msg += "可领取\n\n"
+                offset_msg += "可领取\n"
             else:
-                offset_msg += "已领取\n\n"
+                offset_msg += "已领取\n"
             offset_list.append(offset_msg)
         return offset_list
 
