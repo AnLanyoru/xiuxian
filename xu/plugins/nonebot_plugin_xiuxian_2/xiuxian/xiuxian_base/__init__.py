@@ -913,26 +913,18 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                     await give_stone.finish()
                 if Place().is_the_same_place(give_qq, user_id):
                     num = int(give_stone_num)
-                    msg, is_pass = CheckLimit().send_stone_check(user_id, give_qq, num, limit_dict)
-                    if is_pass:
-                        sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
-                        sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
-                        msg = f"\n道友与好友在同一位置，当面赠送：\n" + msg
-                    else:
-                        pass
+                    sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
+                    sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
+                    msg = f"\n道友与好友在同一位置，当面赠送：\n" + msg
                     await bot.send(event=event, message=msg)
                     await give_stone.finish()
 
                 give_stone_num2 = int(give_stone_num) * 0.1
                 num = int(give_stone_num) - int(give_stone_num2)
-                msg, is_pass = CheckLimit().send_stone_check(user_id, give_qq, num, limit_dict)
-                if is_pass:
-                    sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
-                    sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
-                    msg = (f"\n道友与好友不在一地，通过远程邮寄赠送：\n" + msg +
-                           f"\n收取远程邮寄手续费{(number_to(give_stone_num2))}|{int(give_stone_num2)}枚！")
-                else:
-                    pass
+                sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
+                sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
+                msg = (f"\n道友与好友不在一地，通过远程邮寄赠送：\n" + msg +
+                       f"\n收取远程邮寄手续费{(number_to(give_stone_num2))}|{int(give_stone_num2)}枚！")
                 await bot.send(event=event, message=msg)
                 await give_stone.finish()
             else:

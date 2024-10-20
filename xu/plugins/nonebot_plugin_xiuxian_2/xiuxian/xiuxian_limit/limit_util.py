@@ -11,8 +11,8 @@ class LimitHandle:
         pass
 
     def two_exp_limit_check(self, user_id_1, user_id_2) -> [bool, str]:
-        user_limit_1 = LimitData().get_limit_by_user_id(user_id_1)
-        user_limit_2 = LimitData().get_limit_by_user_id(user_id_2)
+        user_limit_1, is_pass_1 = LimitData().get_limit_by_user_id(user_id_1)
+        user_limit_2, is_pass_2 = LimitData().get_limit_by_user_id(user_id_2)
         user_exp_1 = user_limit_1['two_exp_up']
         user_exp_2 = user_limit_2['two_exp_up']
         # 加入传承
@@ -31,12 +31,12 @@ class LimitHandle:
         if user_exp_2 >= (self.two_exp_limit + impart_two_exp_2 + main_two_2):
             msg = "对方今天双修次数已经到达上限！"
             return False, msg
-        user_exp_1 -= 1
-        user_exp_2 -= 1
+        user_exp_1 += 1
+        user_exp_2 += 1
         user_limit_1['two_exp_up'] = user_exp_1
         user_limit_2['two_exp_up'] = user_exp_2
-        LimitData().update_limit_with_key(user_limit_1, 'two_exp_up')
-        LimitData().update_limit_with_key(user_limit_2, 'two_exp_up')
+        LimitData().update_limit_data_with_key(user_limit_1, 'two_exp_up')
+        LimitData().update_limit_data_with_key(user_limit_2, 'two_exp_up')
         msg = "pass"
         return True, msg
         pass

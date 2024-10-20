@@ -1,31 +1,18 @@
-import random
-import re
 import json
 from pathlib import Path
 import os
-import datetime
-from nonebot.log import logger
-from datetime import datetime
-from ..xiuxian_impart_pk import impart_pk_check
-from ..xiuxian_place import Place
-from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, OtherSet, get_player_info,
-    save_player_info, UserBuffDate, get_main_info_msg,
-    get_user_buff, get_sec_msg, get_sub_info_msg,
-    XIUXIAN_IMPART_BUFF
-)
-from ..xiuxian_config import XiuConfig, convert_rank
-from ..xiuxian_utils.data_source import jsondata
-from nonebot.params import CommandArg
-from ..xiuxian_utils.player_fight import Player_fight
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
+from ..xiuxian_config import convert_rank
 from ..xiuxian_utils.utils import (
-    number_to, check_user, send_msg_handler,
-    check_user_type, get_msg_pic, CommandObjectID, MyEncoder
+    number_to, MyEncoder
 )
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
-from .two_exp_cd import two_exp_cd
 
 sql_message = XiuxianDateManage()  # sql类
+
+"""
+这个系统是依托答辩，千万别用，会变的不幸
+停止维护
+"""
 
 
 # 创建限制对象
