@@ -60,25 +60,6 @@ a_test = on_fullmatch("测试保存", priority=9, permission=SUPERUSER, block=Tr
 reset_test = on_fullmatch("重置限制", priority=9, permission=SUPERUSER, block=True)
 
 
-@a_test.handle(parameterless=[Cooldown(at_sender=False)])
-async def a_test_():
-    """测试保存"""
-    LimitInfo().save_limit(limit_dict)
-    logger.opt(colors=True).info(f"<green>测试限制数据已保存</green>")
-    await a_test.finish()
-
-
-@reset_test.handle(parameterless=[Cooldown(at_sender=False)])
-async def reset_test_(bot: Bot, event: GroupMessageEvent):
-    """重置限制"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
-    global limit_dict
-    limit_dict = CheckLimit().reset_limit(limit_dict)
-    msg = limit_dict
-    await bot.send(event=event, message=msg)
-    await reset_test.finish()
-
-
 @DRIVER.on_startup
 async def read_limit_():
     global limit_dict
@@ -92,7 +73,7 @@ async def save_limit_():
     logger.opt(colors=True).info(f"<green>限制数据已保存</green>")
 
 
-# 每日0点重置用户宗门任务次数、宗门丹药领取次数
+# 每日0点重置用户双修次数
 @two_exp_cd_up.scheduled_job("cron", hour=0, minute=0)
 async def two_exp_cd_up_():
     global limit_dict

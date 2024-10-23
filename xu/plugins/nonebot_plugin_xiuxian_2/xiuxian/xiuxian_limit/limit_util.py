@@ -7,7 +7,7 @@ xiuxian_impart = XIUXIAN_IMPART_BUFF()
 # 施工中
 
 
-class LimitHandle:
+class LimitCheck:
     def __init__(self):
         self.two_exp_limit = XiuConfig().two_exp_limit
         pass

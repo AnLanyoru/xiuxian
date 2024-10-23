@@ -59,8 +59,8 @@ rename = on_command("改头换面", aliases={"修仙改名", "改名", "改头",
 level_up = on_command("突破", aliases={"tp"}, priority=6, permission=GROUP, block=True)
 level_up_dr = on_fullmatch("渡厄突破", priority=7, permission=GROUP, block=True)
 level_up_drjd = on_command("渡厄金丹突破", aliases={"金丹突破"}, priority=7, permission=GROUP, block=True)
-level_up_zj = on_command("直接突破", aliases={"破", "/突破"}, priority=7, permission=GROUP, block=True)
-level_up_zj_all = on_command("快速突破", aliases={"连续突破", "一键突破"}, priority=7, permission=GROUP, block=True)
+level_up_zj = on_command("直接突破", aliases={"破", "/突破"}, priority=2, permission=GROUP, block=True)
+level_up_zj_all = on_command("快速突破", aliases={"连续突破", "一键突破"}, priority=2, permission=GROUP, block=True)
 give_stone = on_command("送灵石", priority=5, permission=GROUP, block=True)
 steal_stone = on_command("借灵石", aliases={"飞龙探云手"}, priority=4, permission=GROUP, block=True)
 gm_command = on_command("生成灵石", permission=SUPERUSER, priority=10, block=True)
@@ -1147,7 +1147,7 @@ async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         await gmm_command.finish()
 
 
-@rob_stone.handle(parameterless=[Cooldown(stamina_cost=2400, at_sender=False)])
+@rob_stone.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """抢劫
             player1 = {
@@ -1255,7 +1255,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     foe_stone = user_2['stone']
                     if foe_stone > 0:
                         exps = int(user_2['exp'] * 0.005)
-                        msg = f"大战一番，战胜对手，获取灵石{number_to(foe_stone * 0.1)}枚，修为增加{number_to(exps)}，对手修为减少{number_to(exps / 2)}， 你不应该看见这个"
+                        msg = f"大战一番，战胜对手，获取灵石{number_to(foe_stone * 0.1)}枚，修为增加{number_to(exps)}，对手修为减少{number_to(exps / 2)}， 你不应该看见这个，重写版战斗系统灰度中！！"
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                             await bot.send(event=event, message=MessageSegment.image(pic))
@@ -1265,7 +1265,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     else:
                         exps = int(user_2['exp'] * 0.005)
                         msg = (f"大战一番，战胜对手，结果对方是个穷光蛋，修为增加{number_to(exps)}，对手修为减少{number_to(exps / 2)}........"
-                               f"实际上没有，以后不许这样，2400体力买个教训")
+                               f"实际上没有，重写版战斗系统灰度中！！")
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                             await bot.send(event=event, message=MessageSegment.image(pic))
@@ -1278,7 +1278,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     if mind_stone > 0:
                         exps = int(user_info['exp'] * 0.005)
                         msg = (f"大战一番，被对手反杀，损失灵石{number_to(mind_stone * 0.1)}枚，修为减少{number_to(exps)}，对手获取灵石{number_to(mind_stone * 0.1)}枚，修为增加{number_to(exps / 2)}"
-                               f"。。。。。。实际上没有，以后不许这样，2400体力买个教训")
+                               f"。。。。。。实际上没有，重写版战斗系统灰度中！！")
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                             await bot.send(event=event, message=MessageSegment.image(pic))
@@ -1288,7 +1288,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     else:
                         exps = int(user_info['exp'] * 0.005)
                         msg = (f"大战一番，被对手反杀，修为减少{number_to(exps)}，对手修为增加{number_to(exps / 2)}，，，，，，，，"
-                               f"实际上没有，以后不许这样，2400体力买个教训")
+                               f"实际上没有，重写版战斗系统灰度中！！")
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                             await bot.send(event=event, message=MessageSegment.image(pic))

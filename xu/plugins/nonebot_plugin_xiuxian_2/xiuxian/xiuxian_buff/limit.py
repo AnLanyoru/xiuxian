@@ -1,4 +1,4 @@
-import json
+import pickle
 from pathlib import Path
 import os
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
@@ -12,6 +12,8 @@ sql_message = XiuxianDateManage()  # sql类
 """
 这个系统是依托答辩，千万别用，会变的不幸
 停止维护
+10.24
+利用pickle序列化大幅提升了性能
 """
 
 
@@ -27,40 +29,33 @@ class TheLimit:
 class LimitInfo(object):
     def __init__(self):
         self.dir_path = Path(__file__).parent
-        self.data_path = os.path.join(self.dir_path, "limit.json")
+        self.data_path = os.path.join(self.dir_path, "limit.pkl")
         try:
-            with open(self.data_path, 'r', encoding='utf-8') as f:
-                self.data = json.load(f)
+            with open(self.data_path, 'rb') as f:
+                self.data = pickle.load(f)
+                f.close()
         except:
             self.info = {}
-            data = json.dumps(self.info, ensure_ascii=False, indent=4)
-            with open(self.data_path, mode="x", encoding="UTF-8") as f:
-                f.write(data)
+            with open(self.data_path, mode="wb") as f:
+                pickle.dump(self.info, f)
                 f.close()
-            with open(self.data_path, 'r', encoding='utf-8') as f:
-                self.data = json.load(f)
+            with open(self.data_path, 'rb') as f:
+                self.data = pickle.load(f)
+                f.close()
 
     def __save(self):
         """
         :return:保存
         """
-        with open(self.data_path, 'w', encoding='utf-8') as f:
-            json.dump(self.data, f, cls=MyEncoder, ensure_ascii=False, indent=4)
+        with open(self.data_path, mode="wb") as f:
+            pickle.dump(self.data, f)
+            f.close()
 
     def save_limit(self, limit_dict):
         """
         保存limit_info
-        :param limit_dict:
         """
-        self.data = {}
-        for x in limit_dict:
-            limit_data = {x: {"stone_exp_up": limit_dict[x].stone_exp_up,
-                              "receive_stone": limit_dict[x].receive_stone,
-                              "send_stone": limit_dict[x].send_stone,
-                              "is_get_gift": limit_dict[x].is_get_gift,
-                              }
-                          }
-            self.data.update(limit_data)
+        self.data = limit_dict
         self.__save()
         return True
 
@@ -68,28 +63,15 @@ class LimitInfo(object):
         """
         读取limit_info信息
         """
-        limit_dict = {}
-        for x in self.data:
-            limit = TheLimit()
-            limit.stone_exp_up = self.data[x]["stone_exp_up"]
-            limit.receive_stone = self.data[x]["receive_stone"]
-            limit.send_stone = self.data[x]["send_stone"]
-            limit.is_get_gift = self.data[x]["is_get_gift"]
-            x = int(x)
-            limit_dict[x] = limit
-        return limit_dict
+        return self.data
 
 
-# 检查限制对象方法
+# 检查限制对象方法，将搬迁入数据库
 class CheckLimit:
     def __init__(self):
         self.per_rank_give_stone = 1500000  # 每个小境界增加收送灵石上限
         self.per_rank_value = 600000  # 每级物品价值增加
         self.max_stone_exp_up = 100000000  # 灵石修炼上限
-
-    def reset_limit(self, limit_dict):
-        limit_dict = {}
-        return True
 
     def check_send_stone_limit(self, user_id, stone_prepare_send, limit_dict):
         """

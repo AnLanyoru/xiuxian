@@ -43,52 +43,11 @@ class IMPART_PK(object):
             self.__save()
             return False
 
-    def find_user_data(self, user_id):
-        """
-        匹配用户数据
-        :param user_id:
-        """
-        user_id = str(user_id)
-        self.check_user_impart(user_id)
-        try:
-            data_ = self.data[user_id]
-            return data_
-        except KeyError:
-            return None
-
-    def update_user_data(self, user_id, type_):
-        """
-        更新用户数据
-        :param type_: TRUE or FALSE
-        :param user_id:
-        """
-        user_id = str(user_id)
-        self.check_user_impart(user_id)
-        if type_:
-            self.data[user_id]["win_num"] += 1
-            self.__save()
-            return True
-        else:
-            self.data[user_id]["pk_num"] -= 1
-            self.__save()
-            return True
-
-    def all_user_data(self):
-        """
-        查找所有用户数据
-        """
-        try:
-            dict_ = self.data
-            return dict_
-        except KeyError:
-            return None
-
     def re_data(self):
         """
         重置数据
         """
-        self.data = {}
-        self.__save()
+        LimitData().redata_limit_by_key('impart_pk')
 
 
 impart_pk = IMPART_PK()

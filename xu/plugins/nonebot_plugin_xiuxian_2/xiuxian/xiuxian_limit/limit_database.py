@@ -280,6 +280,13 @@ class LimitData:
                               offset_get, active_get, now_time, state))
         self.conn.commit()
 
+    def redata_limit_by_key(self, reset_key):
+        now_time = date.today()
+        cur = self.conn.cursor()
+        sql = f"UPDATE user_limit set {reset_key}=? "
+        cur.execute(sql)
+        self.conn.commit()
+
 
 class LimitHandle:
     def __init__(self):

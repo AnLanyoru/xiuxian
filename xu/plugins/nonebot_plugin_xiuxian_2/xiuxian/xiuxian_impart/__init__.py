@@ -82,13 +82,9 @@ __impart_help__ = f"""
 async def impart_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """传承帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    if session_id in cache_help:
-        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
-        await impart_help.finish()
-    else:
-        msg = __impart_help__
-        await bot.send(event=event, message=msg)
-        await impart_help.finish()
+    msg = __impart_help__
+    await bot.send(event=event, message=msg)
+    await impart_help.finish()
 
 
 @impart_img.handle(parameterless=[Cooldown(at_sender=False)])
