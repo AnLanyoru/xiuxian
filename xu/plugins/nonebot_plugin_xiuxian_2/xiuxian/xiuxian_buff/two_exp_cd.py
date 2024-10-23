@@ -2,7 +2,7 @@ import time
 from pathlib import Path
 import os
 
-from plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_limit import LimitData, LimitHandle
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_limit import LimitData, LimitHandle
 
 
 class TWO_EXP_CD(object):

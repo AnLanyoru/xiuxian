@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import os
 
-from plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_limit import LimitData, LimitHandle
+from ..xiuxian_limit.limit_database import LimitData, LimitHandle
 
 
 class IMPART_PK(object):
