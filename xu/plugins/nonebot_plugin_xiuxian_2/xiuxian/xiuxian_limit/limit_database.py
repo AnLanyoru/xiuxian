@@ -1,6 +1,5 @@
 import operator
 import time
-from ..xiuxian_place import Place
 
 import os
 import random

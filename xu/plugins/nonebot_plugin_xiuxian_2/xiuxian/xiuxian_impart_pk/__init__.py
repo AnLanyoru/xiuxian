@@ -50,9 +50,10 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent):
         msg = f"道友今日已经对决过了，明天再来吧！"
         await bot.send(event=event, message=msg)
         await impart_pk_now.finish()
+    impart_pk.update_impart_pk_num(user_id)
     stones = random.randint(6, 9)
     xiuxian_impart.update_stone_num(stones, user_id, 1)
-    combined_msg = f"进入虚神界与{NICKNAME}对决，将{NICKNAME}打败{stones}次，获得思恋结晶{stones}颗\n"
+    combined_msg = f"进入虚神界与{NICKNAME}对决，将{NICKNAME}击败败{stones}次，获得思恋结晶{stones}颗\n"
     await bot.send(event=event, message=combined_msg)
     await impart_pk_now.finish()
 
