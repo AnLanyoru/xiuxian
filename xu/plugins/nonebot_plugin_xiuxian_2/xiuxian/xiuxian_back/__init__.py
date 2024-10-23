@@ -64,19 +64,20 @@ shop_added = on_command("坊市上架", priority=10, permission=GROUP, block=Tru
 shop_added_by_admin = on_command("系统坊市上架", priority=5, permission=SUPERUSER, block=True)
 shop_off = on_command("坊市下架", priority=5, permission=GROUP, block=True)
 shop_off_all = on_fullmatch("清空坊市", priority=3, permission=SUPERUSER, block=True)
-main_back = on_command('我的背包', aliases={'我的物品', '背包'}, priority=10, permission=GROUP, block=True)
+main_back = on_command('我的背包', aliases={'我的物品', '背包'}, priority=2, permission=GROUP, block=True)
 use = on_command("使用", priority=15, permission=GROUP, block=True)
 no_use_zb = on_command("换装", priority=5, permission=GROUP, block=True)
 buy = on_command("坊市购买", priority=5, block=True)
-auction_added = on_command("提交拍卖品", aliases={"拍卖品提交"}, priority=10, permission=GROUP, block=True)
-auction_withdraw = on_command("撤回拍卖品", aliases={"拍卖品撤回"}, priority=10, permission=GROUP, block=True)
+auction_added = on_command("提交拍卖品", aliases={"拍卖品提交"}, priority=3, permission=GROUP, block=True)
+auction_withdraw = on_command("撤回拍卖品", aliases={"拍卖品撤回"}, priority=3, permission=GROUP, block=True)
 set_auction = on_command("群拍卖会", priority=4, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER),
                          block=True)
 creat_auction = on_fullmatch("举行拍卖会", priority=5, permission=GROUP and SUPERUSER, block=True)
 offer_auction = on_command("拍卖", priority=5, permission=GROUP, block=True)
 back_help = on_command("背包帮助", aliases={"坊市帮助"}, priority=8, permission=GROUP, block=True)
 xiuxian_sone = on_fullmatch("灵石", priority=4, permission=GROUP, block=True)
-chakan_wupin = on_command("查看修仙界物品", priority=25, permission=SUPERUSER, block=True)
+chakan_wupin = on_command("查看修仙界物品", priority=2, permission=SUPERUSER, block=True)
+master_rename = on_command("超管改名", priority=2, permission=SUPERUSER, block=True)
 check_items = on_command("查看", aliases={"查", "查看物品", "查看效果", "详情"}, priority=25, permission=GROUP, block=True)
 
 __back_help__ = f"""
@@ -956,6 +957,25 @@ async def check_items_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 
     await bot.send(event=event, message=msg)
     await check_items.finish()
+
+
+@master_rename.handle(parameterless=[Cooldown(isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
+async def master_rename_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    """超管改名"""
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    arg = args.extract_plain_text()
+    user_id = get_num_from_str(arg)
+    user_name = get_strs_from_str(arg)
+    user_id = user_id[0] if user_id else None
+    user_name = user_name[0] if user_name else None
+    user_info = XiuxianDateManage().get_user_info_with_id(user_id)
+    if user_info:
+        msg = XiuxianDateManage().update_user_name(user_id, user_name)
+        pass
+    else:
+        msg = f"没有ID：{user_id} 的用户！！"
+    await bot.send(event=event, message=msg)
+    await master_rename.finish()
 
 
 @shop_off_all.handle(parameterless=[Cooldown(60, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])

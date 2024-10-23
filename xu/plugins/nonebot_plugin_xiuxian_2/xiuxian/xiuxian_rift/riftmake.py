@@ -79,7 +79,7 @@ STORY = {
             "Boss数据": {
                 "name": ["墨蛟", "婴鲤兽", "千目妖", "鸡冠蛟", "妖冠蛇", "铁火蚁", "天晶蚁", "银光鼠", "紫云鹰",
                          "狗青"],
-                "hp": [1.2, 1.4, 1.6, 1.8, 2, 3, 5, 10],
+                "hp": [1.2, 1.4, 1.6, 1.8, 2, 3, 3, 5],
                 "mp": 10,
                 "atk": [0.1, 0.12, 0.14, 0.16, 0.18, 0.5, 1, 2],
             },
@@ -182,6 +182,11 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
         success_info = STORY['战斗']['Boss战斗']['success']
         msg = success_info['desc'].format(boss_info['name'])
         give_exp = int(random.choice(success_info["give"]["exp"]) * user_info['exp'] * 1.3)
+        if user_info['root_type'] not in ['轮回灵根', '源宇道根', '道之本源']:
+            if give_exp > 50000000000:
+                give_exp = 50000000000
+        elif give_exp > 100000000000:
+            give_exp = 100000000000
         give_stone = (rift_rank + user_rank) * success_info["give"]["stone"]
         sql_message.update_exp(user_info['user_id'], give_exp)
         sql_message.update_ls(user_info['user_id'], give_stone, 1)  # 负数也挺正常
