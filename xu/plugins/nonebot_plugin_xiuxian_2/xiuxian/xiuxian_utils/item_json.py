@@ -109,7 +109,9 @@ class Items:
 
     def get_data_by_item_id(self, item_id):
         if item_id is None:
-            return None
+            return {}
+        elif item_id == -1:
+            return {}
         return self.items[str(item_id)]
 
     def set_item_data(self, dict_data, item_type):

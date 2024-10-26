@@ -58,6 +58,7 @@ set_auction_by_scheduler = require("nonebot_plugin_apscheduler").scheduler
 reset_day_num_scheduler = require("nonebot_plugin_apscheduler").scheduler
 
 goods_re_root = on_command("炼金", priority=6, permission=GROUP, block=True)
+goods_re_root_fast = on_command("快速炼金", priority=6, permission=GROUP, block=True)
 shop = on_command("坊市查看", aliases={"查看坊市"}, priority=8, permission=GROUP, block=True)
 auction_view = on_command("拍卖品查看", aliases={"查看拍卖品"}, priority=8, permission=GROUP, block=True)
 shop_added = on_command("坊市上架", priority=10, permission=GROUP, block=True)
@@ -539,6 +540,60 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     msg = f"物品：{goods_name} 数量：{num} 炼金成功，凝聚{number_to(price)}|{price}枚灵石！"
     await bot.send(event=event, message=msg)
     await goods_re_root.finish()
+
+
+@goods_re_root_fast.handle(parameterless=[Cooldown(at_sender=False)])
+async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    """快速炼金"""
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    is_user, user_info, msg = check_user(event)
+    if not is_user:
+        await bot.send(event=event, message=msg)
+        await goods_re_root_fast.finish()
+    user_id = user_info['user_id']
+    strs = args.extract_plain_text()
+    args = get_strs_from_str(strs)
+    goal_level = None
+    if args:
+        goal_level = args[0]
+    else:
+        msg = "请输入要炼化的物品等阶！"
+        await bot.send(event=event, message=msg)
+        await goods_re_root_fast.finish()
+    back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,list(back)
+    if back_msg is None:
+        msg = "道友的背包空空如也！"
+        await bot.send(event=event, message=msg)
+        await goods_re_root_fast.finish()
+    msg = f"\n快速炼金【{goal_level}】物品结果如下："
+    price_sum = 0
+    for back in back_msg:
+        goods_name = back['goods_name']
+        goods_id = back['goods_id']
+        goods_type = back['goods_type']
+        goods_state = back['state']
+        num = back['goods_num']
+        item_info = items.get_data_by_item_id(goods_id)
+        item_level = item_info.get('level') if item_info else None
+        item_rank = get_item_msg_rank(goods_id)
+        if item_level == goal_level:
+            if goods_type == "装备" and int(goods_state) == 1:
+                msg += f"装备：{goods_name}已经被道友装备在身，无法炼金！"
+                pass
+            elif item_rank != 520:
+                price = int(1000000 + abs(item_rank - 55) * 100000) * num
+                sql_message.update_back_j(user_id, goods_id, num=num)
+                sql_message.update_ls(user_id, price, 1)
+                price_sum += price
+                msg += f"\n物品：{goods_name} 数量：{num} 炼金成功，凝聚{number_to(price)}|{price}枚灵石！"
+            else:
+                pass
+        if price_sum:
+            msg += f"总计凝聚{number_to(price_sum)}|{price_sum}枚灵石"
+        else:
+            msg = f"道友没有【{goal_level}】物品"
+    await bot.send(event=event, message=msg)
+    await goods_re_root_fast.finish()
 
 
 @shop_off.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
