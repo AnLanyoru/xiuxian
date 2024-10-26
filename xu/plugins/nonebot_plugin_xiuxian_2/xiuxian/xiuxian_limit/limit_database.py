@@ -13,6 +13,8 @@ from typing import Tuple, Dict, Any
 from .. import DRIVER
 import threading
 
+from ..xiuxian_utils.utils import get_num_from_str
+
 DATABASE = Path() / "data" / "xiuxian" / "players_database"
 xiuxian_num = "578043031"  # 这里其实是修仙1作者的QQ号
 impart_num = "123451234"
@@ -31,7 +33,7 @@ class LimitData:
         return cls._instance[xiuxian_num]
 
     def __init__(self):
-        self.blob_data = ["offset_get", "active_get"]
+        self.blob_data = ["offset_get", "active_get", "state"]
         if not self._has_init.get(xiuxian_num):
             self._has_init[xiuxian_num] = True
             self.database_path = DATABASE
@@ -224,9 +226,10 @@ class LimitData:
         two_exp_up = limit_dict['two_exp_up']
         offset_get = limit_dict['offset_get']
         active_get = limit_dict['active_get']
+        state = limit_dict['state']
         offset_get = pickle.dumps(offset_get)  # 结构化数据
         active_get = pickle.dumps(active_get)
-        state = limit_dict['state']
+        state = pickle.dumps(state)
         table, is_pass = self.get_limit_by_user_id(user_id)
         if is_pass:
             # 判断是否存在，存在则update
@@ -251,7 +254,7 @@ class LimitData:
         :param limit_dict: 限制列表
         :return: result
         """
-        blob_data = ["offset_get", "active_get"]
+        blob_data = self.blob_data
         now_time = date.today()
         cur = self.conn.cursor()
         user_id = limit_dict['user_id']
@@ -272,9 +275,10 @@ class LimitData:
             two_exp_up = limit_dict['two_exp_up']
             offset_get = limit_dict['offset_get']
             active_get = limit_dict['active_get']
+            state = limit_dict['state']
             offset_get = pickle.dumps(offset_get)  # 结构化数据
             active_get = pickle.dumps(active_get)
-            state = limit_dict['state']
+            state = pickle.dumps(state)
             sql = f"""INSERT INTO user_limit (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up, 
             offset_get, active_get, last_time, state)VALUES (?,?,?,?,?,?,?,?,?,?)"""
             cur.execute(sql, (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up,
@@ -285,13 +289,18 @@ class LimitData:
         now_time = date.today()
         cur = self.conn.cursor()
         sql = f"UPDATE user_limit set {reset_key}=? "
-        cur.execute(sql)
+        default_value = 0
+        if reset_key in self.blob_data:  # 结构化数据
+            default_value = {}
+            default_value = pickle.dumps(default_value)
+
+        cur.execute(sql, (default_value,))
         self.conn.commit()
 
 
 class LimitHandle:
     def __init__(self):
-        self.blob_data = ["offset_get", "active_get"]
+        self.blob_data = LimitData().blob_data
         self.msg_list = ['name', 'desc']
         self.sql_limit = LimitData().sql_limit
         self.keymap = {1: "stone_exp_up", 2: "send_stone", 3: "receive_stone", 4: "impart_pk",
@@ -462,6 +471,109 @@ class LimitHandle:
             # 数据为列表形式，格式为，[次数，日期]
             return True  # 返回检查成功
         return False  # 流程均检查失败 返回检查失败
+
+    def update_user_log_data(self, user_id, msg_body: str) -> bool:
+        """
+        写入用户日志信息
+        :param user_id: 用户ID
+        :param msg_body: 需要写入的信息
+        :return: bool
+        """
+        now_date = datetime.now()
+        now_date = now_date.replace(microsecond=0)
+        object_key = 'state'  # 可变参数，记得修改方法
+        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        state_dict = limit_dict[object_key]
+        logs = state_dict.get('log')
+        log_data = "时间：" + str(now_date) + "\n" + msg_body
+        if logs:
+            logs.append(log_data)
+            if len(logs) > 10:
+                logs = logs[1:]
+        else:
+            logs = [log_data]
+        state_dict['log'] = logs
+        limit_dict[object_key] = state_dict
+        LimitData().update_limit_data_with_key(limit_dict, object_key)
+        return True
+
+    def get_user_log_data(self, user_id):
+        object_key = 'state'  # 可变参数，记得修改方法
+        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        state_dict = limit_dict[object_key]
+        logs = state_dict.get('log')
+        if logs:
+            return logs
+        else:
+            return None
+
+    def update_user_shop_log_data(self, user_id, msg_body: str) -> bool:
+        """
+        写入用户日志信息
+        :param user_id: 用户ID
+        :param msg_body: 需要写入的信息
+        :return: bool
+        """
+        now_date = datetime.now()
+        now_date = now_date.replace(microsecond=0)
+        object_key = 'state'  # 可变参数，记得修改方法
+        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        state_dict = limit_dict[object_key]
+        logs = state_dict.get('shop_log')
+        log_data = "时间：" + str(now_date) + "\n" + msg_body
+        if logs:
+            logs.append(log_data)
+            if len(logs) > 10:
+                logs = logs[1:]
+        else:
+            logs = [log_data]
+        state_dict['shop_log'] = logs
+        limit_dict[object_key] = state_dict
+        LimitData().update_limit_data_with_key(limit_dict, object_key)
+        return True
+
+    def get_user_shop_log_data(self, user_id):
+        object_key = 'state'  # 可变参数，记得修改方法
+        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        state_dict = limit_dict[object_key]
+        logs = state_dict.get('shop_log')
+        if logs:
+            return logs
+        else:
+            return None
+
+    def update_user_donate_log_data(self, user_id, msg_body: str) -> bool:
+        """
+        写入用户周贡献信息
+        :param user_id: 用户ID
+        :param msg_body: 需要写入的信息
+        :return: bool
+        """
+        # now_date = datetime.now()
+        # now_date = now_date.replace(microsecond=0)
+        object_key = 'state'  # 可变参数，记得修改方法
+        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        state_dict = limit_dict[object_key]
+        logs = state_dict.get('week_donate_log')
+        logs = logs if logs else 0
+        log_data = get_num_from_str(msg_body)
+        log_data = int(log_data[-1]) if log_data else 0
+        logs += log_data
+        state_dict['week_donate_log'] = logs
+        limit_dict[object_key] = state_dict
+        LimitData().update_limit_data_with_key(limit_dict, object_key)
+        return True
+
+    def get_user_donate_log_data(self, user_id):
+        object_key = 'state'  # 可变参数，记得修改方法
+        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        state_dict = limit_dict[object_key]
+        logs = state_dict.get('week_donate_log')
+        if logs:
+            return logs
+        else:
+            return None
+
 
 
 @DRIVER.on_shutdown

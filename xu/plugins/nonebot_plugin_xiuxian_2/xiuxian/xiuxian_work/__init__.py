@@ -4,6 +4,7 @@ from nonebot import on_regex, require, on_command
 from nonebot.params import RegexGroup
 from nonebot.typing import T_State
 
+from ..xiuxian_limit import LimitHandle
 from ..xiuxian_move import read_move_data
 from ..xiuxian_place import Place
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
@@ -332,6 +333,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                         msg += f"，额外获得奖励：{item_msg}!"
                     else:
                         msg += "!"
+                    LimitHandle().update_user_log_data(user_id, msg)
                     await bot.send(event=event, message=msg)
                     await do_work.finish()
 

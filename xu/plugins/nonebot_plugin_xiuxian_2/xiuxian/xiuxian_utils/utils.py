@@ -546,6 +546,11 @@ def number_to(num):
     """
 
     # 处理列表类数据
+    if num:
+        pass
+    else:
+        # 打回
+        return "无"
     if type(num) == str:
         hf = ""
         num = num.split("、")

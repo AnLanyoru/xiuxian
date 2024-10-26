@@ -1,3 +1,5 @@
+import pickle
+
 from .limit_database import LimitData, LimitHandle
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from nonebot.params import CommandArg
@@ -21,6 +23,8 @@ sql_message = XiuxianDateManage()  # sql类
 limit = LimitData()
 offset = on_command('补偿', priority=1, permission=GROUP, block=True)
 offset_get = on_command('领取补偿', priority=1, permission=GROUP, block=True)
+get_log = on_command('查日志', aliases={"日志查询", "查询日志", "查看日志"}, priority=1, permission=GROUP, block=True)
+get_shop_log = on_command('坊市日志', aliases={"查询坊市日志", "查看坊市日志"}, priority=1, permission=GROUP, block=True)
 
 
 @offset.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
@@ -96,5 +100,38 @@ async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     await offset.finish()
 
 
+@get_log.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
+async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    is_user, user_info, msg = check_user(event)
+    if not is_user:
+        await bot.send(event=event, message=msg)
+        await get_log.finish()
+    user_id = user_info['user_id']
+    logs = LimitHandle().get_user_log_data(user_id)
+    if logs:
+        await send_msg_handler(bot, event, '日志', bot.self_id, logs)
+        await get_log.finish()
+    else:
+        msg = "未查询到道友的日志信息！"
+        await bot.send(event=event, message=msg)
+        await get_log.finish()
 
+
+@get_shop_log.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
+async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    is_user, user_info, msg = check_user(event)
+    if not is_user:
+        await bot.send(event=event, message=msg)
+        await get_shop_log.finish()
+    user_id = user_info['user_id']
+    logs = LimitHandle().get_user_shop_log_data(user_id)
+    if logs:
+        await send_msg_handler(bot, event, '坊市日志', bot.self_id, logs)
+        await get_shop_log.finish()
+    else:
+        msg = "未查询到道友的坊市日志信息！"
+        await bot.send(event=event, message=msg)
+        await get_shop_log.finish()
 

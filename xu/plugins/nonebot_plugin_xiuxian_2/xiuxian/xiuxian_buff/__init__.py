@@ -15,6 +15,7 @@ from nonebot.permission import SUPERUSER
 from .limit import CheckLimit, LimitInfo
 from .. import DRIVER
 from ..xiuxian_impart_pk import impart_pk_check
+from ..xiuxian_limit import LimitHandle
 from ..xiuxian_place import Place
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, get_player_info,
@@ -418,6 +419,8 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                     two_exp_cd.add_user(user_1['user_id'])
                     two_exp_cd.add_user(user_2['user_id'])
                     msg += f"离开时双方互相留法宝为对方护道,双方各增加突破概率2%。"
+                    LimitHandle().update_user_log_data(user_1['user_id'], msg)
+                    LimitHandle().update_user_log_data(user_2['user_id'], msg)
                     await bot.send(event=event, message=msg)
                     await two_exp.finish()
                 else:
@@ -448,6 +451,8 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                     sql_message.update_power2(user_2['user_id'])
                     two_exp_cd.add_user(user_1['user_id'])
                     two_exp_cd.add_user(user_2['user_id'])
+                    LimitHandle().update_user_log_data(user_1['user_id'], msg)
+                    LimitHandle().update_user_log_data(user_2['user_id'], msg)
                     await bot.send(event=event, message=msg)
                     await two_exp.finish()
     else:

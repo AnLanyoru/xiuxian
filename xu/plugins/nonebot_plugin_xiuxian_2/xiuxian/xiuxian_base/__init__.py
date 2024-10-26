@@ -6,6 +6,7 @@ from nonebot.typing import T_State
 
 from ..xiuxian_buff import limit_dict
 from ..xiuxian_buff.limit import CheckLimit
+from ..xiuxian_limit import LimitHandle
 from ..xiuxian_place import Place
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from nonebot import require, on_command, on_fullmatch
@@ -881,6 +882,7 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         await bot.send(event=event, message=msg)
         await give_stone.finish()
     user_id = user_info['user_id']
+    user_name = user_info['user_name']
     user_stone_num = user_info['stone']
     msg = args.extract_plain_text()
     stone_num = get_num_from_str(msg)
@@ -916,7 +918,9 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                     sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
                     sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
                     msg = give_user['user_name'] + "道友" + str(num) + "灵石"
-                    msg = f"\n道友与好友在同一位置，当面赠送：\n" + msg
+                    msg = f"\n{user_name}道友与好友在同一位置，当面赠送：\n" + msg
+                    LimitHandle().update_user_log_data(user_id, msg)
+                    LimitHandle().update_user_log_data(give_qq, msg)
                     await bot.send(event=event, message=msg)
                     await give_stone.finish()
 
@@ -925,8 +929,10 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                 sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
                 sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
                 msg = give_user['user_name'] + "道友" + str(num) + "灵石"
-                msg = (f"\n道友与好友不在一地，通过远程邮寄赠送：\n" + msg +
+                msg = (f"\n{user_name}道友与好友不在一地，通过远程邮寄赠送：\n" + msg +
                        f"\n收取远程邮寄手续费{(number_to(give_stone_num2))}|{int(give_stone_num2)}枚！")
+                LimitHandle().update_user_log_data(user_id, msg)
+                LimitHandle().update_user_log_data(give_qq, msg)
                 await bot.send(event=event, message=msg)
                 await give_stone.finish()
             else:

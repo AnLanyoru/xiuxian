@@ -16,6 +16,7 @@ from nonebot.adapters.onebot.v11 import (
 
 from ..xiuxian_buff import limit_dict
 from ..xiuxian_buff.limit import TheLimit
+from ..xiuxian_limit import LimitHandle
 from ..xiuxian_place import Place
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown, CooldownIsolateLevel
@@ -148,6 +149,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             await bot.send(event=event, message=msg)
             await buy.finish()
         user_id = user_info['user_id']
+        user_name = user_info['user_name']
         place_id = str(Place().get_now_place_id(user_id))
         shop_data = get_shop_data(place_id)
 
@@ -205,7 +207,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             save_shop(shop_data)
 
             if shop_user_id == 0:  # 0为系统
-                msg = f"道友成功购买{purchase_quantity}个{shop_goods_name}，消耗灵石{goods_price}枚！"
+                msg = f"{user_name}道友成功购买{purchase_quantity}个{shop_goods_name}，消耗灵石{goods_price}枚！"
             else:
                 goods_info['stock'] -= purchase_quantity
                 if goods_info['stock'] <= 0:
@@ -214,10 +216,12 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                     shop_data[place_id][str(arg)] = goods_info
                 service_charge = int(goods_price * 0.1)  # 手续费10%
                 give_stone = goods_price - service_charge
-                msg = f"道友成功购买{purchase_quantity}个{shop_user_name}道友寄售的{shop_goods_name}，消耗灵石{goods_price}枚,坊市收取手续费：{service_charge}枚灵石！"
+                msg = f"{user_name}道友成功购买{purchase_quantity}个{shop_user_name}道友寄售的{shop_goods_name}，消耗灵石{goods_price}枚,坊市收取手续费：{service_charge}枚灵石！"
                 sql_message.update_ls(shop_user_id, give_stone, 1)
             shop_data[place_id] = reset_dict_num(shop_data[place_id])
             save_shop(shop_data)
+            LimitHandle().update_user_shop_log_data(user_id, msg)
+            LimitHandle().update_user_shop_log_data(shop_user_id, msg)
             await bot.send(event=event, message=msg)
             await buy.finish()
 
@@ -434,6 +438,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
             await shop_added.finish()
 
     place_id = str(Place().get_now_place_id(user_id))
+    place_name = Place().get_place_name(place_id)
     shop_data = get_shop_data(place_id)
 
     num = 0
@@ -462,7 +467,8 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     }
     sql_message.update_back_j(user_id, goods_id, num=quantity)
     save_shop(shop_data)
-    msg = f"物品：{goods_name}成功上架坊市，金额：{price}枚灵石，数量{quantity}！"
+    msg = f"道友成功在【{place_name}】将【{goods_name}】上架坊市，金额：{price}枚灵石，数量{quantity}！"
+    LimitHandle().update_user_shop_log_data(user_id, msg)
     await bot.send(event=event, message=msg)
     await shop_added.finish()
 
@@ -555,7 +561,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     args = get_strs_from_str(strs)
     goal_level = None
     if args:
-        goal_level = args[0]
+        pass
     else:
         msg = "请输入要炼化的物品等阶！"
         await bot.send(event=event, message=msg)
@@ -565,33 +571,39 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         msg = "道友的背包空空如也！"
         await bot.send(event=event, message=msg)
         await goods_re_root_fast.finish()
-    msg = f"\n快速炼金【{goal_level}】物品结果如下："
+    msg = "快速炼金以下品阶物品：\n" + "|".join(args)
     price_sum = 0
-    for back in back_msg:
-        goods_name = back['goods_name']
-        goods_id = back['goods_id']
-        goods_type = back['goods_type']
-        goods_state = back['state']
-        num = back['goods_num']
-        item_info = items.get_data_by_item_id(goods_id)
-        item_level = item_info.get('level') if item_info else None
-        item_rank = get_item_msg_rank(goods_id)
-        if item_level == goal_level:
-            if goods_type == "装备" and int(goods_state) == 1:
-                msg += f"装备：{goods_name}已经被道友装备在身，无法炼金！"
-                pass
-            elif item_rank != 520:
-                price = int(1000000 + abs(item_rank - 55) * 100000) * num
-                sql_message.update_back_j(user_id, goods_id, num=num)
-                sql_message.update_ls(user_id, price, 1)
-                price_sum += price
-                msg += f"\n物品：{goods_name} 数量：{num} 炼金成功，凝聚{number_to(price)}|{price}枚灵石！"
-            else:
-                pass
-        if price_sum:
-            msg += f"总计凝聚{number_to(price_sum)}|{price_sum}枚灵石"
+    for goal_level in args:
+        msg += f"\n快速炼金【{goal_level}】结果如下："
+        price_pass = 0
+        for back in back_msg:
+            goods_name = back['goods_name']
+            goods_id = back['goods_id']
+            goods_type = back['goods_type']
+            goods_state = back['state']
+            num = back['goods_num']
+            item_info = items.get_data_by_item_id(goods_id)
+            item_level = item_info.get('level') if item_info else None
+            item_rank = get_item_msg_rank(goods_id)
+            if item_level == goal_level:
+                if goods_type == "装备" and int(goods_state) == 1:
+                    msg += f"\n装备：{goods_name}已经被道友装备在身，无法炼金！"
+                    price_pass = 1
+                    pass
+                elif item_rank != 520:
+                    price = int(1000000 + abs(item_rank - 55) * 100000) * num
+                    sql_message.update_back_j(user_id, goods_id, num=num)
+                    sql_message.update_ls(user_id, price, 1)
+                    price_sum += price
+                    msg += f"\n物品：{goods_name} 数量：{num} 炼金成功，凝聚{number_to(price)}|{price}枚灵石！"
+                    price_pass = 1
+                else:
+                    pass
+        if price_pass:
+            pass
         else:
-            msg = f"道友没有【{goal_level}】物品"
+            msg += f"\n道友没有【{goal_level}】"
+    msg += f"\n总计凝聚{number_to(price_sum)}|{price_sum}枚灵石"
     await bot.send(event=event, message=msg)
     await goods_re_root_fast.finish()
 
