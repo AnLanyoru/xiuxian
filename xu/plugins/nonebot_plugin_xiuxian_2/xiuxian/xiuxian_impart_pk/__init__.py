@@ -30,7 +30,7 @@ impart_pk_exp = on_command("虚神界闭关", aliases={"进入虚神界修炼"},
 
 
 # 每日0点重置用虚神界次数
-@impart_re.scheduled_job("cron", hour=6, minute=0)
+@impart_re.scheduled_job("cron", hour=0, minute=0)
 async def impart_re_():
     impart_pk.re_data()
     logger.opt(colors=True).info(f"<green>已重置虚神界次数</green>")

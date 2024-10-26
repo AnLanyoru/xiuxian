@@ -1028,14 +1028,14 @@ async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
         await bot.send(event=event, message=msg)
         await my_exp_num.finish()
     user_id = user_info['user_id']
-    limit = two_exp_cd.find_user(user_id)
+    two_exp_limit = two_exp_cd.find_user(user_id)
     impart_data = xiuxian_impart.get_user_info_with_id(user_id)
     impart_two_exp = impart_data['impart_two_exp'] if impart_data is not None else 0
 
     main_two_data = UserBuffDate(user_id).get_user_main_buff_data()
     main_two = main_two_data['two_buff'] if main_two_data is not None else 0
 
-    num = (two_exp_limit + impart_two_exp + main_two) - limit
+    num = (two_exp_limit + impart_two_exp + main_two) - two_exp_limit
     if num <= 0:
         num = 0
     msg = f"道友剩余双修次数{num}次！"

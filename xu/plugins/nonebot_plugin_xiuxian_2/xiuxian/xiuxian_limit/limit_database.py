@@ -124,6 +124,7 @@ class LimitData:
             for key in self.blob_data:
                 limit_dict[key] = {}
             return limit_dict, False
+
         # 如果有，返回限制字典
         columns = [column[0] for column in cur.description]
         limit_dict = dict(zip(columns, result))
@@ -290,6 +291,7 @@ class LimitData:
 
 class LimitHandle:
     def __init__(self):
+        self.blob_data = ["offset_get", "active_get"]
         self.msg_list = ['name', 'desc']
         self.sql_limit = LimitData().sql_limit
         self.keymap = {1: "stone_exp_up", 2: "send_stone", 3: "receive_stone", 4: "impart_pk",
@@ -356,7 +358,6 @@ class LimitHandle:
             offset_list.append(offset_msg)
         return offset_list
 
-
     def update_user_limit(self, user_id, limit_num: int, update_data: int, update_type: int = 0):
         """
         更新用户限制数据
@@ -368,18 +369,8 @@ class LimitHandle:
         :return: 是否成功
         """
         limit_key = self.keymap[limit_num]  # 懒狗只想打数字
-        now_date = date.today()
-        # day_replace = -1  # 测试日期补正
-        # now_date = now_date.replace(day=now_date.day + day_replace)
-        now_date = str(now_date)
         limit, is_pass = LimitData().get_limit_by_user_id(user_id)
-        last_time = limit['last_time']
-        if last_time == now_date:
-            goal_data = limit[limit_key]
-            pass
-        else:
-            self.reset_daily_limit(user_id)
-            goal_data = 0
+        goal_data = limit[limit_key]
         if update_type:
             update_data = -update_data
         goal_data += update_data
@@ -395,6 +386,8 @@ class LimitHandle:
             limit_dict[key] = 0
         limit_dict['user_id'] = user_id
         limit_dict['last_time'] = now_time
+        for key in self.blob_data:
+            limit_dict[key] = {}
         LimitData().update_limit_data(limit_dict)
         pass
 
@@ -438,7 +431,6 @@ class LimitHandle:
             LimitData().update_limit_data_with_key(limit_dict, object_key)
             return True  # 返回检查成功
         return False  # 流程均检查失败 返回检查失败
-
 
     def check_user_offset(self, user_id, offset_id: int) -> bool:
         """

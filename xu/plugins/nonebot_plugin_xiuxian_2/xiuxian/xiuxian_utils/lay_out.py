@@ -25,6 +25,10 @@ limit_num = 99999
 
 @auto_recover_hp.scheduled_job('interval', minutes=1)
 def auto_recover_hp_():
+    """
+    不要使用会变得不幸
+    :return:
+    """
     # sql_message.auto_recover_hp()
     pass
 
@@ -107,7 +111,7 @@ class CooldownIsolateLevel(IntEnum):
 
 
 def Cooldown(
-        cd_time: float = 1.5,
+        cd_time: float = 2,
         at_sender: bool = True,
         isolate_level: CooldownIsolateLevel = CooldownIsolateLevel.USER,
         parallel: int = 1,
@@ -146,8 +150,6 @@ def Cooldown(
 
     async def dependency(bot: Bot, matcher: Matcher, event: MessageEvent):
         user_id = str(event.get_user_id())
-        group_id = str(event.group_id)
-        conf_data = JsonConfig().read_data()
 
         limit_type = limit_all_run(str(event.get_user_id()))
         if limit_type is True:
@@ -181,7 +183,7 @@ def Cooldown(
             if user_data:
                 if user_data['user_stamina'] < stamina_cost and XiuConfig().stamina_open is True:
                     msg = f"你没有足够的体力，请等待体力恢复后再试！\n本次行动需要消耗：{stamina_cost}体力值\n当前体力值：{user_data['user_stamina']}/2400"
-                    await bot.send_group_msg(group_id=int(group_id), message=msg)
+                    await bot.send(event=event, message=msg)
                     await matcher.finish()
                 sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         if running[key] <= 0:
@@ -190,8 +192,8 @@ def Cooldown(
                 if time <= 1:
                     time = 1
                 formatted_time = format_time(time)
-                await bot.send_group_msg(group_id=int(group_id),
-                                         message=get_random_chat_notice().format(formatted_time))
+                await bot.send(event=event,
+                               message=get_random_chat_notice().format(formatted_time))
                 await matcher.finish()
             else:
                 await matcher.finish()

@@ -258,7 +258,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                             play_list.append(
                                 get_msg_dict(player1, player1_init_hp,
                                              f"{player2['道号']}剩余血量{number_to(player2['气血'])}"))
-                            player1_js = player1_f_js - user1_skill_sh if player2_f_js - user1_skill_sh > 0.1 else 0.1
+                            player1_js = player1_f_js - user1_skill_sh if player1_f_js - user1_skill_sh > 0.1 else 0.1
 
                     elif user1_skill_type == 4:  # 封印类技能
                         player1_turn_cost = player1_turn_cost - 1
