@@ -61,12 +61,13 @@ class XiuConfig:
         self.sql_table = ["user_xiuxian", "user_cd", "sects", "back", "BuffInfo"]
         self.sql_user_xiuxian = ["id", "user_id", "user_name", "stone", "root",
                                  "root_type", "level", "power",
-                                 "create_time", "is_sign", "is_beg", "is_ban",
+                                 "create_time", "is_sign", "is_beg", "is_ban",  # 玩家状态相关
                                  "exp", "work_num", "level_up_cd",
                                  "level_up_rate", "sect_id",
-                                 "sect_position", "hp", "mp", "atk",
-                                 "atkpractice", "sect_task", "sect_contribution",
-                                 "sect_elixir_get", "blessed_spot_flag", "blessed_spot_name", "user_stamina"]
+                                 "sect_position", "hp", "mp", "atk", "atkpractice",
+                                 "sect_task", "sect_contribution", "sect_elixir_get",
+                                 "blessed_spot_flag", "blessed_spot_name", "user_stamina",
+                                 "place_id"]
         self.sql_user_cd = ["user_id", "type", "create_time", "scheduled_time", "last_check_info_time", "place_id"]
         self.sql_sects = ["sect_id", "sect_name", "sect_owner", "sect_scale", "sect_used_stone", "sect_fairyland",
                           "sect_materials", "mainbuff", "secbuff", "elixir_room_level"]

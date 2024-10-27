@@ -570,9 +570,9 @@ class LimitHandle:
         state_dict = limit_dict[object_key]
         logs = state_dict.get('week_donate_log')
         if logs:
-            return logs
+            return int(logs)
         else:
-            return None
+            return 0
 
 
 

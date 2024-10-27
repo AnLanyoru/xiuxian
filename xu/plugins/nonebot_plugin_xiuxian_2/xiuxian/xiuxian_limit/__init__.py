@@ -23,7 +23,7 @@ sql_message = XiuxianDateManage()  # sql类
 limit = LimitData()
 offset = on_command('补偿', priority=1, permission=GROUP, block=True)
 offset_get = on_command('领取补偿', priority=1, permission=GROUP, block=True)
-get_log = on_command('查日志', aliases={"日志查询", "查询日志", "查看日志"}, priority=1, permission=GROUP, block=True)
+get_log = on_command('查日志', aliases={"日志查询", "查询日志", "查看日志", "日志记录"}, priority=1, permission=GROUP, block=True)
 get_shop_log = on_command('坊市日志', aliases={"查询坊市日志", "查看坊市日志"}, priority=1, permission=GROUP, block=True)
 
 

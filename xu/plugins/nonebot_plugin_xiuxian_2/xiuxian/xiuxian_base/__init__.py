@@ -49,10 +49,6 @@ xiuxian_impart = XIUXIAN_IMPART_BUFF()
 run_xiuxian = on_command("踏入仙途", aliases={"/踏入仙途", "我要修仙"}, priority=8, permission=GROUP, block=True)
 restart = on_command("重入仙途", permission=GROUP, priority=7, block=True)
 sign_in = on_command("修仙签到", aliases={"/签到"}, priority=13, permission=GROUP, block=True)
-help_in = on_command("修仙帮助", aliases={"/菜单", "/修仙帮助"}, priority=12, permission=GROUP, block=True)
-help_newer = on_command("新手教程", aliases={"怎么玩", "教", "玩法", "不明白", "教程", "修仙新手", "刚玩",
-                                                "怎么弄", "干什么", "玩什么", "新手", "有什么", "玩不来", "/新手教程",
-                                                "不会", "不懂"}, priority=12, permission=GROUP, block=True)
 rank = on_command("排行榜", aliases={"修仙排行榜", "灵石排行榜", "战力排行榜", "境界排行榜", "宗门排行榜"},
                   priority=7, permission=GROUP, block=True)
 rename = on_command("改头换面", aliases={"修仙改名", "改名", "改头", "换面"}, priority=5, permission=GROUP,
@@ -63,12 +59,12 @@ level_up_drjd = on_command("渡厄金丹突破", aliases={"金丹突破"}, prior
 level_up_zj = on_command("直接突破", aliases={"破", "/突破"}, priority=2, permission=GROUP, block=True)
 level_up_zj_all = on_command("快速突破", aliases={"连续突破", "一键突破"}, priority=2, permission=GROUP, block=True)
 give_stone = on_command("送灵石", priority=5, permission=GROUP, block=True)
-steal_stone = on_command("借灵石", aliases={"飞龙探云手"}, priority=4, permission=GROUP, block=True)
+steal_stone = on_command("借灵石", priority=4, permission=GROUP, block=True)
 gm_command = on_command("生成灵石", permission=SUPERUSER, priority=10, block=True)
 gm_command_miss = on_command("思恋结晶", permission=SUPERUSER, priority=10, block=True)
 gmm_command = on_command("灵根更换", permission=SUPERUSER, priority=10, block=True)
 cz = on_command('创造', permission=SUPERUSER, priority=15, block=True)
-rob_stone = on_command("抢夺灵石", aliases={"抢灵石"}, priority=5, permission=GROUP, block=True)
+rob_stone = on_command("抢灵石", priority=5, permission=GROUP, block=True)
 restate = on_command("重置用户状态", permission=SUPERUSER, priority=12, block=True)
 set_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'},
                          permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
@@ -77,63 +73,12 @@ user_stamina = on_command('我的体力', aliases={'体力'}, priority=5, permis
 xiuxian_update_data = on_fullmatch('更新记录', priority=15, permission=GROUP, block=True)
 level_help = on_command('列表', aliases={"灵根列表", "品阶列表", "境界列表"}, priority=15, permission=GROUP, block=True)
 
-__xiuxian_notes__ = f"""
-————修仙菜单————
-新手教程：
->获取修仙新手教程
-重入仙途:
->更换灵根,每次{XiuConfig().remake}灵石
-改头换面:
->修改你的道号
-突破:
->修为足够后,可突破境界
-灵石修炼：
->使用灵石进行快速修炼，不要贪多哦
-排行榜:
->查看诸天万界修仙排行榜
-我的状态:
->查看当前状态
-灵庄帮助:
->获取有关灵庄的帮助信息
-宗门帮助:
->获取有关宗门的帮助信息
 
-""".strip()
-
-__xiuxian_newer_help__ = f"""
-—————修仙新手教程—————
-1: 仙途奇缘：
->获得修仙的第一桶灵石！！
-2: 修仙签到：
->每日签到获取一定量灵石！！
-3: 修炼：
->发送修炼并且等待，即可获取修为
-4: 突破：
->当修为达到上限时，或是当修为足够突破时
->发送 突破 来获取突破指引
-5: 悬赏令；
->每日发送 悬赏令刷新 获取悬赏令
->悬赏令中可以获取修行所需的功法，修为，药材等等
-6: 秘境:
->发送 探索秘境 消耗240点体力，进行一次探索秘境
->使用 秘境结算 来结算奖励
-7: 宗门：
->加入宗门寻求庇护，可以发送 宗门列表 来查看所有宗门
-不用担心你没有实力！！无论你的修为高低宗门都会庇护你的！！！
-8: 虚神界：
->每日发送 虚神界对决 获取思恋结晶
->发送 传承抽卡 来消耗思恋结晶进行抽卡！！
-9: 灵田：
->发送 灵田帮助 来开始赛博种田！！
-10: 灵庄：
->存钱利滚利！！！
-——tips——
-官方群914556251
-"""
-
-__xiuxian_updata_data__ = f"""
-#更新2024.9.28
-封装地区系统
+__xiuxian_update_data__ = f"""
+#更新2024.10.27
+增加快速炼金系统
+增加宗门周贡献系统
+增加日志系统
 """.strip()
 
 __level_help_root__ = f"""\n
@@ -177,18 +122,11 @@ async def xiuxian_sing_():
 async def mix_elixir_help_(bot: Bot, event: GroupMessageEvent):
     """更新记录"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    msg = __xiuxian_updata_data__
+    msg = __xiuxian_update_data__
     await bot.send(event=event, message=msg)
     await xiuxian_update_data.finish()
 
 
-@help_newer.handle(parameterless=[Cooldown(at_sender=False)])
-async def help_in_(bot: Bot, event: GroupMessageEvent):
-    """修仙帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
-    msg = __xiuxian_newer_help__
-    await bot.send(event=event, message=msg)
-    await help_newer.finish()
 
 
 @run_xiuxian.handle(parameterless=[Cooldown(at_sender=False)])
@@ -237,15 +175,6 @@ async def sign_in_(bot: Bot, event: GroupMessageEvent):
         await sign_in.finish()
     except ActionFailed:
         await sign_in.finish("修仙界网络堵塞，发送失败!", reply_message=True)
-
-
-@help_in.handle(parameterless=[Cooldown(at_sender=False)])
-async def help_in_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    """修仙帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
-    msg = __xiuxian_notes__
-    await bot.send(event=event, message=msg)
-    await help_in.finish()
 
 
 @level_help.handle(parameterless=[Cooldown(at_sender=False)])

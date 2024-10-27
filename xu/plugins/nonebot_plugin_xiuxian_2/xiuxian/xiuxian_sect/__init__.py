@@ -757,7 +757,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                 page = 1
             page = int(page)
             if page_all < page:
-                msg = "道友的宗门没有那么人！！！"
+                msg = "道友的宗门没有那么多人！！！"
                 await bot.send(event=event, message=msg)
                 await sect_users.finish()
             user_num = page * 12 - 12
@@ -782,7 +782,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     await sect_users.finish()
 
 
-@sect_users.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
+@sect_users_donate_check.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门划水成员审判"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -792,30 +792,38 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
-        await sect_users.finish()
+        await sect_users_donate_check.finish()
     sect_id = user_info['sect_id']
     if sect_id:
+        sect_position = user_info['sect_position']
+        if sect_position > 1:
+            msg = f"""道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]["title"]}，无权审判宗门成员!"""
+            await bot.send(event=event, message=msg)
+            await sect_users_donate_check.finish()
         sect_info = sql_message.get_sect_info(sect_id)
         userlist = sql_message.get_all_users_by_sect_id(sect_id)
+        goal_donate = int(nums[0]) if nums else 10000000
+        userlist = [user for user in userlist if LimitHandle().get_user_donate_log_data(user['user_id']) < goal_donate]
         page_all = ((len(userlist) // 12) + 1) if (len(userlist) % 12 != 0) else (len(userlist) // 12)  # 总页数
-        goal_donate = int(nums[0]) if nums else 0
         page = int(nums[1]) if len(nums) > 1 else 1
         if page_all < page:
-            msg = "道友的宗门没有那么人！！！"
+            msg = "道友的宗门没有那么多摸鱼的成员！！！"
             await bot.send(event=event, message=msg)
-            await sect_users.finish()
+            await sect_users_donate_check.finish()
         # 构造表头
-        msg = f"☆【{sect_info['sect_name']}】本周贡献低于{goal_donate}的成员信息☆\n"
+        msg = f"☆【{sect_info['sect_name']}】本周贡献低于{number_to(goal_donate)}的成员信息☆\n"
         msg_list.append(msg)
         # 页数构造
         user_num = page * 12 - 12
         user_num_end = user_num + 12
-        userlist = [user for user in userlist if LimitHandle().get_user_donate_log_data(user['user_id']) < goal_donate]
         userlist = userlist[user_num:user_num_end]
         i = user_num + 1
         for user in userlist:
             week_donate = LimitHandle().get_user_donate_log_data(user['user_id'])
-            msg = f"""编号{i}:{user['user_name']},{user['level']}\n宗门职位：{jsondata.sect_config_data()[f"{user['sect_position']}"]['title']}\n宗门贡献度：{number_to(user['sect_contribution'])}|{user['sect_contribution']}\n本周宗门贡献度：{number_to(week_donate)}|{week_donate}\n"""
+            msg = (f"编号{i}:{user['user_name']},{user['level']}\n"
+                   f"宗门职位：{jsondata.sect_config_data()[str(user['sect_position'])]['title']}\n"
+                   f"宗门贡献度：{number_to(user['sect_contribution'])}|{user['sect_contribution']}\n"
+                   f"本周宗门贡献度：{number_to(week_donate)}|{week_donate}\n")
 
             msg_list.append(msg)
             i += 1
@@ -824,7 +832,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     else:
         msg_list.append(f"一介散修，莫要再问。")
     await send_msg_handler(bot, event, '宗门成员', bot.self_id, msg_list)
-    await sect_users.finish()
+    await sect_users_donate_check.finish()
 
 
 @sect_task.handle(parameterless=[Cooldown(at_sender=False)])

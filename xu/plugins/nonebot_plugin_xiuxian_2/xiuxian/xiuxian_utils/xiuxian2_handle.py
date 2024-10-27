@@ -208,15 +208,15 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def close_dbs(cls):
         XiuxianDateManage().close()
 
-    def _create_user(self, user_id: str, root: str, type: str, power: str, create_time, user_name) -> None:
+    def _create_user(self, user_id: str, root: str, root_type: str, power: str, create_time, user_name) -> None:
         """在数据库中创建用户并初始化"""
         c = self.conn.cursor()
-        sql = (f"INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,sect_id,"
-               f"sect_position,user_stamina) VALUES (?,0,?,?,'求道者',?,?,?,100,NULL,NULL,?)")
-        sql_cd = (f"INSERT INTO user_cd (user_id,type,create_time,scheduled_time,last_check_info_time,place_id"
-                  f") VALUES (?,?,?,?,?,?)")
-        c.execute(sql_cd, (user_id, 0, None, 0, None, 1))
-        c.execute(sql, (user_id, root, type, power, create_time, user_name, XiuConfig().max_stamina))
+        sql = (f"INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,use_name,exp,sect_id,"
+               f"sect_position,user_stamina,place_id) VALUES (?,0,?,?,'求道者',?,?,?,100,NULL,NULL,?,?)")
+        sql_cd = (f"INSERT INTO user_cd (user_id,type,create_time,scheduled_time,last_check_info_time"
+                  f") VALUES (?,?,?,?,?)")
+        c.execute(sql_cd, (user_id, 0, None, 0, None))
+        c.execute(sql, (user_id, root, root_type, power, create_time, user_name, XiuConfig().max_stamina, 1))
         self.conn.commit()
 
     def get_user_info_with_id(self, user_id):

@@ -202,34 +202,34 @@ class Place:
                 pass
         return place_list
 
-    def get_user_cd(self, user_id):
+    def get_user_place(self, user_id):
         """
-        获取用户操作CD
+        获取用户信息
         :param user_id: QQ
-        :return: 用户CD信息的字典
+        :return: 用户信息的字典
         """
-        sql = f"SELECT * FROM user_cd  WHERE user_id=?"
+        sql = f"SELECT place_id FROM user_xiuxian  WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
-            columns = [column[0] for column in cur.description]
-            user_cd_dict = dict(zip(columns, result))
-            return user_cd_dict
-        else:
-            self.insert_user_cd(user_id)
-            return None
-
-    def insert_user_cd(self, user_id) -> None:
-        """
-        添加用户至CD表
-        :param user_id: qq
-        :return:
-        """
-        sql = f"INSERT INTO user_cd (user_id) VALUES (?)"
-        cur = self.conn.cursor()
-        cur.execute(sql, (user_id,))
-        self.conn.commit()
+            if result[0]:
+                user_info = {'place_id': result[0]}
+                return user_info
+            else:
+                # 兼容性更新，搬迁旧place_id
+                sql = f"SELECT place_id FROM user_cd  WHERE user_id=?"
+                cur = self.conn.cursor()
+                cur.execute(sql, (user_id,))
+                result = cur.fetchone()
+                if result:
+                    place_id = result[0]
+                else:
+                    print("迁移失败无法找到原位置")
+                    place_id = 1
+                self.set_now_place_id(user_id, place_id)
+                user_info = {'place_id': place_id}
+                return user_info
 
     def get_now_place_id(self, user_id):
         """
@@ -237,8 +237,8 @@ class Place:
         :param user_id: type = str 用户id
         :return: type = int 位置ID
         """
-        user_cd_message = self.get_user_cd(user_id)
-        user_place_id = user_cd_message["place_id"]
+        user_info = self.get_user_place(user_id)
+        user_place_id = user_info["place_id"]
         return user_place_id
 
     def set_now_place_id(self, user_id, place_id):
@@ -248,7 +248,7 @@ class Place:
         :param place_id:
         :return:
         """
-        sql = "UPDATE user_cd SET place_id=? WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET place_id=? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (place_id, user_id))
         self.conn.commit()
