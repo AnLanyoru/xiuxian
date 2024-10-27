@@ -127,6 +127,7 @@ class XiuConfig:
         self.img_type = "webp"  # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg，jpeg请调低压缩率
         self.img_send_type = "base64"  # 图片发送类型,默认io,官方bot建议base64
         self.version = "xiuxian_2.2"  # 修仙插件版本，别动
+        self.elixir_def = {'回血丹': 'hp', '恢复丹': 'hp', '回复丹': 'hp', '突破丹': 'level_up_rate', '突破概率丹': 'level_up_rate'}
 
 
 class JsonConfig:

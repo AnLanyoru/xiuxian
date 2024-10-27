@@ -77,9 +77,9 @@ async def save_limit_():
 # 每日0点重置用户双修次数
 @two_exp_cd_up.scheduled_job("cron", hour=0, minute=0)
 async def two_exp_cd_up_():
-    global limit_dict
-    limit_dict = {}
-    logger.opt(colors=True).info(f"<green>限制数据已刷新！</green>")
+
+    two_exp_cd.re_data()
+    logger.opt(colors=True).info(f"<green>双修次数已刷新！</green>")
 
 
 @blessed_spot_create.handle(parameterless=[Cooldown(at_sender=False)])
@@ -306,7 +306,6 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """双修"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    global two_exp_limit
     is_user, user_1, msg = check_user(event)
     if not is_user:
         if XiuConfig().img:
@@ -1026,21 +1025,20 @@ async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
 @my_exp_num.handle(parameterless=[Cooldown(at_sender=False)])
 async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
     """我的双修次数"""
-    global two_exp_limit
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
         await my_exp_num.finish()
     user_id = user_info['user_id']
-    two_exp_limit = two_exp_cd.find_user(user_id)
+    two_exp_num = two_exp_cd.find_user(user_id)
     impart_data = xiuxian_impart.get_user_info_with_id(user_id)
     impart_two_exp = impart_data['impart_two_exp'] if impart_data is not None else 0
 
     main_two_data = UserBuffDate(user_id).get_user_main_buff_data()
     main_two = main_two_data['two_buff'] if main_two_data is not None else 0
 
-    num = (two_exp_limit + impart_two_exp + main_two) - two_exp_limit
+    num = (two_exp_limit + impart_two_exp + main_two) - two_exp_num
     if num <= 0:
         num = 0
     msg = f"道友剩余双修次数{num}次！"

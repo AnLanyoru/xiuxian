@@ -149,8 +149,7 @@ async def get_map_(bot: Bot, event: GroupMessageEvent):
         await bot.send(event=event, message=msg)
         await get_map.finish()
     user_id = user_info['user_id']
-    user_cd_message = sql_message.get_user_cd(user_id)
-    place_id = user_cd_message["place_id"]
+    place_id = Place().get_now_place_id(user_id)
     world_name = Place().get_world_name(place_id)
     world_id = Place().get_world_id(place_id)
     msg = f"\n————{world_name}地图————\n"

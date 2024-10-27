@@ -10,6 +10,8 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed
 )
+
+from ..xiuxian_impart import impart_check
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from ..xiuxian_utils.data_source import jsondata
 from nonebot.log import logger
@@ -50,9 +52,10 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent):
         msg = f"道友今日已经对决过了，明天再来吧！"
         await bot.send(event=event, message=msg)
         await impart_pk_now.finish()
+    await impart_check(user_id)
     impart_pk.update_impart_pk_num(user_id)
     stones = random.randint(6, 9)
-    xiuxian_impart.update_stone_num(stones, user_id, 1)
+    await xiuxian_impart.update_stone_num(stones, user_id, 1)
     combined_msg = f"\n进入虚神界与{NICKNAME}对决，将{NICKNAME}击败{stones}次，获得思恋结晶{stones}颗"
     await bot.send(event=event, message=combined_msg)
     await impart_pk_now.finish()

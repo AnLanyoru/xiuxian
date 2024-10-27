@@ -35,9 +35,9 @@ LEVLECOST = config["LEVLECOST"]
 userstask = {}
 
 help_in = on_command("修仙帮助", aliases={"/菜单", "/修仙帮助"}, priority=12, permission=GROUP, block=True)
-help_newer = on_command("新手教程", aliases={"怎么玩", "教", "玩法", "不明白", "教程", "修仙新手", "刚玩",
-                                                "怎么弄", "干什么", "玩什么", "新手", "有什么", "玩不来", "/新手教程",
-                                                "不会", "不懂", "帮助"}, priority=12, permission=GROUP, block=True)
+help_newer = on_command("新手", aliases={"怎么玩", "教", "玩法", "不明白", "教程", "修仙新手", "刚玩",
+                                              "怎么弄", "干什么", "玩什么", "新手", "有什么", "玩不来", "/新手教程",
+                                              "不会", "不懂", "帮助"}, priority=12, permission=GROUP, block=True)
 sect_help = on_command("宗门帮助", aliases={"宗门", "工会"}, priority=21, permission=GROUP, block=True)
 sect_help_control = on_command("管理宗门", aliases={"宗门管理"}, priority=6, permission=GROUP, block=True)
 sect_help_owner = on_command("宗主必看", aliases={"宗主"}, priority=20, permission=GROUP, block=True)
@@ -59,13 +59,14 @@ __xiuxian_notes__ = f"""
 >使用灵石进行快速修炼，不要贪多哦
 排行榜:
 >查看诸天万界修仙排行榜
+日志记录
+>获取最近10次重要日常操作的记录
 我的状态:
 >查看当前状态
-灵庄帮助:
->获取有关灵庄的帮助信息
-宗门帮助:
->获取有关宗门的帮助信息
-
+————更多玩法帮助
+灵庄帮助|宗门帮助|背包帮助
+坊市帮助|灵田帮助|功法帮助
+传承帮助
 """.strip()
 
 
@@ -188,6 +189,8 @@ async def sect_help_control_(bot: Bot, event: GroupMessageEvent):
 >(外门弟子无法获得宗门修炼资源)
 2、踢出宗门:
 >踢出对应宗门成员,需要输入正确的道号
+3、宗门周贡检查：
+检查宗门成员周贡
 ———tips———
 每日{config["发放宗门资材"]["时间"]}点发放{config["发放宗门资材"]["倍率"]}倍对应宗门建设度的资材
 """
@@ -216,6 +219,8 @@ async def sect_help_owner_(bot: Bot, event: GroupMessageEvent):
 >宗主可以传位宗门成员
 7、宗门改名:
 >宗主可以消耗宗门资源改变宗门名称
+8、宗门周贡检查：
+检查宗门成员周贡
 ———tips———
 每日{config["发放宗门资材"]["时间"]}点发放{config["发放宗门资材"]["倍率"]}倍对应宗门建设度的资材
 """
@@ -253,7 +258,7 @@ async def sect_help_member_(bot: Bot, event: GroupMessageEvent):
 9、宗门成员查看:
 >查看所在宗门的成员信息
 10、宗门丹药领取:
->领取宗门丹药，需要内门弟子1000且万宗门贡献
+>领取宗门丹药，需要内门弟子且1000万宗门贡献
 7、退出宗门:
 >退出当前宗门
 ——tips——

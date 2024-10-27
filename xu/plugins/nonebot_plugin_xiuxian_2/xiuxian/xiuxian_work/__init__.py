@@ -347,11 +347,13 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                             msg += f"，额外获得奖励：{item_msg}!"
                         else:
                             msg += "!"
+                        LimitHandle().update_user_log_data(user_id, msg)
                         await bot.send(event=event, message=msg)
                         await do_work.finish()
 
                     else:  # 失败
                         msg += "!"
+                        LimitHandle().update_user_log_data(user_id, msg)
                         await bot.send(event=event, message=msg)
                         await do_work.finish()
         else:

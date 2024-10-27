@@ -983,7 +983,7 @@ async def gm_command_miss_(bot: Bot, event: GroupMessageEvent, args: Message = C
     give_stone_num = int(stone_num_match[0]) if stone_num_match else 0  # 默认灵石数为0，如果有提取到数字，则使用提取到的第一个数字
     if give_qq:
         give_user = sql_message.get_user_info_with_id(give_qq)
-        xiuxian_impart.update_stone_num(give_stone_num, give_qq, 1)
+        await xiuxian_impart.update_stone_num(give_stone_num, give_qq, 1)
         msg = f"共赠送{number_to(give_stone_num)}颗思恋结晶给{give_user['user_name']}道友！"
         await bot.send(event=event, message=msg)
         await gm_command_miss.finish()

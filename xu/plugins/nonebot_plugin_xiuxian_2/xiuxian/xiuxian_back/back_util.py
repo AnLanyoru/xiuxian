@@ -1,3 +1,6 @@
+import random
+
+from ..xiuxian_place import Place
 from ..xiuxian_utils.data_source import jsondata
 import json
 from ..xiuxian_utils.item_json import Items
@@ -745,6 +748,22 @@ def get_use_tool_msg(user_id, goods_id, use_num) -> (str, bool):
             is_pass = True
         else:
             msg = f"道友当前体力{now_stamina}/{XiuConfig().max_stamina}，{item_info['name']}将为道友恢复{stamina_buff}点体力，超出上限！！！"
+        pass
+    elif item_info['buff_type'] == 2:
+        # 特殊道具
+        msg = f"道友成功使用了{item_info['name']}"
+        buff_dict = item_info['buff']
+        world_change = buff_dict.get('world')
+        root_change = buff_dict.get('root_level')
+        if world_change is not None:
+            place_goal_list = Place().get_world_place_list(world_change)
+            place_goal = random.choice(place_goal_list)
+            Place().set_now_place_id(user_id, place_goal)
+            place_name = Place().get_place_name(place_goal)
+            msg += f"\n霎时间天旋地转,回过神来道友竟被{item_info['name']}带到了【{place_name}】!!!"
+        if root_change:
+            root_type = sql_message.update_root(user_id, 8)  # 更换灵根
+            msg += f"\n道友丹田一片翻腾，灵根转化为了{root_type}!!!"
         pass
     else:
         msg = f"{item_info['name']}使用失败！！可能暂未开放使用！！！"

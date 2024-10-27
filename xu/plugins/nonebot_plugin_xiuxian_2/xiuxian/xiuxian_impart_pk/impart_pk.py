@@ -28,21 +28,6 @@ class IMPART_PK(object):
         is_pass = LimitHandle().update_user_limit(user_id, 4, 1)
         return is_pass
 
-    def check_user_impart(self, user_id):
-        """
-        核对用户是否存在
-        :param user_id:
-        """
-        user_id = str(user_id)
-        try:
-            if self.data[user_id]:
-                return True
-        except KeyError:
-            user_number = len(self.data) + 1
-            self.data[user_id] = {"number": user_number, "pk_num": 3, "win_num": 0}
-            self.__save()
-            return False
-
     def re_data(self):
         """
         重置数据

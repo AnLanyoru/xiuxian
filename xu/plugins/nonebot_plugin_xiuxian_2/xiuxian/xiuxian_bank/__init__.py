@@ -152,11 +152,15 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
     elif mode == '升级会员':  # 升级会员逻辑
         userlevel = bankinfo["banklevel"]
+        if int(userlevel) == int(len(BANKLEVEL)) - 1:
+            msg = f"灵庄分庄已被不知名道友提前建设！"
+            await bot.send(event=event, message=msg)
+            await bank.finish()
+
         if userlevel == str(len(BANKLEVEL)):
             msg = f"道友已经是本灵庄最大的会员啦！"
             await bot.send(event=event, message=msg)
             await bank.finish()
-
         stonecost = BANKLEVEL[f"{int(userlevel)}"]['levelup']
         if int(user_info['stone']) < stonecost:
             msg = f"道友所拥有的灵石为{number_to(user_info['stone'])}|{user_info['stone']}枚，当前升级会员等级需求灵石{number_to(stonecost)}|{stonecost}枚金额不足，请重新输入！"

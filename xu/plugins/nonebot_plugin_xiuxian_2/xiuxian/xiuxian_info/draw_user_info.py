@@ -51,7 +51,7 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
             img = img.resize((based_w, img_h)).crop((0, crop_t, based_w, crop_t + based_h))
         img.resize((based_w, based_h), Image.Resampling.LANCZOS)
         # 贴一层黑色遮罩
-        img.paste(i := Image.new("RGBA", (based_w, based_h), (0, 0, 0, 68)), mask=i)
+        img.paste(i := Image.new("RGBA", (based_w, based_h), (0, 0, 0, 128)), mask=i)
     except:
         pass
     # 获取用户头像圆框
@@ -112,7 +112,7 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
     w, h = await linewh(sectinfo, sectword)
     sectinfo_draw = ImageDraw.Draw(sectinfo)
     sectinfo_draw.text((w, h), sectword, first_color, font_40, 'lm')
-    img.paste(sectinfo, (100, 1542), sectinfo) #100为距离图像左边界100像素，1542为距离图像上边界1542像素
+    img.paste(sectinfo, (100, 1542), sectinfo)  # 100为距离图像左边界100像素，1542为距离图像上边界1542像素
 
     DETAIL_sectinfo = {
         '所在宗门': DETAIL_MAP['所在宗门'],

@@ -100,6 +100,10 @@ __back_help__ = f"""
 下架坊市内的物品
 8、炼金+物品名字：
 将物品炼化为灵石,支持批量炼金
+9、快速炼金+目标物品品阶
+将指定品阶的物品全部炼金。
+10、坊市日志
+查看最近10条与自己有关的坊市操作消息
 """.strip()
 
 
@@ -559,9 +563,14 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     user_id = user_info['user_id']
     strs = args.extract_plain_text()
     args = get_strs_from_str(strs)
-    goal_level = None
+    real_args = []
     if args:
-        pass
+        if len(args) > 12:
+            msg = "道友想要炼化的物品也太多啦！！！！"
+            await bot.send(event=event, message=msg)
+            await goods_re_root_fast.finish()
+        the_same = XiuConfig().elixir_def
+        real_args = [the_same[i] if i in the_same else i for i in args]
     else:
         msg = "请输入要炼化的物品等阶！"
         await bot.send(event=event, message=msg)
@@ -573,8 +582,8 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await goods_re_root_fast.finish()
     msg = "快速炼金以下品阶物品：\n" + "|".join(args)
     price_sum = 0
-    for goal_level in args:
-        msg += f"\n快速炼金【{goal_level}】结果如下："
+    for goal_level, goal_level_name in real_args, args:
+        msg += f"\n快速炼金【{goal_level_name}】结果如下："
         price_pass = 0
         for back in back_msg:
             goods_name = back['goods_name']
@@ -583,9 +592,10 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             goods_state = back['state']
             num = back['goods_num']
             item_info = items.get_data_by_item_id(goods_id)
+            buff_type = item_info['buff_type']
             item_level = item_info.get('level') if item_info else None
             item_rank = get_item_msg_rank(goods_id)
-            if item_level == goal_level:
+            if item_level == goal_level or goods_name == goal_level or buff_type == goal_level:
                 if goods_type == "装备" and int(goods_state) == 1:
                     msg += f"\n装备：{goods_name}已经被道友装备在身，无法炼金！"
                     price_pass = 1
@@ -602,7 +612,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         if price_pass:
             pass
         else:
-            msg += f"\n道友没有【{goal_level}】"
+            msg += f"\n道友没有【{goal_level_name}】"
     msg += f"\n总计凝聚{number_to(price_sum)}|{price_sum}枚灵石"
     await bot.send(event=event, message=msg)
     await goods_re_root_fast.finish()

@@ -484,7 +484,10 @@ class LimitHandle:
         object_key = 'state'  # 可变参数，记得修改方法
         limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
-        logs = state_dict.get('log')
+        try:
+            logs = state_dict.get('log')
+        except:
+            logs = None
         log_data = "时间：" + str(now_date) + "\n" + msg_body
         if logs:
             logs.append(log_data)
@@ -492,7 +495,10 @@ class LimitHandle:
                 logs = logs[1:]
         else:
             logs = [log_data]
-        state_dict['log'] = logs
+        try:
+            state_dict['log'] = logs
+        except:
+            state_dict = {'log': logs}
         limit_dict[object_key] = state_dict
         LimitData().update_limit_data_with_key(limit_dict, object_key)
         return True
@@ -519,7 +525,10 @@ class LimitHandle:
         object_key = 'state'  # 可变参数，记得修改方法
         limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
-        logs = state_dict.get('shop_log')
+        try:
+            logs = state_dict.get('shop_log')
+        except:
+            logs = None
         log_data = "时间：" + str(now_date) + "\n" + msg_body
         if logs:
             logs.append(log_data)
@@ -527,7 +536,10 @@ class LimitHandle:
                 logs = logs[1:]
         else:
             logs = [log_data]
-        state_dict['shop_log'] = logs
+        try:
+            state_dict['shop_log'] = logs
+        except TypeError:
+            state_dict = {'shop_log': logs}
         limit_dict[object_key] = state_dict
         LimitData().update_limit_data_with_key(limit_dict, object_key)
         return True
@@ -536,7 +548,10 @@ class LimitHandle:
         object_key = 'state'  # 可变参数，记得修改方法
         limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
-        logs = state_dict.get('shop_log')
+        try:
+            logs = state_dict.get('shop_log')
+        except:
+            logs = None
         if logs:
             return logs
         else:
@@ -554,12 +569,18 @@ class LimitHandle:
         object_key = 'state'  # 可变参数，记得修改方法
         limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
-        logs = state_dict.get('week_donate_log')
+        try:
+            logs = state_dict.get('week_donate_log')
+        except:
+            logs = None
         logs = logs if logs else 0
         log_data = get_num_from_str(msg_body)
         log_data = int(log_data[-1]) if log_data else 0
         logs += log_data
-        state_dict['week_donate_log'] = logs
+        try:
+            state_dict['week_donate_log'] = logs
+        except TypeError:
+            state_dict = {'week_donate_log': logs}
         limit_dict[object_key] = state_dict
         LimitData().update_limit_data_with_key(limit_dict, object_key)
         return True
@@ -568,7 +589,10 @@ class LimitHandle:
         object_key = 'state'  # 可变参数，记得修改方法
         limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
-        logs = state_dict.get('week_donate_log')
+        try:
+            logs = state_dict.get('week_donate_log')
+        except:
+            logs = None
         if logs:
             return int(logs)
         else:

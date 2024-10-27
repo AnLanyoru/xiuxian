@@ -78,7 +78,7 @@ sect_elixir_get = on_command("宗门丹药领取", aliases={"领取宗门丹药�
 sect_rename = on_fullmatch("宗门改名", priority=5,  permission=GROUP, block=True)
 
 
-@weekly_work.scheduled_job("cron", day_of_week='sun', hour=5)
+@weekly_work.scheduled_job("cron", day_of_week='mon', hour=4)
 async def weekly_work_():
 
     LimitData().redata_limit_by_key('state')

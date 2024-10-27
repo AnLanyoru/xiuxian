@@ -166,7 +166,7 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
         card_all = ""
         msg = f""
         msg += f"\n道友{user_info['user_name']}的传承抽卡\n"
-        xiuxian_impart.update_stone_num(num, user_id, 2)
+        await xiuxian_impart.update_stone_num(num, user_id, 2)
         for i in range(num):
             if get_rank(user_id):
                 img_list = impart_data_json.data_all_keys()
@@ -249,7 +249,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                     await bot.send(event=event, message=msg)
                     await impart_draw.finish()
                 xiuxian_impart.add_impart_exp_day(90, user_id)
-                xiuxian_impart.update_stone_num(1, user_id, 2)
+                await xiuxian_impart.update_stone_num(1, user_id, 2)
                 xiuxian_impart.update_impart_wish(0, user_id)
                 # 更新传承数据
                 await re_impart_data(user_id)
@@ -266,7 +266,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                     await bot.send(event=event, message=msg)
                     await impart_draw.finish()
                 xiuxian_impart.add_impart_exp_day(45, user_id)
-                xiuxian_impart.update_stone_num(1, user_id, 2)
+                await xiuxian_impart.update_stone_num(1, user_id, 2)
                 xiuxian_impart.update_impart_wish(0, user_id)
                 # 更新传承数据
                 await re_impart_data(user_id)
@@ -283,7 +283,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 await bot.send(event=event, message=msg)
                 await impart_draw.finish()
             xiuxian_impart.add_impart_exp_day(50, user_id)
-            xiuxian_impart.update_stone_num(1, user_id, 2)
+            await xiuxian_impart.update_stone_num(1, user_id, 2)
             xiuxian_impart.add_impart_wish(10, user_id)
             await impart_draw.finish()
 
