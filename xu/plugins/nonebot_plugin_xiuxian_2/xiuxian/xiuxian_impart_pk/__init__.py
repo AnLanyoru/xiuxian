@@ -41,7 +41,7 @@ async def impart_re_():
 @impart_pk_now.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def impart_pk_now_(bot: Bot, event: GroupMessageEvent):
     """虚神界对决"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -64,7 +64,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent):
 @impart_pk_exp.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent):
     """虚神界闭关"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     user_type = 5  # 状态0为无事件
     isUser, user_info, msg = check_user(event)
     if not isUser:

@@ -45,7 +45,7 @@ active_gift = on_command("神州大地齐欢腾，祝福祖国永太平", priori
 @exp_up.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
 async def exp_up_(bot: Bot, event: GroupMessageEvent):
     """修炼"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     user_type = 4  # 状态4为修炼中
     is_user, user_info, msg = check_user(event)
     if not is_user:
@@ -128,7 +128,7 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
 @exp_up_end.handle(parameterless=[Cooldown(cd_time=240, at_sender=False)])
 async def exp_up_end_(bot: Bot, event: GroupMessageEvent):
     """退出修炼"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     user_type = 0  # 状态为空闲
     is_user, user_info, msg = check_user(event)
     if not is_user:
@@ -148,7 +148,7 @@ async def exp_up_end_(bot: Bot, event: GroupMessageEvent):
 @all_end.handle(parameterless=[Cooldown(at_sender=False)])
 async def all_end_(bot: Bot, event: GroupMessageEvent, state: T_State):
     """重置状态"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -171,7 +171,7 @@ async def all_end_(bot: Bot, event: GroupMessageEvent, state: T_State):
     :param state:
     :return:
     """
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     input_key = event.get_plaintext().strip()
     user_id = user_info['user_id']
@@ -188,7 +188,7 @@ async def all_end_(bot: Bot, event: GroupMessageEvent, state: T_State):
 @world_rank_up.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
 async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
     """飞升上界"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -225,7 +225,7 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 @world_rank_up.receive(parameterless=[Cooldown(cd_time=60, at_sender=False)])
 async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     user_name = user_info["user_name"]
     user_id = user_info["user_id"]
@@ -249,7 +249,7 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
 @power_break_up.handle(parameterless=[Cooldown(cd_time=2, at_sender=False)])
 async def power_break_up_(bot: Bot, event: GroupMessageEvent):
     """利用天地精华"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -298,7 +298,7 @@ async def power_break_up_(bot: Bot, event: GroupMessageEvent):
 @power_break_up_help.handle(parameterless=[Cooldown(cd_time=2, at_sender=False)])
 async def power_break_up_help_(bot: Bot, event: GroupMessageEvent):
     """天地精华帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -318,7 +318,7 @@ async def power_break_up_help_(bot: Bot, event: GroupMessageEvent):
 @active_gift.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
 async def active_gift_(bot: Bot, event: GroupMessageEvent):
     """国庆福利"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)

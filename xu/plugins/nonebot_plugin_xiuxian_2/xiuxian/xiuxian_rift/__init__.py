@@ -100,7 +100,7 @@ async def set_rift_():
 @rift_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def rift_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """秘境帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     if session_id in cache_help:
         await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await rift_help.finish()
@@ -118,7 +118,7 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
     :param event:
     :return:
     """
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     global world_rift  # 挖坑，不同位置的秘境
     if Place().get_worlds():
         world_rift = {}
@@ -138,14 +138,14 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
             place_name = Place().get_place_name(place_id)
             msg = (f"秘境：【{rift.name}】已在【{world_name}】的【{place_name}】开启！\n"
                    f"请诸位身在{world_name}的道友前往{place_name}(ID:{place_id})发送 探索秘境 来加入吧！")
-            await bot.send_group_msg(group_id=send_group_id, message=msg)
+            await bot.send(event=event, message=msg)
     await create_rift.finish()
 
 
 @explore_rift.handle(parameterless=[Cooldown(stamina_cost=240, at_sender=False)])
 async def explore_rift_(bot: Bot, event: GroupMessageEvent):
     """探索秘境"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -194,7 +194,7 @@ async def explore_rift_(bot: Bot, event: GroupMessageEvent):
 @complete_rift.handle(parameterless=[Cooldown(at_sender=False)])
 async def complete_rift_(bot: Bot, event: GroupMessageEvent):
     """秘境结算"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)

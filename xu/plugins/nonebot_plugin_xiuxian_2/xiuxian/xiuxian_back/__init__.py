@@ -117,7 +117,7 @@ async def reset_day_num_scheduler_():
 @back_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def back_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """背包帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     if session_id in cache_help:
         await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await back_help.finish()
@@ -130,7 +130,6 @@ async def back_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
 @xiuxian_sone.handle(parameterless=[Cooldown(at_sender=False)])
 async def xiuxian_sone_(bot: Bot, event: GroupMessageEvent):
     """我的灵石信息"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -146,7 +145,7 @@ buy_lock = asyncio.Lock()
 @buy.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP)])
 async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """购物"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     async with buy_lock:
         isUser, user_info, msg = check_user(event)
         if not isUser:
@@ -233,7 +232,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
 @shop.handle(parameterless=[Cooldown(at_sender=False)])
 async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """坊市查看"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -282,7 +281,7 @@ async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()
     parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
 async def shop_added_by_admin_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """系统上架坊市"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     args = args.extract_plain_text().split()
     if not args:
         msg = "请输入正确指令！例如：系统坊市上架 物品 金额"
@@ -350,7 +349,7 @@ async def shop_added_by_admin_(bot: Bot, event: GroupMessageEvent, args: Message
 @shop_added.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP)])
 async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """用户上架坊市"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -480,7 +479,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 @goods_re_root.handle(parameterless=[Cooldown(at_sender=False)])
 async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """炼金"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -555,7 +554,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @goods_re_root_fast.handle(parameterless=[Cooldown(at_sender=False)])
 async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """快速炼金"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -582,7 +581,8 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await goods_re_root_fast.finish()
     msg = "快速炼金以下品阶物品：\n" + "|".join(args)
     price_sum = 0
-    for goal_level, goal_level_name in real_args, args:
+    for goal_level, goal_level_name in zip(real_args, args):
+        back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,list(back)
         msg += f"\n快速炼金【{goal_level_name}】结果如下："
         price_pass = 0
         for back in back_msg:
@@ -592,7 +592,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             goods_state = back['state']
             num = back['goods_num']
             item_info = items.get_data_by_item_id(goods_id)
-            buff_type = item_info['buff_type']
+            buff_type = item_info.get('buff_type')
             item_level = item_info.get('level') if item_info else None
             item_rank = get_item_msg_rank(goods_id)
             if item_level == goal_level or goods_name == goal_level or buff_type == goal_level:
@@ -609,6 +609,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                     price_pass = 1
                 else:
                     pass
+
         if price_pass:
             pass
         else:
@@ -621,7 +622,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @shop_off.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
 async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """下架商品"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -689,7 +690,7 @@ async def main_back_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -733,7 +734,7 @@ async def no_use_zb_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -788,7 +789,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -1006,7 +1007,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
 @check_items.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
 async def check_items_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """查看修仙界物品"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     args = args.extract_plain_text()
     items_id = get_num_from_str(args)
     items_name = get_strs_from_str(args)
@@ -1039,7 +1040,7 @@ async def check_items_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 @master_rename.handle(parameterless=[Cooldown(isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
 async def master_rename_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """超管改名"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     arg = args.extract_plain_text()
     user_id = get_num_from_str(arg)
     user_name = get_strs_from_str(arg)
@@ -1058,7 +1059,7 @@ async def master_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @shop_off_all.handle(parameterless=[Cooldown(60, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
 async def shop_off_all_(bot: Bot, event: GroupMessageEvent):
     """坊市清空"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)

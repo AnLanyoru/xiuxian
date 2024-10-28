@@ -154,7 +154,7 @@ __home_help__ = f"""
 @help_in.handle(parameterless=[Cooldown(at_sender=False)])
 async def help_in_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """修仙帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = __xiuxian_notes__
     await bot.send(event=event, message=msg)
     await help_in.finish()
@@ -163,7 +163,7 @@ async def help_in_(bot: Bot, event: GroupMessageEvent, session_id: int = Command
 @help_newer.handle(parameterless=[Cooldown(at_sender=False)])
 async def help_in_(bot: Bot, event: GroupMessageEvent):
     """修仙新手帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = __xiuxian_newer_help__
     await bot.send(event=event, message=msg)
     await help_newer.finish()
@@ -172,7 +172,7 @@ async def help_in_(bot: Bot, event: GroupMessageEvent):
 @sect_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_help_(bot: Bot, event: GroupMessageEvent):
     """宗门帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = __sect_help__
     await bot.send(event=event, message=msg)
     await sect_help.finish()
@@ -181,7 +181,7 @@ async def sect_help_(bot: Bot, event: GroupMessageEvent):
 @sect_help_control.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_help_control_(bot: Bot, event: GroupMessageEvent):
     """宗门管理帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = f"""\n———宗门管理菜单———
 1、宗门职位变更:
 >长老以上职位可以改变宗门成员的职位等级
@@ -201,7 +201,7 @@ async def sect_help_control_(bot: Bot, event: GroupMessageEvent):
 @sect_help_owner.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_help_owner_(bot: Bot, event: GroupMessageEvent):
     """宗主帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = f"""\n———宗主菜单———
 1、宗门职位变更:
 >宗主可以改变宗门成员的职位等级
@@ -231,7 +231,7 @@ async def sect_help_owner_(bot: Bot, event: GroupMessageEvent):
 @sect_help_member.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_help_member_(bot: Bot, event: GroupMessageEvent):
     """宗门管理帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = f"""\n————宗门指令帮助————
 1、我的宗门:
 >查看当前所处宗门信息
@@ -273,7 +273,7 @@ async def sect_help_member_(bot: Bot, event: GroupMessageEvent):
 @buff_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def buff_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """功法帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = __buff_help__
     await bot.send(event=event, message=msg)
     await buff_help.finish()
@@ -282,7 +282,7 @@ async def buff_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
 @buff_home.handle(parameterless=[Cooldown(at_sender=False)])
 async def buff_home_(bot: Bot, event: GroupMessageEvent):
     """灵田帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = __home_help__
     await bot.send(event=event, message=msg)
     await buff_home.finish()

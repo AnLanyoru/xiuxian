@@ -216,8 +216,9 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         sql_cd = (f"INSERT INTO user_cd (user_id,type,create_time,scheduled_time,last_check_info_time"
                   f") VALUES (?,?,?,?,?)")
 
-        c.execute(sql_cd, (user_id, 0, None, 0, None))
         c.execute(sql, (user_id, root, root_type, power, create_time, user_name, XiuConfig().max_stamina, 1))
+        self.conn.commit()
+        c.execute(sql_cd, (user_id, 0, None, 0, None))
         self.conn.commit()
 
     def get_user_info_with_id(self, user_id):

@@ -22,7 +22,7 @@ mixture = on_command('合成', priority=15, permission=GROUP,block=True)
 
 @mixture.handle(parameterless=[Cooldown(at_sender=False)])
 async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)

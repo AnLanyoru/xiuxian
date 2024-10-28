@@ -70,7 +70,7 @@ https://huggingface.co/spaces/chewing/liandan
 @mix_elixir_sqdj_up.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_sqdj_up_(bot: Bot, event: GroupMessageEvent):
     """收取等级升级"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -103,7 +103,7 @@ async def mix_elixir_sqdj_up_(bot: Bot, event: GroupMessageEvent):
 @mix_elixir_dykh_up.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
     """丹药控火升级"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -132,7 +132,7 @@ async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
 @yaocai_get.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
     """灵田收取"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -202,7 +202,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
 @my_mix_elixir_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
     """我的炼丹信息"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -229,7 +229,7 @@ async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
 @elixir_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def elixir_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """炼丹帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     if session_id in cache_help:
         await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await elixir_help.finish()
@@ -247,7 +247,7 @@ async def elixir_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Com
 @mix_elixir_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_help_(bot: Bot, event: GroupMessageEvent):
     """炼丹配方帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = __mix_elixir_help__
     await bot.send(event=event, message=msg)
     await mix_elixir_help.finish()
@@ -260,7 +260,7 @@ user_ldl_flag = {}
 @mix_elixir.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
     global user_ldl_dict, user_ldl_flag
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -327,7 +327,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
 @mix_make.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlainText()):
     """配方"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     user_id = event.user_id
     pattern = r"主药([\u4e00-\u9fa5]+)(\d+)药引([\u4e00-\u9fa5]+)(\d+)辅药([\u4e00-\u9fa5]+)(\d+)丹炉([\u4e00-\u9fa5]+)+"
     matched = re.search(pattern, mode)
@@ -452,7 +452,7 @@ async def elixir_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -496,7 +496,7 @@ async def yaocai_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)

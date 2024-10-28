@@ -117,7 +117,7 @@ async def resetusertask_():
 @sect_elixir_room_make.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
     """宗门丹房建设"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -170,7 +170,7 @@ async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
 @sect_elixir_get.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
     """宗门丹药领取"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -255,7 +255,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
 @sect_buff_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
     """宗门功法查看"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -315,7 +315,7 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
 @sect_mainbuff_learn.handle(parameterless=[Cooldown(stamina_cost=0, cd_time=10, at_sender=False)])
 async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门功法"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -381,7 +381,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
 @sect_mainbuff_get.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门功法"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -454,7 +454,7 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
 @sect_secbuff_get.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门神通"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -527,7 +527,7 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
 @sect_secbuff_learn.handle(parameterless=[Cooldown(stamina_cost=0, cd_time=10, at_sender=False)])
 async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门神通"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -595,7 +595,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
 @upatkpractice.handle(parameterless=[Cooldown(at_sender=False)])
 async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """升级攻击修炼"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -666,7 +666,7 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @sect_task_refresh.handle(parameterless=[Cooldown(cd_time=config['宗门任务刷新cd'], at_sender=False)])
 async def sect_task_refresh_(bot: Bot, event: GroupMessageEvent):
     """刷新宗门任务"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -693,7 +693,7 @@ async def sect_task_refresh_(bot: Bot, event: GroupMessageEvent):
 @sect_list.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_list_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门列表：当前为返回转发内容"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     sect_lists_with_members = sql_message.get_all_sects_with_member_count()
 
     msg_list = []
@@ -734,7 +734,7 @@ async def sect_list_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 @sect_users.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """查看所在宗门成员信息"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg_list = []
     args = args.extract_plain_text()
     page = get_num_from_str(args)
@@ -785,7 +785,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 @sect_users_donate_check.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门划水成员审判"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg_list = []
     args = args.extract_plain_text()
     nums = get_num_from_str(args)
@@ -838,7 +838,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 @sect_task.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_task_(bot: Bot, event: GroupMessageEvent):
     """获取宗门任务"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -870,7 +870,7 @@ async def sect_task_(bot: Bot, event: GroupMessageEvent):
 @sect_task_complete.handle(parameterless=[Cooldown(cd_time=config['宗门任务完成cd'], stamina_cost=0, at_sender=False)])
 async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
     """完成宗门任务"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -963,7 +963,7 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
 @sect_owner_change.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗主传位"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -1008,7 +1008,7 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
 @sect_rename.handle(parameterless=[Cooldown(cd_time=XiuConfig().sect_rename_cd * 86400,at_sender=False)])
 async def sect_rename_(bot: Bot, event: GroupMessageEvent):
     """宗门改名"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -1051,7 +1051,7 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent):
 @create_sect.handle(parameterless=[Cooldown(at_sender=False)])
 async def create_sect_(bot: Bot, event: GroupMessageEvent):
     """创建宗门，对灵石、修为等级有要求，且需要当前状态无宗门"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         msg = f"朋友没有丝毫修为，如何能创立万世仙门？"
@@ -1089,7 +1089,7 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent):
 @sect_kick_out.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """踢出宗门"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -1151,7 +1151,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @sect_out.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """退出宗门"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -1180,7 +1180,7 @@ async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
 @sect_donate.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门捐献"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -1214,7 +1214,7 @@ async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 @sect_position_update.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门职位变更"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -1274,7 +1274,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
 @join_sect.handle(parameterless=[Cooldown(at_sender=False)])
 async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """加入宗门,后跟宗门ID,要求加入者当前状态无宗门,入门默认为外门弟子"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         msg = f"守山弟子：凡人，回去吧，仙途难入，莫要自误！"
@@ -1316,7 +1316,7 @@ async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 @my_sect.handle(parameterless=[Cooldown(at_sender=False)])
 async def my_sect_(bot: Bot, event: GroupMessageEvent):
     """我的宗门"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         msg = f"守山弟子：凡人，回去吧，仙途难入，莫要自误！"

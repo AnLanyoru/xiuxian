@@ -62,7 +62,7 @@ __work_help__ = f"""
 
 @last_work.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def last_work_(bot: Bot, event: GroupMessageEvent):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -143,7 +143,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
 
 @do_work.handle(parameterless=[Cooldown(cd_time=6, stamina_cost=0, at_sender=False)])
 async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tuple[Any, ...] = RegexGroup()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -403,7 +403,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
 
 @do_work.receive()
 async def get_work_num(bot: Bot, event: GroupMessageEvent, state: T_State):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     num = get_num_from_str(event.get_plaintext())
     user_id = event.user_id
     is_type, msg = check_user_type(user_id, 0)  # 需要无状态的用户

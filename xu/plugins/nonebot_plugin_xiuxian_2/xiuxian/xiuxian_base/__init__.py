@@ -65,7 +65,6 @@ gm_command_miss = on_command("思恋结晶", permission=SUPERUSER, priority=10, 
 gmm_command = on_command("灵根更换", permission=SUPERUSER, priority=10, block=True)
 cz = on_command('创造', permission=SUPERUSER, priority=15, block=True)
 rob_stone = on_command("抢灵石", priority=5, permission=GROUP, block=True)
-restate = on_command("重置用户状态", permission=SUPERUSER, priority=12, block=True)
 set_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'},
                          permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
@@ -121,7 +120,7 @@ async def xiuxian_sing_():
 @xiuxian_update_data.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_help_(bot: Bot, event: GroupMessageEvent):
     """更新记录"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = __xiuxian_update_data__
     await bot.send(event=event, message=msg)
     await xiuxian_update_data.finish()
@@ -132,7 +131,7 @@ async def mix_elixir_help_(bot: Bot, event: GroupMessageEvent):
 @run_xiuxian.handle(parameterless=[Cooldown(at_sender=False)])
 async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
     """加入修仙"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     user_id = event.get_user_id()
     user_name = sql_message.random_name()
     #    event.sender.card if event.sender.card else event.sender.nickname
@@ -162,7 +161,7 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
 @sign_in.handle(parameterless=[Cooldown(at_sender=False)])
 async def sign_in_(bot: Bot, event: GroupMessageEvent):
     """修仙签到"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -180,7 +179,7 @@ async def sign_in_(bot: Bot, event: GroupMessageEvent):
 @level_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def level_help_(bot: Bot, event: GroupMessageEvent):
     """境界帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     message = str(event.message)
     rank_msg = r'[\u4e00-\u9fa5]+'
     message = re.findall(rank_msg, message)
@@ -203,7 +202,7 @@ async def level_help_(bot: Bot, event: GroupMessageEvent):
 @restart.handle(parameterless=[Cooldown(at_sender=False)])
 async def restart_(bot: Bot, event: GroupMessageEvent, state: T_State):
     """刷新灵根信息"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -261,13 +260,13 @@ async def handle_user_choice(bot: Bot, event: GroupMessageEvent, state: T_State)
 
         msg += sql_message.ramaker(selected_name, selected_root_type, user_id)
         try:
-            await bot.send_group_msg(group_id=event.group_id, message=msg)
+            await bot.send(event=event, message=msg)
         except ActionFailed:
-            await bot.send_group_msg(group_id=event.group_id, message="修仙界网络堵塞，发送失败!")
+            await bot.send(event=event, message="修仙界网络堵塞，发送失败!")
             await restart.finish()
     else:
         if user_choice == "确认更换灵根":
-            await bot.send_group_msg(group_id=event.group_id, message=choice_msg_pass)
+            await bot.send(event=event, message=choice_msg_pass)
             state["msg_pass"] = 2
             await restart.reject()
 
@@ -275,7 +274,7 @@ async def handle_user_choice(bot: Bot, event: GroupMessageEvent, state: T_State)
 @rank.handle(parameterless=[Cooldown(at_sender=False)])
 async def rank_(bot: Bot, event: GroupMessageEvent):
     """排行榜"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     messages = str(event.message)
     rank_msg = r'[\u4e00-\u9fa5]+'
     message = re.findall(rank_msg, messages)
@@ -329,7 +328,7 @@ async def rank_(bot: Bot, event: GroupMessageEvent):
 @rename.handle(parameterless=[Cooldown(at_sender=False)])
 async def remaname_(bot: Bot, event: GroupMessageEvent):
     """修改道号"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -345,7 +344,7 @@ async def remaname_(bot: Bot, event: GroupMessageEvent):
 @level_up.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def level_up_(bot: Bot, event: GroupMessageEvent):
     """突破"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -398,7 +397,7 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
 @level_up_zj.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
     """直接突破"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -479,7 +478,7 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
 @level_up_zj_all.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def level_up_zj_all_(bot: Bot, event: GroupMessageEvent):
     """快速突破"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -564,7 +563,7 @@ async def level_up_zj_all_(bot: Bot, event: GroupMessageEvent):
 @level_up_drjd.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
     """渡厄 金丹 突破"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -670,7 +669,7 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
 @level_up_dr.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
     """渡厄 突破"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -772,7 +771,7 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
 @user_leveluprate.handle(parameterless=[Cooldown(at_sender=False)])
 async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
     """我的突破概率"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -792,7 +791,7 @@ async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
 @user_stamina.handle(parameterless=[Cooldown(at_sender=False)])
 async def user_stamina_(bot: Bot, event: GroupMessageEvent):
     """我的体力信息"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -805,7 +804,7 @@ async def user_stamina_(bot: Bot, event: GroupMessageEvent):
 @give_stone.handle(parameterless=[Cooldown(at_sender=False)])
 async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """送灵石"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -877,7 +876,7 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 # 偷灵石
 @steal_stone.handle(parameterless=[Cooldown(stamina_cost=2400, at_sender=False)])
 async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     args = args.extract_plain_text().split()
     if not isUser:
@@ -941,7 +940,7 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 # GM加灵石
 @gm_command.handle(parameterless=[Cooldown(at_sender=False)])
 async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg_text = args.extract_plain_text()
     stone_num_match = re.findall(r"\d+", msg_text)  # 提取数字
     give_qq = get_id_from_str(msg_text)  # 道号
@@ -971,7 +970,7 @@ async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 # GM加思恋结晶
 @gm_command_miss.handle(parameterless=[Cooldown(at_sender=False)])
 async def gm_command_miss_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg_text = args.extract_plain_text()
     stone_num_match = re.findall(r"\d+", msg_text)  # 提取数字
     give_qq = get_id_from_str(msg_text)  # 道号
@@ -1001,7 +1000,7 @@ async def gm_command_miss_(bot: Bot, event: GroupMessageEvent, args: Message = C
 @cz.handle(parameterless=[Cooldown(at_sender=False)])
 async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """创造物品"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = args.extract_plain_text()
     strs = get_strs_from_str(msg)
     nums = get_num_from_str(msg)
@@ -1060,7 +1059,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 # GM改灵根
 @gmm_command.handle(parameterless=[Cooldown(at_sender=False)])
 async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = args.extract_plain_text().strip()
     if not args:
         msg = f"请输入正确指令！例如：灵根更换 x(1为混沌,2为融合,3为超,4为龙,5为天,6为千世,7为万世,8为无上)"
@@ -1091,7 +1090,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             "ATK": ATK,
             "COMBO": COMBO
         }"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -1242,33 +1241,10 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         await rob_stone.finish()
 
 
-@restate.handle(parameterless=[Cooldown(at_sender=False)])
-async def restate_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    """重置用户状态。
-    单用户：重置状态@xxx
-    多用户：重置状态"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await restate.finish()
-    give_qq = sql_message.get_user_id(args)  # 使用道号获取用户id，代替原at
-    if give_qq:
-        sql_message.restate(give_qq)
-        msg = f"{give_qq}用户信息重置成功！"
-        await bot.send(event=event, message=msg)
-        await restate.finish()
-    else:
-        sql_message.restate()
-        msg = f"所有用户信息重置成功！"
-        await bot.send(event=event, message=msg)
-        await restate.finish()
-
-
 @set_xiuxian.handle()
 async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
     """群修仙开关配置"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     group_msg = str(event.message)
     group_id = str(event.group_id)
     conf_data = JsonConfig().read_data()

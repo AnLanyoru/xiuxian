@@ -85,7 +85,7 @@ async def two_exp_cd_up_():
 @blessed_spot_create.handle(parameterless=[Cooldown(at_sender=False)])
 async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
     """洞天福地购买"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -115,7 +115,7 @@ async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
 @blessed_spot_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def blessed_spot_info_(bot: Bot, event: GroupMessageEvent):
     """洞天福地信息"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -142,7 +142,7 @@ async def blessed_spot_info_(bot: Bot, event: GroupMessageEvent):
 @ling_tian_up.handle(parameterless=[Cooldown(at_sender=False)])
 async def ling_tian_up_(bot: Bot, event: GroupMessageEvent):
     """洞天福地灵田升级"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -216,7 +216,7 @@ async def ling_tian_up_(bot: Bot, event: GroupMessageEvent):
 @blessed_spot_rename.handle(parameterless=[Cooldown(at_sender=False)])
 async def blessed_spot_rename_(bot: Bot, event: GroupMessageEvent):
     """洞天福地改名"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -247,7 +247,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """切磋，不会掉血"""
     args = args.extract_plain_text()
     give_qq = get_id_from_str(args)  # 使用道号获取用户id，代替原at
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -305,7 +305,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 @two_exp.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """双修"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_1, msg = check_user(event)
     if not is_user:
         if XiuConfig().img:
@@ -463,7 +463,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
 @stone_exp.handle(parameterless=[Cooldown(at_sender=False)])
 async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """灵石修炼"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -534,7 +534,7 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 @in_closing.handle(parameterless=[Cooldown(at_sender=False)])
 async def in_closing_(bot: Bot, event: GroupMessageEvent):
     """闭关"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     user_type = 1  # 状态0为无事件
     isUser, user_info, msg = check_user(event)
     if not isUser:
@@ -555,7 +555,7 @@ async def in_closing_(bot: Bot, event: GroupMessageEvent):
 @out_closing.handle(parameterless=[Cooldown(at_sender=False)])
 async def out_closing_(bot: Bot, event: GroupMessageEvent):
     """出关"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     user_type = 0  # 状态0为无事件
     is_user, user_info, msg = check_user(event)
     if not is_user:
@@ -751,7 +751,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
 @mind_state.handle(parameterless=[Cooldown(at_sender=False)])
 async def mind_state_(bot: Bot, event: GroupMessageEvent):
     """我的状态信息"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_msg, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -859,7 +859,7 @@ boss战增益:{int(boss_atk * 100)}%
 @select_state.handle(parameterless=[Cooldown(at_sender=False)])
 async def select_state_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """查看其他角色状态信息"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_msg, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -972,7 +972,7 @@ boss战增益:{int(boss_atk * 100)}%
 @buffinfo.handle(parameterless=[Cooldown(at_sender=False)])
 async def buffinfo_(bot: Bot, event: GroupMessageEvent):
     """我的功法"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -1009,7 +1009,7 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
 @del_exp_decimal.handle(parameterless=[Cooldown(at_sender=False)])
 async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
     """清除修为浮点数"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -1025,7 +1025,7 @@ async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
 @my_exp_num.handle(parameterless=[Cooldown(at_sender=False)])
 async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
     """我的双修次数"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)

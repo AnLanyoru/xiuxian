@@ -37,7 +37,7 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
     :param args:
     :return: msg：distance
     """
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -86,7 +86,7 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
 @stop_move.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def stop_move_(bot: Bot, event: GroupMessageEvent):
     """移动结算"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -107,7 +107,7 @@ async def stop_move_(bot: Bot, event: GroupMessageEvent):
 @complete_move.handle(parameterless=[Cooldown(at_sender=False)])
 async def complete_move_(bot: Bot, event: GroupMessageEvent):
     """移动结算"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -143,7 +143,7 @@ async def complete_move_(bot: Bot, event: GroupMessageEvent):
 
 @get_map.handle(parameterless=[Cooldown(at_sender=False)])
 async def get_map_(bot: Bot, event: GroupMessageEvent):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)

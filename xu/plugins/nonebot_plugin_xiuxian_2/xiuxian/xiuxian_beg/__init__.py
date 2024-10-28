@@ -47,7 +47,7 @@ beg_help = on_command("仙途奇缘帮助", permission=GROUP, priority=7, block=
 
 @beg_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     if session_id in cache_beg_help:
         await bot.send(event=event, message=MessageSegment.image(cache_beg_help[session_id]))
         await beg_help.finish()
@@ -64,7 +64,7 @@ async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
 
 @beg_stone.handle(parameterless=[Cooldown(at_sender=False)])
 async def beg_stone_(bot: Bot, event: GroupMessageEvent):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     user_id = event.get_user_id()
     isUser, user_info, msg = check_user(event)
 
@@ -85,22 +85,22 @@ async def beg_stone_(bot: Bot, event: GroupMessageEvent):
     sql_message.update_last_check_info_time(user_id)  # 更新查看修仙信息时间
     if sect is not None and user_root == "伪灵根":
         msg = f"道友已有宗门庇佑，又何必来此寻求机缘呢？"
-        await bot.send_group_msg(group_id=event.group_id, message=msg)
+        await bot.send(event=event, message=msg)
         await beg_stone.finish()
 
     elif user_root in {"轮回灵根", "源宇道根"}:
         msg = f"道友已是轮回大能，又何必来此寻求机缘呢？"
-        await bot.send_group_msg(group_id=event.group_id, message=msg)
+        await bot.send(event=event, message=msg)
         await beg_stone.finish()
 
     elif list_level_all.index(level) >= list_level_all.index(XiuConfig().beg_max_level):
         msg = f"道友已跻身于{user_info['level']}层次的修行之人，可徜徉于四海八荒，自寻机缘与造化矣。"
-        await bot.send_group_msg(group_id=event.group_id, message=msg)
+        await bot.send(event=event, message=msg)
         await beg_stone.finish()
 
     elif diff_days > XiuConfig().beg_max_days:
         msg = f"道友已经过了新手期,不能再来此寻求机缘了。"
-        await bot.send_group_msg(group_id=event.group_id, message=msg)
+        await bot.send(group_id=event, message=msg)
         await beg_stone.finish()
 
     else:
@@ -128,5 +128,5 @@ async def beg_stone_(bot: Bot, event: GroupMessageEvent):
                     f"你在一次随机的交易中获得了一个外表不起眼的神秘盒子。当你好奇心驱使下打开它时，发现里面竟是一枚装满灵石的纳戒，收获了 {stone} 枚灵石！",
                 ]
             )
-        await bot.send_group_msg(group_id=event.group_id, message=msg)
+        await bot.send(event=event, message=msg)
         await beg_stone.finish()

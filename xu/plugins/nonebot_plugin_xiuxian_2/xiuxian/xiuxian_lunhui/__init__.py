@@ -58,7 +58,7 @@ time_set_now = on_command('逆转时空', priority=15, permission=SUPERUSER, blo
 @warring_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def warring_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """轮回重修帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     if session_id in cache_help_fk:
         await bot.send(event=event, message=MessageSegment.image(cache_help_fk[session_id]))
         await warring_help.finish()
@@ -75,7 +75,7 @@ async def warring_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Co
 
 @lunhui.handle(parameterless=[Cooldown(at_sender=False)])
 async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -129,7 +129,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
 
 @twolun.handle(parameterless=[Cooldown(at_sender=False)])
 async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -183,7 +183,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
 
 @threelun.handle(parameterless=[Cooldown(at_sender=False)])
 async def threelun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -234,7 +234,7 @@ async def threelun_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
 
 @resetting.handle(parameterless=[Cooldown(at_sender=False)])
 async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -262,7 +262,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
 
 @gettest.handle(parameterless=[Cooldown(at_sender=False)])
 async def gettest_(bot: Bot, event: GroupMessageEvent, state: T_State):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -278,7 +278,7 @@ async def gettest_(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 @gettest.receive()
 async def gettest_(bot: Bot, event: GroupMessageEvent, state: T_State):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     input_key = event.get_plaintext().strip()
 
@@ -298,7 +298,7 @@ async def gettest_(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 @timeback.handle(parameterless=[Cooldown(at_sender=False)])
 async def timeback_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -326,7 +326,7 @@ async def timeback_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
 
 @time_set_now.handle(parameterless=[Cooldown(at_sender=False)])
 async def time_set_now_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)

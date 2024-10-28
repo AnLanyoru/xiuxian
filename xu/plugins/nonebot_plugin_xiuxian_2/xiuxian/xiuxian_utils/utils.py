@@ -499,7 +499,7 @@ async def send_msg_handler(bot, event, *args):
             elif XiuConfig().img_send_type == "base64":
                 img_data = img.sync_draw_to(messages)
             if isinstance(event, GroupMessageEvent):
-                await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_data))
+                await bot.send(event=event, message=MessageSegment.image(img_data))
             else:
                 await bot.send_private_msg(user_id=event.user_id, message=MessageSegment.image(img_data))
 
@@ -512,7 +512,7 @@ async def send_msg_handler(bot, event, *args):
             elif XiuConfig().img_send_type == "base64":
                 img_data = img.sync_draw_to(messages)
             if isinstance(event, GroupMessageEvent):
-                await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_data))
+                await bot.send(event=event, message=MessageSegment.image(img_data))
             else:
                 await bot.send_private_msg(user_id=event.user_id, message=MessageSegment.image(img_data))
         else:

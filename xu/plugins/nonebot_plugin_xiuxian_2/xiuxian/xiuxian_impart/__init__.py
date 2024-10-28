@@ -81,7 +81,7 @@ __impart_help__ = f"""
 @impart_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """传承帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     msg = __impart_help__
     await bot.send(event=event, message=msg)
     await impart_help.finish()
@@ -90,7 +90,7 @@ async def impart_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Com
 @impart_img.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """传承卡图"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     img_name = args.extract_plain_text().strip()
     all_data = impart_data_json.data_all_()
     x = img_name
@@ -131,7 +131,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 @impart_draw_fast.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """传承抽卡多次"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -208,7 +208,7 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
 @impart_draw.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     """传承抽卡"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -291,7 +291,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
 @impart_back.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_back_(bot: Bot, event: GroupMessageEvent):
     """传承背包"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -341,7 +341,7 @@ boss战攻击提升:{int(impart_data_draw['boss_atk'] * 100)}%
 @re_impart_load.handle(parameterless=[Cooldown(at_sender=False)])
 async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     """加载传承数据"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -365,7 +365,7 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
 @impart_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_info_(bot: Bot, event: GroupMessageEvent):
     """传承信息"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)

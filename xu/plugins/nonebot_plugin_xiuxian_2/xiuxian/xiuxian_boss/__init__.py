@@ -117,75 +117,7 @@ async def read_boss_():
     logger.opt(colors=True).info(f"<green>历史boss数据读取成功</green>")
 
 
-@DRIVER.on_startup
-async def set_boss_():
-    groups_list = list(groups.keys())
-    try:
-        for group_id in groups_list:
-            scheduler.add_job(
-                func=send_bot,
-                trigger='interval',
-                hours=groups[str(group_id)]["hours"],
-                minutes=groups[str(group_id)]['minutes'],
-                id=f"set_boss_{group_id}",
-                args=[group_id],
-                misfire_grace_time=10
-            )
-            logger.opt(colors=True).success(
-                f"<green>开启群{group_id}boss,每{groups[str(group_id)]['hours']}小时{groups[str(group_id)]['minutes']}分钟刷新！</green>")
-    except Exception as e:
-        logger.opt(colors=True).warning(f"<red>警告,定时群boss加载失败!,{e}!</red>")
 
-
-async def send_bot(group_id: str):
-    # 初始化
-    if not group_id in group_boss:
-        group_boss[group_id] = []
-
-    if group_id not in groups:
-        return
-
-    if group_id not in conf_data["group"]:
-        return
-
-    if len(group_boss[group_id]) >= config['Boss个数上限']:
-        logger.opt(colors=True).info(f"<green>群{group_id}Boss个数已到达个数上限</green>")
-        return
-
-    api = 'send_group_msg'  # 要调用的函数
-    data = {'group_id': int(group_id)}  # 要发送的群
-
-    bossinfo = createboss()
-    group_boss[group_id].append(bossinfo)
-    msg = f"野生的{bossinfo['jj']}Boss:{bossinfo['name']}出现了,诸位道友请击败Boss获得奖励吧!"
-    if XiuConfig().img:
-        pic = await get_msg_pic(f"@全体修仙者\n" + msg)
-        data['message'] = MessageSegment.image(pic)
-    else:
-        data['message'] = MessageSegment.text(msg)
-
-    try:
-        bot_id = layout_bot_dict[group_id] if group_id in layout_bot_dict else put_bot[0]
-    except:
-        bot = get_bot()
-        bot_id = bot.self_id
-
-    try:
-        if type(bot_id) is str:
-            await get_bots()[bot_id].call_api(api, **data)
-        elif type(bot_id) is list:
-            await get_bots()[random.choice(bot_id)].call_api(api, **data)
-        else:
-            await get_bots()[put_bot[0]].call_api(api, **data)
-
-    except:
-        if group_id not in bot.get_group_list():
-            logger.opt(colors=True).warning(f"<red>群{group_id}不存在,请检查配置文件!</red>")
-            return
-        else:
-            await get_bot().call_api(api, **data)
-
-    logger.opt(colors=True).info(f"<green>群{group_id}已生成世界boss</green>")
 
 
 @DRIVER.on_shutdown
@@ -197,15 +129,12 @@ async def save_boss_():
 
 @boss_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     if session_id in cache_help:
         await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await boss_help.finish()
     else:
-        if str(send_group_id) in groups:
-            msg = __boss_help__
-        else:
-            msg = __boss_help__
+        msg = __boss_help__
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             cache_help[session_id] = pic
@@ -218,7 +147,7 @@ async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
 @battle.handle(parameterless=[Cooldown(stamina_cost=60, at_sender=False)])
 async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """讨伐世界boss"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -417,7 +346,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 @boss_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """查询世界boss"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     group_id = str(event.group_id)
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
@@ -486,7 +415,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 @set_group_boss.handle(parameterless=[Cooldown(at_sender=False)])
 async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """设置群世界boss开关"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     mode = args.extract_plain_text().strip()
     group_id = str(event.group_id)
     isInGroup = isInGroups(event)  # True在，False不在
@@ -525,10 +454,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
             await set_group_boss.finish()
 
     elif mode == '':
-        if str(send_group_id) in groups:
-            msg = __boss_help__ + f"非指令:1、拥有定时任务:每{groups[str(send_group_id)]['hours']}小时{groups[str(send_group_id)]['minutes']}分钟生成一只随机大境界的世界Boss"
-        else:
-            msg = __boss_help__
+        msg = __boss_help__
         await bot.send(event=event, message=msg)
         await set_group_boss.finish()
     else:
@@ -540,7 +466,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
 @boss_integral_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_integral_info_(bot: Bot, event: GroupMessageEvent):
     """世界积分商店"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)
@@ -571,7 +497,7 @@ async def boss_integral_info_(bot: Bot, event: GroupMessageEvent):
 @boss_integral_use.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """世界积分商店兑换"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
     if not isUser:
         await bot.send(event=event, message=msg)

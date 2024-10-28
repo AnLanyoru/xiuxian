@@ -31,7 +31,7 @@ dufang_help = on_command("金银阁帮助", permission=GROUP, priority=7, block=
 
 @dufang_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def dufang_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     if session_id in cache_help:
         await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
         await dufang_help.finish()

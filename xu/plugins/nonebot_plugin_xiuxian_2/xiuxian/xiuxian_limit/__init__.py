@@ -29,7 +29,7 @@ get_shop_log = on_command('坊市日志', aliases={"查询坊市日志", "查看
 
 @offset.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -62,7 +62,7 @@ async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
 @offset_get.handle(parameterless=[Cooldown(cd_time=3, at_sender=False)])
 async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -102,7 +102,7 @@ async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
 @get_log.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
@@ -120,7 +120,7 @@ async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
 @get_shop_log.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
     if not is_user:
         await bot.send(event=event, message=msg)
