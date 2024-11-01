@@ -1,4 +1,4 @@
-from limit_database import LimitData
+from .limit_database import LimitData
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian import XiuConfig
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_utils.xiuxian2_handle import UserBuffDate, XIUXIAN_IMPART_BUFF
 
