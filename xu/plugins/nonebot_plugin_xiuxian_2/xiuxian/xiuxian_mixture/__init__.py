@@ -1,4 +1,4 @@
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.params import CommandArg
 from nonebot import on_command
 from ..xiuxian_config import XiuConfig
@@ -22,11 +22,9 @@ mixture = on_command('合成', priority=15, permission=GROUP,block=True)
 
 @mixture.handle(parameterless=[Cooldown(at_sender=False)])
 async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await mixture.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     back_msg = sql_message.get_back_msg(user_id)
     if back_msg is None:

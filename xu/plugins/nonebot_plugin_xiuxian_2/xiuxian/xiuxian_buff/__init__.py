@@ -12,10 +12,11 @@ from datetime import datetime
 from nonebot import on_command, on_fullmatch, require
 from nonebot.permission import SUPERUSER
 
-from .limit import CheckLimit, LimitInfo
+from .limit import CheckLimit, reset_send_stone, reset_stone_exp_up
 from .. import DRIVER
 from ..xiuxian_impart_pk import impart_pk_check
 from ..xiuxian_limit import LimitHandle
+from ..xiuxian_limit.limit_util import LimitCheck
 from ..xiuxian_place import Place
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, get_player_info,
@@ -31,7 +32,7 @@ from ..xiuxian_utils.utils import (
     number_to, check_user, send_msg_handler,
     check_user_type, get_msg_pic, CommandObjectID, get_id_from_str
 )
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from .two_exp_cd import two_exp_cd
 
 cache_help = {}
@@ -58,20 +59,6 @@ ling_tian_up = on_fullmatch("灵田开垦", priority=5, permission=GROUP, block=
 del_exp_decimal = on_fullmatch("抑制黑暗动乱", priority=9, permission=GROUP, block=True)
 my_exp_num = on_fullmatch("我的双修次数", priority=9, permission=GROUP, block=True)
 a_test = on_fullmatch("测试保存", priority=9, permission=SUPERUSER, block=True)
-reset_test = on_fullmatch("重置限制", priority=9, permission=SUPERUSER, block=True)
-
-
-@DRIVER.on_startup
-async def read_limit_():
-    global limit_dict
-    limit_dict.update(LimitInfo().read_limit_info())
-    logger.opt(colors=True).info(f"<green>历史限制数据读取成功</green>")
-
-
-@DRIVER.on_shutdown
-async def save_limit_():
-    LimitInfo().save_limit(limit_dict)
-    logger.opt(colors=True).info(f"<green>限制数据已保存</green>")
 
 
 # 每日0点重置用户双修次数
@@ -79,17 +66,16 @@ async def save_limit_():
 async def two_exp_cd_up_():
 
     two_exp_cd.re_data()
-    logger.opt(colors=True).info(f"<green>双修次数已刷新！</green>")
+    reset_send_stone()
+    reset_stone_exp_up()
+    logger.opt(colors=True).info(f"<green>日常限制已刷新！</green>")
 
 
 @blessed_spot_create.handle(parameterless=[Cooldown(at_sender=False)])
 async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
     """洞天福地购买"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await blessed_spot_create.finish()
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) != 0:
         msg = f"道友已经拥有洞天福地了，请发送洞天福地查看吧~"
@@ -115,11 +101,8 @@ async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
 @blessed_spot_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def blessed_spot_info_(bot: Bot, event: GroupMessageEvent):
     """洞天福地信息"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await blessed_spot_info.finish()
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
         msg = f"道友还没有洞天福地呢，请发送洞天福地购买来购买吧~"
@@ -143,10 +126,8 @@ async def blessed_spot_info_(bot: Bot, event: GroupMessageEvent):
 async def ling_tian_up_(bot: Bot, event: GroupMessageEvent):
     """洞天福地灵田升级"""
     # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await ling_tian_up.finish()
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
         msg = f"道友还没有洞天福地呢，请发送洞天福地购买吧~"
@@ -217,10 +198,8 @@ async def ling_tian_up_(bot: Bot, event: GroupMessageEvent):
 async def blessed_spot_rename_(bot: Bot, event: GroupMessageEvent):
     """洞天福地改名"""
     # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await blessed_spot_rename.finish()
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
         msg = f"道友还没有洞天福地呢，请发送洞天福地购买吧~"
@@ -247,11 +226,9 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """切磋，不会掉血"""
     args = args.extract_plain_text()
     give_qq = get_id_from_str(args)  # 使用道号获取用户id，代替原at
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await qc.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
 
     user1 = sql_message.get_user_real_info(user_id)
@@ -292,6 +269,8 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         player2['level'] = user2['level']
 
         result, victor = Player_fight(player1, player2, 1, bot.self_id)
+        fight_len = len(result)
+        result = result[-9:]
         await send_msg_handler(bot, event, result)
         msg = f"获胜的是{victor}"
         await bot.send(event=event, message=msg)
@@ -305,27 +284,23 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 @two_exp.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """双修"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_1, msg = check_user(event)
-    if not is_user:
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send(event=event, message=MessageSegment.image(pic))
-        else:
-            await bot.send(event=event, message=msg)
-        await two_exp.finish()
-    args = args.extract_plain_text()
-    two_qq = get_id_from_str(args)  # 使用道号获取用户id，代替原at
 
-    user_2 = sql_message.get_user_info_with_id(two_qq)
+    _, user_1, _ = check_user(event)
+
+    args = args.extract_plain_text()
+
+    user_1_id = user_1['user_id']
+    user_2_id = get_id_from_str(args)  # 使用道号获取用户id，代替原at
+
+    user_2 = sql_message.get_user_info_with_id(user_2_id)
 
     if user_1 and user_2:
-        if two_qq is None:
+        if user_2_id is None:
             msg = "请输入你道侣的道号,与其一起双修！"
             await bot.send(event=event, message=msg)
             await two_exp.finish()
 
-        if int(user_1['user_id']) == int(two_qq):
+        if int(user_1_id) == int(user_2_id):
             msg = "道友无法与自己双修！"
             await bot.send(event=event, message=msg)
             await two_exp.finish()
@@ -337,37 +312,19 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 await bot.send(event=event, message=msg)
                 await two_exp.finish()
             else:
-                if Place().is_the_same_place(int(user_1['user_id']), int(two_qq)) is False:
+                if Place().is_the_same_place(int(user_1_id), int(user_2_id)) is False:
                     msg = "道友与你的道侣不在同一位置，请邀约道侣前来双修！！！"
                     await bot.send(event=event, message=msg)
                     await two_exp.finish()
-                is_type, msg = check_user_type(user_2['user_id'], 0)
+                is_type, msg = check_user_type(user_2_id, 0)
                 if is_type:
                     pass
                 else:
                     msg = "对方" + msg[2:]
                     await bot.send(event=event, message=msg)
                     await two_exp.finish()
-
-                limt_1 = two_exp_cd.find_user(user_1['user_id'])
-                limt_2 = two_exp_cd.find_user(user_2['user_id'])
-                sql_message.update_last_check_info_time(user_1['user_id'])  # 更新查看修仙信息时间
-                # 加入传承
-                impart_data_1 = xiuxian_impart.get_user_info_with_id(user_1['user_id'])
-                impart_data_2 = xiuxian_impart.get_user_info_with_id(user_2['user_id'])
-                impart_two_exp_1 = impart_data_1['impart_two_exp'] if impart_data_1 is not None else 0
-                impart_two_exp_2 = impart_data_2['impart_two_exp'] if impart_data_2 is not None else 0
-
-                main_two_data_1 = UserBuffDate(user_1['user_id']).get_user_main_buff_data()  # 功法双修次数提升
-                main_two_data_2 = UserBuffDate(user_2['user_id']).get_user_main_buff_data()
-                main_two_1 = main_two_data_1['two_buff'] if main_two_data_1 is not None else 0
-                main_two_2 = main_two_data_2['two_buff'] if main_two_data_2 is not None else 0
-                if limt_1 >= (two_exp_limit + impart_two_exp_1 + main_two_1):
-                    msg = "道友今天双修次数已经到达上限！"
-                    await bot.send(event=event, message=msg)
-                    await two_exp.finish()
-                if limt_2 >= (two_exp_limit + impart_two_exp_2 + main_two_2):
-                    msg = "对方今天双修次数已经到达上限！"
+                is_pass, msg = LimitCheck().two_exp_limit_check(user_id_1=user_1_id, user_id_2=user_2_id)
+                if not is_pass:
                     await bot.send(event=event, message=msg)
                     await two_exp.finish()
                 max_exp_1 = (
@@ -383,77 +340,44 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                     user_get_exp_max_1 = 0
                 if user_get_exp_max_2 < 0:
                     user_get_exp_max_2 = 0
+
                 msg = ""
                 msg += f"{user_1['user_name']}与{user_2['user_name']}情投意合，于某地一起修炼了一晚。"
-                if random.randint(1, 100) in [13, 14, 52, 10, 66]:
-                    exp = int((exp_1 + exp_2) * 0.0055)
-                    max_exp = XiuConfig().two_exp  # 双修上限罪魁祸首
-                    if exp >= max_exp:
-                        exp_limit_1 = max_exp
-                    else:
-                        exp_limit_1 = exp
-
-                    if exp_limit_1 >= user_get_exp_max_1:
-                        sql_message.update_exp(user_1['user_id'], user_get_exp_max_1)
-                        msg += f"{user_1['user_name']}修为到达上限，增加修为{user_get_exp_max_1}。"
-                    else:
-                        sql_message.update_exp(user_1['user_id'], exp_limit_1)
-                        msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
-                    sql_message.update_power2(user_1['user_id'])
-                    max_exp = XiuConfig().two_exp  # 双修上限罪魁祸首
-                    if exp >= max_exp:
-                        exp_limit_2 = max_exp
-                    else:
-                        exp_limit_2 = exp
-
-                    if exp_limit_2 >= user_get_exp_max_2:
-                        sql_message.update_exp(user_2['user_id'], user_get_exp_max_2)
-                        msg += f"{user_2['user_name']}修为到达上限，增加修为{user_get_exp_max_2}。"
-                    else:
-                        sql_message.update_exp(user_2['user_id'], exp_limit_2)
-                        msg += f"{user_2['user_name']}增加修为{exp_limit_2}。"
-                    sql_message.update_power2(user_2['user_id'])
-                    sql_message.update_levelrate(user_1['user_id'], user_1['level_up_rate'] + 2)
-                    sql_message.update_levelrate(user_2['user_id'], user_2['level_up_rate'] + 2)
-                    two_exp_cd.add_user(user_1['user_id'])
-                    two_exp_cd.add_user(user_2['user_id'])
-                    msg += f"离开时双方互相留法宝为对方护道,双方各增加突破概率2%。"
-                    LimitHandle().update_user_log_data(user_1['user_id'], msg)
-                    LimitHandle().update_user_log_data(user_2['user_id'], msg)
-                    await bot.send(event=event, message=msg)
-                    await two_exp.finish()
+                exp = int((exp_1 + exp_2) * 0.0055)
+                max_exp = XiuConfig().two_exp  # 双修上限罪魁祸首
+                # 玩家1修为增加
+                if exp >= max_exp:
+                    exp_limit_1 = max_exp
                 else:
-                    exp = int((exp_1 + exp_2) * 0.0055)
-                    max_exp = XiuConfig().two_exp  # 双修上限罪魁祸首
-                    if exp >= max_exp:
-                        exp_limit_1 = max_exp
-                    else:
-                        exp_limit_1 = exp
-                    if exp_limit_1 >= user_get_exp_max_1:
-                        sql_message.update_exp(user_1['user_id'], user_get_exp_max_1)
-                        msg += f"{user_1['user_name']}修为到达上限，增加修为{user_get_exp_max_1}。"
-                    else:
-                        sql_message.update_exp(user_1['user_id'], exp_limit_1)
-                        msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
-                    sql_message.update_power2(user_1['user_id'])
-                    max_exp = XiuConfig().two_exp  # 双修上限罪魁祸首
-                    if exp >= max_exp:
-                        exp_limit_2 = max_exp
-                    else:
-                        exp_limit_2 = exp
-                    if exp_limit_2 >= user_get_exp_max_2:
-                        sql_message.update_exp(user_2['user_id'], user_get_exp_max_2)
-                        msg += f"{user_2['user_name']}修为到达上限，增加修为{user_get_exp_max_2}。"
-                    else:
-                        sql_message.update_exp(user_2['user_id'], exp_limit_2)
-                        msg += f"{user_2['user_name']}增加修为{exp_limit_2}。"
-                    sql_message.update_power2(user_2['user_id'])
-                    two_exp_cd.add_user(user_1['user_id'])
-                    two_exp_cd.add_user(user_2['user_id'])
-                    LimitHandle().update_user_log_data(user_1['user_id'], msg)
-                    LimitHandle().update_user_log_data(user_2['user_id'], msg)
-                    await bot.send(event=event, message=msg)
-                    await two_exp.finish()
+                    exp_limit_1 = exp
+                if exp_limit_1 >= user_get_exp_max_1:
+                    sql_message.update_exp(user_1_id, user_get_exp_max_1)
+                    msg += f"{user_1['user_name']}修为到达上限，增加修为{user_get_exp_max_1}。"
+                else:
+                    sql_message.update_exp(user_1_id, exp_limit_1)
+                    msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
+                sql_message.update_power2(user_1_id)
+                # 玩家2修为增加
+                if exp >= max_exp:
+                    exp_limit_2 = max_exp
+                else:
+                    exp_limit_2 = exp
+                if exp_limit_2 >= user_get_exp_max_2:
+                    sql_message.update_exp(user_2_id, user_get_exp_max_2)
+                    msg += f"{user_2['user_name']}修为到达上限，增加修为{user_get_exp_max_2}。"
+                else:
+                    sql_message.update_exp(user_2_id, exp_limit_2)
+                    msg += f"{user_2['user_name']}增加修为{exp_limit_2}。"
+                # 双修彩蛋，突破概率增加
+                if random.randint(1, 100) in [13, 14, 52, 10, 66]:
+                    sql_message.update_levelrate(user_1_id, user_1['level_up_rate'] + 2)
+                    sql_message.update_levelrate(user_2_id, user_2['level_up_rate'] + 2)
+                    msg += f"离开时双方互相留法宝为对方护道,双方各增加突破概率2%。"
+                sql_message.update_power2(user_2_id)
+                LimitHandle().update_user_log_data(user_1_id, msg)
+                LimitHandle().update_user_log_data(user_2_id, msg)
+                await bot.send(event=event, message=msg)
+                await two_exp.finish()
     else:
         msg = "修仙者应一心向道，务要留恋凡人！"
         await bot.send(event=event, message=msg)
@@ -463,11 +387,9 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
 @stone_exp.handle(parameterless=[Cooldown(at_sender=False)])
 async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """灵石修炼"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await stone_exp.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     user_mes = sql_message.get_user_info_with_id(user_id)  # 获取用户信息
     level = user_mes['level']
@@ -504,7 +426,7 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         # 用户获取的修为到达上限
         stone_num = user_get_exp_max * 10
         exp = int(stone_num / 10)
-        num, msg, is_pass = CheckLimit().stone_exp_up_check(user_id, stone_num, limit_dict)
+        num, msg, is_pass = CheckLimit().stone_exp_up_check(user_id, stone_num)
         if is_pass:
             sql_message.update_exp(user_id, exp)
             sql_message.update_power2(user_id)  # 更新战力
@@ -517,7 +439,7 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             await bot.send(event=event, message=msg)
             await stone_exp.finish()
     else:
-        num, msg, is_pass = CheckLimit().stone_exp_up_check(user_id, stone_num, limit_dict)
+        num, msg, is_pass = CheckLimit().stone_exp_up_check(user_id, stone_num)
         if is_pass:
             sql_message.update_exp(user_id, exp)
             sql_message.update_power2(user_id)  # 更新战力
@@ -534,22 +456,17 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 @in_closing.handle(parameterless=[Cooldown(at_sender=False)])
 async def in_closing_(bot: Bot, event: GroupMessageEvent):
     """闭关"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    user_type = 1  # 状态0为无事件
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await out_closing.finish()
+    user_type = 1  # 状态1为闭关状态
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
     if is_type:  # 符合
         sql_message.in_closing(user_id, user_type)
         msg = "进入闭关状态，如需出关，发送【出关】！"
-        await bot.send(event=event, message=msg)
-        await in_closing.finish()
-    else:
-        await bot.send(event=event, message=msg)
-        await in_closing.finish()
+    await bot.send(event=event, message=msg)
+    await in_closing.finish()
 
 
 @out_closing.handle(parameterless=[Cooldown(at_sender=False)])
@@ -557,15 +474,13 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
     """出关"""
     # 这里曾经是风控模块，但是已经不再需要了
     user_type = 0  # 状态0为无事件
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await out_closing.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
-    user_mes = sql_message.get_user_info_with_id(user_id)  # 获取用户信息
-    level = user_mes['level']
-    use_exp = user_mes['exp']
-    main_hp_rank = jsondata.level_data()[user_mes['level']]["HP"]
+    level = user_info['level']
+    use_exp = user_info['exp']
+    main_hp_rank = jsondata.level_data()[user_info['level']]["HP"]
     hp_speed = 25 * main_hp_rank
     mp_speed = 50
     max_exp = (
@@ -582,127 +497,16 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
     is_type, msg = check_user_type(user_id, 1)
     if not is_type:
         is_type, msg = check_user_type(user_id, 5)
-        if is_type:  # 用户状态为5
-            in_closing_time = datetime.strptime(
-                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
-            )  # 进入闭关的时间
-            exp_time = (
-                    OtherSet().date_diff(now_time, in_closing_time) // 60
-            )  # 闭关时长计算(分钟) = second // 60
-            impart_data_draw = await impart_pk_check(user_id)
-            impart_exp_time = int(impart_data_draw['exp_day'])
-            if impart_exp_time >= exp_time:
-                last_time = impart_exp_time - exp_time
-                level_rate = sql_message.get_root_rate(user_mes['root_type'])  # 灵根倍率
-                realm_rate = jsondata.level_data()[level]["spend"]  # 境界倍率
-                user_buff_data = UserBuffDate(user_id)
-                mainbuffdata = user_buff_data.get_user_main_buff_data()
-                mainbuffratebuff = mainbuffdata['ratebuff'] if mainbuffdata is not None else 0  # 功法修炼倍率
-                mainbuffcloexp = mainbuffdata['clo_exp'] if mainbuffdata is not None else 0  # 功法闭关经验
-                mainbuffclors = mainbuffdata['clo_rs'] if mainbuffdata is not None else 0  # 功法闭关回复
-                place_id = Place().get_now_place_id(user_id)
-                world_id = Place().get_world_id(place_id)
-                world_buff = world_id * 0.3  # 位面灵气加成
-
-                exp = int(
-                    (exp_time * XiuConfig().closing_exp) * (
-                            level_rate * realm_rate * (1 + mainbuffratebuff) * (1 + mainbuffcloexp))
-                    # 洞天福地为加法 (安兰：那你洞天福地呢？？？？)
-                )  # 本次闭关获取的修为
-                # 计算传承增益
-                impart_data = xiuxian_impart.get_user_info_with_id(user_id)
-                impart_exp_up = impart_data['impart_exp_up'] if impart_data is not None else 0
-                user_buff_data = UserBuffDate(user_id).BuffInfo
-                exp = int(exp * (1 + impart_exp_up + user_buff_data['blessed_spot'] + world_buff)) * 6
-                if exp >= user_get_exp_max:
-                    # 用户获取的修为到达上限
-                    sql_message.in_closing(user_id, user_type)
-                    sql_message.update_exp(user_id, user_get_exp_max)
-                    sql_message.update_power2(user_id)  # 更新战力
-                    xiuxian_impart.use_impart_exp_day(exp_time, user_id)
-                    result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)),
-                                                                     int(exp * mp_speed))
-                    sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
-                                                      int(result_hp_mp[2] / 10))
-                    msg = f"虚神界内闭关修炼结束，本次闭关到达上限，余剩虚神界内闭关修炼加速时间：{last_time},本次闭关共增加修为：{number_to(user_get_exp_max)}|{user_get_exp_max}{result_msg[0]}{result_msg[1]}"
-                    await bot.send(event=event, message=msg)
-                    await out_closing.finish()
-                else:
-                    # 用户获取的修为没有到达上限
-                    sql_message.in_closing(user_id, user_type)
-                    sql_message.update_exp(user_id, exp)
-                    sql_message.update_power2(user_id)  # 更新战力
-                    result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)),
-                                                                     int(exp * mp_speed))
-                    sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
-                                                      int(result_hp_mp[2] / 10))
-                    xiuxian_impart.use_impart_exp_day(exp_time, user_id)
-                    msg = f"虚神界内闭关修炼结束，共闭关{exp_time}分钟，余剩虚神界内闭关修炼加速时间：{last_time},本次闭关增加修为：{number_to(exp)}|{exp}{result_msg[0]}{result_msg[1]}"
-                    await bot.send(event=event, message=msg)
-                    await out_closing.finish()
-            else:
-                level_rate = sql_message.get_root_rate(user_mes['root_type'])  # 灵根倍率
-                realm_rate = jsondata.level_data()[level]["spend"]  # 境界倍率
-                user_buff_data = UserBuffDate(user_id)
-                mainbuffdata = user_buff_data.get_user_main_buff_data()
-                mainbuffratebuff = mainbuffdata['ratebuff'] if mainbuffdata is not None else 0  # 功法修炼倍率
-                mainbuffcloexp = mainbuffdata['clo_exp'] if mainbuffdata is not None else 0  # 功法闭关经验
-                mainbuffclors = mainbuffdata['clo_rs'] if mainbuffdata is not None else 0  # 功法闭关回复
-                place_id = Place().get_now_place_id(user_id)
-                world_id = Place().get_world_id(place_id)
-                world_buff = world_id * 0.3  # 位面灵气加成
-
-                exp = int(
-                    (exp_time * XiuConfig().closing_exp) * (
-                            level_rate * realm_rate * (1 + mainbuffratebuff) * (1 + mainbuffcloexp))
-                    + 5 * (impart_exp_time * XiuConfig().closing_exp) * (level_rate * realm_rate *
-                                                                         (1 + mainbuffratebuff) * (1 + mainbuffcloexp))
-                    # 洞天福地为加法
-                )  # 本次闭关获取的修为
-                # 计算传承增益
-                impart_data = xiuxian_impart.get_user_info_with_id(user_id)
-                impart_exp_up = impart_data['impart_exp_up'] if impart_data is not None else 0
-                user_buff_data = UserBuffDate(user_id).BuffInfo
-                exp = int(exp * (1 + impart_exp_up + user_buff_data['blessed_spot'] + world_buff))
-                if exp >= user_get_exp_max:
-                    # 用户获取的修为到达上限
-                    sql_message.in_closing(user_id, user_type)
-                    sql_message.update_exp(user_id, user_get_exp_max)
-                    sql_message.update_power2(user_id)  # 更新战力
-
-                    result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)),
-                                                                     int(exp * mp_speed))
-                    sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
-                                                      int(result_hp_mp[2] / 10))
-                    xiuxian_impart.use_impart_exp_day(impart_exp_time, user_id)
-                    msg = f"虚神界内闭关修炼结束，耗时{exp_time}分钟,本次闭关耗尽余剩虚神界闭关加速修炼时间:{impart_exp_time}分钟，本次修炼修为到达上限，共增加修为：{number_to(user_get_exp_max)}|{user_get_exp_max}{result_msg[0]}{result_msg[1]}"
-                    await bot.send(event=event, message=msg)
-                    await out_closing.finish()
-                else:
-                    # 用户获取的修为没有到达上限
-                    sql_message.in_closing(user_id, user_type)
-                    sql_message.update_exp(user_id, exp)
-                    sql_message.update_power2(user_id)  # 更新战力
-                    result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)),
-                                                                     int(exp * mp_speed))
-                    sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
-                                                      int(result_hp_mp[2] / 10))
-                    xiuxian_impart.use_impart_exp_day(impart_exp_time, user_id)
-                    msg = f"虚神界内闭关修炼结束，耗时{exp_time}分钟,本次闭关耗尽余剩虚神界闭关加速修炼时间:{impart_exp_time}分钟，本次闭关增加修为：{number_to(exp)}|{exp}{result_msg[0]}{result_msg[1]}"
-                    await bot.send(event=event, message=msg)
-                    await out_closing.finish()
-        else:
-            await bot.send(event=event, message=msg)
-            await out_closing.finish()
-    else:
-        # 用户状态为1
         in_closing_time = datetime.strptime(
             user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
         )  # 进入闭关的时间
-        exp_time = (
+        exp_time = int(
                 OtherSet().date_diff(now_time, in_closing_time) // 60
         )  # 闭关时长计算(分钟) = second // 60
-        level_rate = sql_message.get_root_rate(user_mes['root_type'])  # 灵根倍率
+        impart_data_draw = await impart_pk_check(user_id)
+        impart_exp_time = int(impart_data_draw['exp_day'])
+        last_time = impart_exp_time - exp_time
+        level_rate = sql_message.get_root_rate(user_info['root_type'])  # 灵根倍率
         realm_rate = jsondata.level_data()[level]["spend"]  # 境界倍率
         user_buff_data = UserBuffDate(user_id)
         mainbuffdata = user_buff_data.get_user_main_buff_data()
@@ -714,48 +518,51 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         world_buff = world_id * 0.3  # 位面灵气加成
 
         exp = int(
-            (exp_time * XiuConfig().closing_exp) * (
-                (level_rate * realm_rate * (1 + mainbuffratebuff) * (1 + mainbuffcloexp)))
-            # 洞天福地为加法
-        )  # 本次闭关获取的修为
+                  XiuConfig().closing_exp * (level_rate * realm_rate * (1 + mainbuffratebuff) * (1 + mainbuffcloexp))
+                  )  # 闭关获取的修为倍率
         # 计算传承增益
         impart_data = xiuxian_impart.get_user_info_with_id(user_id)
         impart_exp_up = impart_data['impart_exp_up'] if impart_data is not None else 0
         user_buff_data = UserBuffDate(user_id).BuffInfo
-        exp = int(exp * (1 + impart_exp_up + user_buff_data['blessed_spot'] + world_buff))
-        if exp >= user_get_exp_max:
-            # 用户获取的修为到达上限
-            sql_message.in_closing(user_id, user_type)
-            sql_message.update_exp(user_id, user_get_exp_max)
-            sql_message.update_power2(user_id)  # 更新战力
+        is_xu_world = ''
+        time_msg = ''
+        if is_type:  # 用户状态为5
+            is_xu_world = '虚神界'
+            if impart_exp_time >= exp_time:
+                exp_time = exp_time * 6
+                time_msg = f"余剩虚神界内闭关修炼加速时间：{last_time}，"
+            else:
+                exp_time = exp_time + impart_exp_time * 5
+                time_msg = f"本次闭关耗尽余剩虚神界闭关加速修炼时间:{impart_exp_time}分钟，"
 
-            result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)),
-                                                             int(exp * mp_speed))
-            sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
-            msg = f"闭关结束，本次闭关到达上限，共增加修为：{number_to(user_get_exp_max)}|{user_get_exp_max}{result_msg[0]}{result_msg[1]}"
-            await bot.send(event=event, message=msg)
-            await out_closing.finish()
+        exp = int(exp * (1 + impart_exp_up + user_buff_data['blessed_spot'] + world_buff)) * exp_time
+        sql_message.in_closing(user_id, user_type)
+
+        sql_message.update_power2(user_id)  # 更新战力
+        xiuxian_impart.use_impart_exp_day(exp_time, user_id)
+        result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)),
+                                                         int(exp * mp_speed))
+        sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
+                                          int(result_hp_mp[2] / 10))
+        # 用户获取的修为是否到达上限
+        if exp >= user_get_exp_max:
+            sql_message.update_exp(user_id, user_get_exp_max)
+            msg = (f"{is_xu_world}闭关修炼结束，本次闭关到达上限，共闭关{exp_time}分钟，{time_msg}"
+                   f"本次闭关共增加修为：{number_to(user_get_exp_max)}|{user_get_exp_max}{result_msg[0]}{result_msg[1]}")
         else:
-            # 用户获取的修为没有到达上限
-            sql_message.in_closing(user_id, user_type)
             sql_message.update_exp(user_id, exp)
-            sql_message.update_power2(user_id)  # 更新战力
-            result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)),
-                                                             int(exp * mp_speed))
-            sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
-            msg = f"闭关结束，共闭关{exp_time}分钟，本次闭关增加修为：{number_to(exp)}|{exp}{result_msg[0]}{result_msg[1]}"
-            await bot.send(event=event, message=msg)
-            await out_closing.finish()
+            msg = (f"{is_xu_world}闭关修炼结束，共闭关{exp_time}分钟，{time_msg}"
+                   f"本次闭关增加修为：{number_to(exp)}|{exp}{result_msg[0]}{result_msg[1]}")
+        await bot.send(event=event, message=msg)
+        await out_closing.finish()
 
 
 @mind_state.handle(parameterless=[Cooldown(at_sender=False)])
 async def mind_state_(bot: Bot, event: GroupMessageEvent):
     """我的状态信息"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_msg, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await mind_state.finish()
+
+    _, user_msg, _ = check_user(event)
+
     user_id = user_msg['user_id']
     sql_message.update_last_check_info_time(user_id)  # 更新查看修仙信息时间
     main_hp_rank = jsondata.level_data()[user_msg['level']]["HP"]  # 添加血量补偿测试
@@ -859,11 +666,9 @@ boss战增益:{int(boss_atk * 100)}%
 @select_state.handle(parameterless=[Cooldown(at_sender=False)])
 async def select_state_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """查看其他角色状态信息"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_msg, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await select_state.finish()
+
+    _, user_msg, _ = check_user(event)
+
     user_id = user_msg['user_id']  # 需要改为获取对方id实现查看
     try:
         user_id = sql_message.get_user_id(args)  # 获取目标id
@@ -972,11 +777,8 @@ boss战增益:{int(boss_atk * 100)}%
 @buffinfo.handle(parameterless=[Cooldown(at_sender=False)])
 async def buffinfo_(bot: Bot, event: GroupMessageEvent):
     """我的功法"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await buffinfo.finish()
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     mainbuffdata = UserBuffDate(user_id).get_user_main_buff_data()
@@ -1009,11 +811,9 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
 @del_exp_decimal.handle(parameterless=[Cooldown(at_sender=False)])
 async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
     """清除修为浮点数"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await del_exp_decimal.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     exp = user_info['exp']
     sql_message.del_exp_decimal(user_id, exp)
@@ -1026,10 +826,8 @@ async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
 async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
     """我的双修次数"""
     # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await my_exp_num.finish()
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     two_exp_num = two_exp_cd.find_user(user_id)
     impart_data = xiuxian_impart.get_user_info_with_id(user_id)

@@ -3,13 +3,13 @@ import random
 import time
 import sqlite3
 from pathlib import Path
-from nonebot import on_command, on_fullmatch
+from nonebot import on_command
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
 from ..xiuxian_buff import two_exp_cd
 from ..xiuxian_impart_pk import impart_pk, xu_world
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from ..xiuxian_utils.data_source import jsondata
@@ -56,30 +56,18 @@ time_set_now = on_command('逆转时空', priority=15, permission=SUPERUSER, blo
 
 
 @warring_help.handle(parameterless=[Cooldown(at_sender=False)])
-async def warring_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
+async def warring_help_(bot: Bot, event: GroupMessageEvent):
     """轮回重修帮助"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    if session_id in cache_help_fk:
-        await bot.send(event=event, message=MessageSegment.image(cache_help_fk[session_id]))
-        await warring_help.finish()
-    else:
-        msg = __warring_help__
-        if XiuConfig().img:
-            pic = await get_msg_pic(msg)
-            cache_help_fk[session_id] = pic
-            await bot.send(event=event, message=MessageSegment.image(pic))
-        else:
-            await bot.send(event=event, message=msg)
-        await warring_help.finish()
+
+    msg = __warring_help__
+    await bot.send(event=event, message=msg)
+    await warring_help.finish()
 
 
 @lunhui.handle(parameterless=[Cooldown(at_sender=False)])
-async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await lunhui.finish()
+async def lunhui_(bot: Bot, event: GroupMessageEvent):
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     user_msg = sql_message.get_user_info_with_id(user_id)
@@ -128,12 +116,9 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
 
 
 @twolun.handle(parameterless=[Cooldown(at_sender=False)])
-async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await twolun.finish()
+async def twolun_(bot: Bot, event: GroupMessageEvent):
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     user_msg = sql_message.get_user_info_with_id(user_id)
@@ -182,12 +167,9 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
 
 
 @threelun.handle(parameterless=[Cooldown(at_sender=False)])
-async def threelun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await threelun.finish()
+async def threelun_(bot: Bot, event: GroupMessageEvent):
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     user_msg = sql_message.get_user_info_with_id(user_id)
@@ -233,12 +215,9 @@ async def threelun_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
 
 
 @resetting.handle(parameterless=[Cooldown(at_sender=False)])
-async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await resetting.finish()
+async def resetting_(bot: Bot, event: GroupMessageEvent):
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     user_msg = sql_message.get_user_info_with_id(user_id)
@@ -263,10 +242,8 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
 @gettest.handle(parameterless=[Cooldown(at_sender=False)])
 async def gettest_(bot: Bot, event: GroupMessageEvent, state: T_State):
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await gettest.finish()
+    _, user_info, _ = check_user(event)
+
     await bot.send(event=event, message="正在申请测试用灵石，请在10秒内输入后台获取的代码")
     key = ""
     key_pre = "qwert-yuioppppp-asdffghjk-llzxcvb-nm12345-67890"
@@ -296,41 +273,11 @@ async def gettest_(bot: Bot, event: GroupMessageEvent, state: T_State):
         await gettest.finish()
 
 
-@timeback.handle(parameterless=[Cooldown(at_sender=False)])
-async def timeback_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await timeback.finish()
-    print("连接数据库中")
-    conn = sqlite3.connect(Path() / "data" / "xiuxian" / "xiuxian.db")
-    print("数据库链接成功")
-    now = time.localtime()
-    now_day = str(now.tm_year) + str(now.tm_mon) + str(now.tm_mday)
-    user_id = user_info['user_id']
-    user_msg = sql_message.get_user_info_with_id(user_id)
-    user_name = user_msg['user_name']
-    """插入最后悬赏令日期"""
-    work_num = int(str(int(now_day) - 1) + "0")
-    """重置用户悬赏令刷新次数"""
-    sql = f"UPDATE user_xiuxian SET work_num=? WHERE user_id=?"
-    cur = conn.cursor()
-    cur.execute(sql, (work_num, user_id))
-    conn.commit()
-    conn.close()
-    msg = f"{user_name}逆转时间，让世界对你的记忆回到过去！！！"
-    await bot.send(event=event, message=msg)
-    await timeback.finish()
-
-
 @time_set_now.handle(parameterless=[Cooldown(at_sender=False)])
-async def time_set_now_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await time_set_now.finish()
+async def time_set_now_(bot: Bot, event: GroupMessageEvent):
+
+    _, user_info, _ = check_user(event)
+
     sql_message.sign_remake()
     sql_message.day_num_reset()
     two_exp_cd.re_data()

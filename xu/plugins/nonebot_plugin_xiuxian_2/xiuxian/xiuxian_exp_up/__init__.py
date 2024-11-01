@@ -10,9 +10,7 @@ from nonebot import on_command, on_notice
 import asyncio
 
 from nonebot.typing import T_State
-
-from ..xiuxian_buff import limit_dict
-from ..xiuxian_buff.limit import TheLimit
+from ..xiuxian_limit import LimitHandle
 from ..xiuxian_place import Place
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, get_player_info,
@@ -28,7 +26,7 @@ from ..xiuxian_utils.utils import (
     number_to, check_user, send_msg_handler,
     check_user_type, get_msg_pic, CommandObjectID, get_strs_from_str
 )
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 
 sql_message = XiuxianDateManage()  # sql实例化至sql_massage
 
@@ -45,12 +43,11 @@ active_gift = on_command("神州大地齐欢腾，祝福祖国永太平", priori
 @exp_up.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
 async def exp_up_(bot: Bot, event: GroupMessageEvent):
     """修炼"""
-    # 这里曾经是风控模块，但是已经不再需要了
+
     user_type = 4  # 状态4为修炼中
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await exp_up.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
     if not is_type:
@@ -130,10 +127,9 @@ async def exp_up_end_(bot: Bot, event: GroupMessageEvent):
     """退出修炼"""
     # 这里曾经是风控模块，但是已经不再需要了
     user_type = 0  # 状态为空闲
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await exp_up_end.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 4)
     if is_type:
@@ -148,11 +144,7 @@ async def exp_up_end_(bot: Bot, event: GroupMessageEvent):
 @all_end.handle(parameterless=[Cooldown(at_sender=False)])
 async def all_end_(bot: Bot, event: GroupMessageEvent, state: T_State):
     """重置状态"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await all_end.finish()
+
     await bot.send(event=event, message="正在申请测试用重置状态，请在10秒内输入后台获取的代码")
     key = ""
     key_pre = "qwert-yuioppppp-asdffghjk-llzxcvb-nm12345-67890"
@@ -172,9 +164,11 @@ async def all_end_(bot: Bot, event: GroupMessageEvent, state: T_State):
     :return:
     """
     # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
+    _, user_info, _ = check_user(event)
+
     input_key = event.get_plaintext().strip()
     user_id = user_info['user_id']
+
     if input_key == state["key"]:
         sql_message.in_closing(user_id, 0)  # 重置状态
         await bot.send(event=event, message="成功重置道友的状态！！！")
@@ -189,10 +183,8 @@ async def all_end_(bot: Bot, event: GroupMessageEvent, state: T_State):
 async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
     """飞升上界"""
     # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await world_rank_up.finish()
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
     if not is_type:
@@ -226,7 +218,8 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
 @world_rank_up.receive(parameterless=[Cooldown(cd_time=60, at_sender=False)])
 async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
     # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
+    _, user_info, _ = check_user(event)
+
     user_name = user_info["user_name"]
     user_id = user_info["user_id"]
     next_world = state["world_up"]
@@ -249,19 +242,13 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
 @power_break_up.handle(parameterless=[Cooldown(cd_time=2, at_sender=False)])
 async def power_break_up_(bot: Bot, event: GroupMessageEvent):
     """利用天地精华"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await power_break_up.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
     if is_type:
-        try:
-            limit_dict[user_id]
-        except KeyError:
-            limit_dict[user_id] = TheLimit()
-        power = limit_dict[user_id].is_get_gift['world_power']
+        power = LimitHandle().get_user_world_power_data(user_id)
         if power == 0:
             msg = "道友体内没有天地精华！！！"
             await bot.send(event=event, message=msg)
@@ -288,7 +275,7 @@ async def power_break_up_(bot: Bot, event: GroupMessageEvent):
         leveluprate = int(user_info['level_up_rate'])  # 用户失败次数加成
         sql_message.update_levelrate(user_id, leveluprate + 1 * rate_up)
         msg = f"道友成功将体内天地精华吸收，突破概率提升了{int(rate_up)}%, 修为提升了{number_to(exp)}|{exp}点！！"
-        limit_dict[user_id].is_get_gift['world_power'] = 0
+        LimitHandle().update_user_world_power_data(user_id, 0)
     else:
         pass
     await bot.send(event=event, message=msg)
@@ -298,17 +285,11 @@ async def power_break_up_(bot: Bot, event: GroupMessageEvent):
 @power_break_up_help.handle(parameterless=[Cooldown(cd_time=2, at_sender=False)])
 async def power_break_up_help_(bot: Bot, event: GroupMessageEvent):
     """天地精华帮助"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await power_break_up_help.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
-    try:
-        limit_dict[user_id]
-    except KeyError:
-        limit_dict[user_id] = TheLimit()
-    power = limit_dict[user_id].is_get_gift['world_power']
+    power = LimitHandle().get_user_world_power_data(user_id)
     msg = (f"道友体内拥有天地精华：{power}\n天地精华由使用天地奇物获得\n可以发送 吸收天地精华 将体内天地精华吸收！！\n增加少许修为与突破概率"
            f"\n天地精华还是练就顶级神通的必备能量！！\n请尽快使用天地精华，否则天地精华将会归于天地之间！！！")
     await bot.send(event=event, message=msg)
@@ -318,11 +299,9 @@ async def power_break_up_help_(bot: Bot, event: GroupMessageEvent):
 @active_gift.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
 async def active_gift_(bot: Bot, event: GroupMessageEvent):
     """国庆福利"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await active_gift.finish()
+
+    _, user_info, _ = check_user(event)
+
     msg = f"国庆已经结束啦！！明年国庆再来吧！"
     await bot.send(event=event, message=msg)
     await active_gift.finish()

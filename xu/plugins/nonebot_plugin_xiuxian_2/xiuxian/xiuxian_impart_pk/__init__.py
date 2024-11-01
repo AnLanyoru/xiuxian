@@ -12,8 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 
 from ..xiuxian_impart import impart_check
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
-from ..xiuxian_utils.data_source import jsondata
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.log import logger
 from ..xiuxian_utils.utils import check_user, get_msg_pic, send_msg_handler, check_user_type, get_num_from_str
 from .impart_pk_uitls import impart_pk_check
@@ -41,11 +40,9 @@ async def impart_re_():
 @impart_pk_now.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def impart_pk_now_(bot: Bot, event: GroupMessageEvent):
     """虚神界对决"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await impart_pk_now.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     pk_num = impart_pk.get_impart_pk_num(user_id)
     if pk_num:
@@ -64,12 +61,11 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent):
 @impart_pk_exp.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent):
     """虚神界闭关"""
-    # 这里曾经是风控模块，但是已经不再需要了
+
     user_type = 5  # 状态0为无事件
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await impart_pk_exp.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
     if is_type:  # 符合

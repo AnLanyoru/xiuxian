@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot import require, on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -46,19 +46,9 @@ beg_help = on_command("仙途奇缘帮助", permission=GROUP, priority=7, block=
 
 
 @beg_help.handle(parameterless=[Cooldown(at_sender=False)])
-async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    if session_id in cache_beg_help:
-        await bot.send(event=event, message=MessageSegment.image(cache_beg_help[session_id]))
-        await beg_help.finish()
-    else:
-        msg = __beg_help__
-        if XiuConfig().img:
-            pic = await get_msg_pic(msg)
-            cache_beg_help[session_id] = pic
-            await bot.send(event=event, message=MessageSegment.image(pic))
-        else:
-            await bot.send(event=event, message=msg)
+async def beg_help_(bot: Bot, event: GroupMessageEvent):
+    msg = __beg_help__
+    await bot.send(event=event, message=msg)
     await beg_help.finish()
 
 
@@ -66,11 +56,9 @@ async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
 async def beg_stone_(bot: Bot, event: GroupMessageEvent):
     # 这里曾经是风控模块，但是已经不再需要了
     user_id = event.get_user_id()
-    isUser, user_info, msg = check_user(event)
 
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await beg_stone.finish()
+    _, user_info, _ = check_user(event)
+
     user_msg = sql_message.get_user_info_with_id(user_id)
     user_root = user_msg['root_type']
     sect = user_info['sect_id']

@@ -80,6 +80,8 @@ class XiuConfig:
                             "update_time", "state", "is_bind_mixture"]
         self.sql_user_auctions = [""]
         # 上面是数据库校验,别动
+        self.message_limit_time = 60  # 消息限制重置间隔
+        self.message_limit = 35  # 消息限制间隔内最大发送信息条数
         self.level = convert_rank('求道者')[1]  # 境界列表，别动
         self.img = False  # 是否使用图片发送消息
         self.user_info_image = False  # 是否使用图片发送个人信息
@@ -127,7 +129,8 @@ class XiuConfig:
         self.img_type = "webp"  # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg，jpeg请调低压缩率
         self.img_send_type = "base64"  # 图片发送类型,默认io,官方bot建议base64
         self.version = "xiuxian_2.2"  # 修仙插件版本，别动
-        self.elixir_def = {'回血丹': 'hp', '恢复丹': 'hp', '回复丹': 'hp', '突破丹': 'level_up_rate', '突破概率丹': 'level_up_rate'}
+        self.elixir_def = {'回血丹药': 'hp', '回血丹': 'hp', '恢复丹': 'hp', '恢复丹药': 'hp', '回复丹': 'hp',
+                           '突破丹药': 'level_up_rate', '突破丹': 'level_up_rate', '突破概率丹': 'level_up_rate'}
 
 
 class JsonConfig:

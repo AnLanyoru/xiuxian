@@ -16,11 +16,11 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed
 )
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
 from datetime import datetime, timedelta
-from ..xiuxian_config import XiuConfig, convert_rank, JsonConfig
+from ..xiuxian_config import XiuConfig, convert_rank
 from .sectconfig import get_config
 from ..xiuxian_utils.utils import (
     check_user, number_to,
@@ -117,11 +117,9 @@ async def resetusertask_():
 @sect_elixir_room_make.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
     """宗门丹房建设"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_elixir_room_make.finish()
+
+    _, user_info, _ = check_user(event)
+
     sect_id = user_info['sect_id']
     if sect_id:
         sect_position = user_info['sect_position']
@@ -170,11 +168,8 @@ async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
 @sect_elixir_get.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
     """宗门丹药领取"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_elixir_get.finish()
+
+    _, user_info, _ = check_user(event)
 
     sect_id = user_info['sect_id']
     user_id = user_info['user_id']
@@ -255,11 +250,9 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
 @sect_buff_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
     """宗门功法查看"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_buff_info.finish()
+
+    _, user_info, _ = check_user(event)
+
     sect_id = user_info['sect_id']
     if sect_id:
         sect_info = sql_message.get_sect_info(sect_id)
@@ -315,11 +308,9 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
 @sect_mainbuff_learn.handle(parameterless=[Cooldown(stamina_cost=0, cd_time=10, at_sender=False)])
 async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门功法"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_mainbuff_learn.finish()
+
+    _, user_info, _ = check_user(event)
+
     msg = args.extract_plain_text()
     msg = get_strs_from_str(msg)
     if msg:
@@ -381,11 +372,9 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
 @sect_mainbuff_get.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门功法"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_mainbuff_get.finish()
+
+    _, user_info, _ = check_user(event)
+
     sect_id = user_info['sect_id']
     if sect_id:
         sect_position = user_info['sect_position']
@@ -454,11 +443,9 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
 @sect_secbuff_get.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门神通"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_secbuff_get.finish()
+
+    _, user_info, _ = check_user(event)
+
     sect_id = user_info['sect_id']
     if sect_id:
         sect_position = user_info['sect_position']
@@ -527,11 +514,9 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
 @sect_secbuff_learn.handle(parameterless=[Cooldown(stamina_cost=0, cd_time=10, at_sender=False)])
 async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门神通"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_secbuff_learn.finish()
+
+    _, user_info, _ = check_user(event)
+
     msg = args.extract_plain_text()
     msg = get_strs_from_str(msg)
     if msg:
@@ -595,11 +580,9 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
 @upatkpractice.handle(parameterless=[Cooldown(at_sender=False)])
 async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """升级攻击修炼"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await upatkpractice.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     sect_id = user_info['sect_id']
     level_up_count = 1
@@ -666,11 +649,9 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @sect_task_refresh.handle(parameterless=[Cooldown(cd_time=config['宗门任务刷新cd'], at_sender=False)])
 async def sect_task_refresh_(bot: Bot, event: GroupMessageEvent):
     """刷新宗门任务"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_task_refresh.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     sect_id = user_info['sect_id']
     if sect_id:
@@ -738,10 +719,9 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     msg_list = []
     args = args.extract_plain_text()
     page = get_num_from_str(args)
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_users.finish()
+
+    _, user_info, _ = check_user(event)
+
     if user_info:
         sect_id = user_info['sect_id']
         if sect_id:
@@ -789,10 +769,9 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     msg_list = []
     args = args.extract_plain_text()
     nums = get_num_from_str(args)
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_users_donate_check.finish()
+
+    _, user_info, _ = check_user(event)
+
     sect_id = user_info['sect_id']
     if sect_id:
         sect_position = user_info['sect_position']
@@ -838,11 +817,9 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 @sect_task.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_task_(bot: Bot, event: GroupMessageEvent):
     """获取宗门任务"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_task.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     sect_id = user_info['sect_id']
     if sect_id:
@@ -870,11 +847,9 @@ async def sect_task_(bot: Bot, event: GroupMessageEvent):
 @sect_task_complete.handle(parameterless=[Cooldown(cd_time=config['宗门任务完成cd'], stamina_cost=0, at_sender=False)])
 async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
     """完成宗门任务"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_task_complete.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     sect_id = user_info['sect_id']
     if sect_id:
@@ -963,11 +938,9 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
 @sect_owner_change.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗主传位"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_owner_change.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if not user_info['sect_id']:
         msg = f"道友还未加入一方宗门。"
@@ -1008,11 +981,9 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
 @sect_rename.handle(parameterless=[Cooldown(cd_time=XiuConfig().sect_rename_cd * 86400,at_sender=False)])
 async def sect_rename_(bot: Bot, event: GroupMessageEvent):
     """宗门改名"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_rename.finish()
+
+    _, user_info, _ = check_user(event)
+
     if not user_info['sect_id']:
         msg = f"道友还未加入一方宗门。"
         await bot.send(event=event, message=msg)
@@ -1051,12 +1022,9 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent):
 @create_sect.handle(parameterless=[Cooldown(at_sender=False)])
 async def create_sect_(bot: Bot, event: GroupMessageEvent):
     """创建宗门，对灵石、修为等级有要求，且需要当前状态无宗门"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        msg = f"朋友没有丝毫修为，如何能创立万世仙门？"
-        await bot.send(event=event, message=msg)
-        await create_sect.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     # 首先判断是否满足创建宗门的三大条件
     level = user_info['level']
@@ -1089,11 +1057,9 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent):
 @sect_kick_out.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """踢出宗门"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_kick_out.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if not user_info['sect_id']:
         msg = f"道友还未加入一方宗门。"
@@ -1151,11 +1117,9 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @sect_out.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """退出宗门"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_out.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if not user_info['sect_id']:
         msg = f"道友还未加入一方宗门。"
@@ -1180,11 +1144,9 @@ async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
 @sect_donate.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门捐献"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_donate.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if not user_info['sect_id']:
         msg = f"道友还未加入一方宗门。"
@@ -1214,11 +1176,9 @@ async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 @sect_position_update.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门职位变更"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await sect_position_update.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
 
     position_zhanglao = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "长老"]
@@ -1274,12 +1234,9 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
 @join_sect.handle(parameterless=[Cooldown(at_sender=False)])
 async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """加入宗门,后跟宗门ID,要求加入者当前状态无宗门,入门默认为外门弟子"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        msg = f"守山弟子：凡人，回去吧，仙途难入，莫要自误！"
-        await bot.send(event=event, message=msg)
-        await sect_position_update.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if not user_info['sect_id']:
         sect_no = get_num_from_str(args.extract_plain_text())
@@ -1316,12 +1273,9 @@ async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 @my_sect.handle(parameterless=[Cooldown(at_sender=False)])
 async def my_sect_(bot: Bot, event: GroupMessageEvent):
     """我的宗门"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        msg = f"守山弟子：凡人，回去吧，仙途难入，莫要自误！"
-        await bot.send(event=event, message=msg)
-        await sect_position_update.finish()
+
+    _, user_info, _ = check_user(event)
+
     elixir_room_level_up_config = config['宗门丹房参数']['elixir_room_level']
     sect_id = user_info['sect_id']
     sect_position = user_info['sect_position']
@@ -1361,7 +1315,12 @@ async def my_sect_(bot: Bot, event: GroupMessageEvent):
 
 def create_user_sect_task(user_id):
     tasklist = config["宗门任务"]
-    key = random.choices(list(tasklist))[0]
+    # 反正我做了
+    task_pro = ["仗义疏财", "九转仙丹", "查抄窝点", "狩猎邪修", "红尘寻宝", "狩猎邪修", "红尘寻宝", "狩猎邪修", "红尘寻宝",
+                "狩猎邪修", "红尘寻宝", "狩猎邪修", "红尘寻宝", "狩猎邪修", "红尘寻宝", "狩猎邪修", "红尘寻宝", "狩猎邪修",
+                "红尘寻宝", "狩猎邪修", "红尘寻宝", "狩猎邪修", "红尘寻宝"]
+    random_task = random.choice(task_pro)
+    key = random_task  # random.choices(list(tasklist))[0]
     userstask[user_id]['任务名称'] = key
     userstask[user_id]['任务内容'] = tasklist[key]      
 

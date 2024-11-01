@@ -20,25 +20,27 @@ limit_all_stamina = require("nonebot_plugin_apscheduler").scheduler
 auto_recover_hp = require("nonebot_plugin_apscheduler").scheduler
 
 limit_all_data: Dict[str, Any] = {}
-limit_num = 99999
+limit_message_num = XiuConfig().message_limit
+limit_message_time = XiuConfig().message_limit_time
+
+#
+# @auto_recover_hp.scheduled_job('interval', minutes=1)
+# def auto_recover_hp_():
+#     """
+#     不要使用会变得不幸
+#     :return:
+#     """
+#     # sql_message.auto_recover_hp()
+#     pass
+#
 
 
-@auto_recover_hp.scheduled_job('interval', minutes=1)
-def auto_recover_hp_():
-    """
-    不要使用会变得不幸
-    :return:
-    """
-    # sql_message.auto_recover_hp()
-    pass
-
-
-@limit_all_message.scheduled_job('interval', minutes=1)
+@limit_all_message.scheduled_job('interval', seconds=limit_message_time)
 def limit_all_message_():
     # 重置消息字典
     global limit_all_data
     limit_all_data = {}
-    logger.opt(colors=True).success(f"<green>已重置消息字典！</green>")
+    logger.opt(colors=True).success(f"<green>已重置消息每{format_time(limit_message_time)}限制！</green>")
 
 
 @limit_all_stamina.scheduled_job('interval', minutes=1)
@@ -48,25 +50,22 @@ def limit_all_stamina_():
 
 
 def limit_all_run(user_id: str):
-    global limit_all_data
     user_id = str(user_id)
-    num = None
-    tip = None
-    try:
-        num = limit_all_data[user_id]["num"]
-        tip = limit_all_data[user_id]["tip"]
-    except:
+    user_limit_data = limit_all_data.get(user_id)
+    if user_limit_data:
+        pass
+    else:
         limit_all_data[user_id] = {"num": 0,
                                    "tip": False}
-        num = 0
-        tip = False
+    num = limit_all_data[user_id]["num"]
+    tip = limit_all_data[user_id]["tip"]
     num += 1
-    if num > limit_num and tip is False:
+    if num > limit_message_num and tip is False:
         tip = True
         limit_all_data[user_id]["num"] = num
         limit_all_data[user_id]["tip"] = tip
         return True
-    if num > limit_num and tip is True:
+    if num > limit_message_num and tip is True:
         limit_all_data[user_id]["num"] = num
         return False
     else:
@@ -98,9 +97,6 @@ def get_random_chat_notice():
     ])
 
 
-bu_ji_notice = random.choice(["别急！", "急也没用!", "让我先急!"])
-
-
 class CooldownIsolateLevel(IntEnum):
     """命令冷却的隔离级别"""
 
@@ -115,7 +111,8 @@ def Cooldown(
         at_sender: bool = True,
         isolate_level: CooldownIsolateLevel = CooldownIsolateLevel.USER,
         parallel: int = 1,
-        stamina_cost: int = 0
+        stamina_cost: int = 0,
+        check_user: bool = True
 ) -> None:
     """依赖注入形式的命令冷却
 
@@ -150,15 +147,24 @@ def Cooldown(
 
     async def dependency(bot: Bot, matcher: Matcher, event: MessageEvent):
         user_id = str(event.get_user_id())
-
-        limit_type = limit_all_run(str(event.get_user_id()))
+        limit_type = limit_all_run(user_id)
+        # 发言限制，请前往xiuxian_config设置
         if limit_type is True:
-            await bot.send(event=event, message=bu_ji_notice)
+            too_fast_notice = f"道友的发言频率超过了每{format_time(limit_message_time)}{limit_message_num}条限制，缓会儿！！"
+            await bot.send(event=event, message=too_fast_notice)
             await matcher.finish()
         elif limit_type is False:
             await matcher.finish()
         else:
             pass
+
+        # 消息长度限制
+        message = event.raw_message
+        message_len = len(message)
+        if message_len > 70:
+            too_long_message_notice = f"道友的话也太复杂了，我头好晕！！！"
+            await bot.send(event=event, message=too_long_message_notice)
+            await matcher.finish()
 
         loop = get_running_loop()
 
@@ -178,14 +184,6 @@ def Cooldown(
             )
         else:
             key = CooldownIsolateLevel.GLOBAL.name
-        if stamina_cost > 0:
-            user_data = sql_message.get_user_info_with_id(user_id)
-            if user_data:
-                if user_data['user_stamina'] < stamina_cost and XiuConfig().stamina_open is True:
-                    msg = f"你没有足够的体力，请等待体力恢复后再试！\n本次行动需要消耗：{stamina_cost}体力值\n当前体力值：{user_data['user_stamina']}/2400"
-                    await bot.send(event=event, message=msg)
-                    await matcher.finish()
-                sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         if running[key] <= 0:
             if cd_time >= 1.5:
                 time = int(cd_time - (loop.time() - time_sy[key]))
@@ -201,6 +199,22 @@ def Cooldown(
             time_sy[key] = int(loop.time())
             running[key] -= 1
             loop.call_later(cd_time, lambda: increase(key))
+
+        # 用户检查
+
+        user_id = int(user_id)
+        user_info = sql_message.get_user_info_with_id(user_id)
+        if user_info is None and check_user is True:
+            msg = "修仙界没有道友的信息，请输入【踏入仙途】加入！"
+            await bot.send(event=event, message=msg)
+            await matcher.finish()
+
+        if stamina_cost:
+            if user_info['user_stamina'] < stamina_cost and XiuConfig().stamina_open is True:
+                msg = f"你没有足够的体力，请等待体力恢复后再试！\n本次行动需要消耗：{stamina_cost}体力值\n当前体力值：{user_info['user_stamina']}/2400"
+                await bot.send(event=event, message=msg)
+                await matcher.finish()
+            sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         return
 
     return Depends(dependency)
@@ -211,31 +225,4 @@ main_bot = XiuConfig().main_bo
 layout_bot_dict = XiuConfig().layout_bot_dict
 
 
-async def check_bot(bot: Bot) -> bool:  # 检测bot实例是否为主qq
-    if str(bot.self_id) in put_bot:
-        return True
-    else:
-        return False
 
-
-def check_rule_bot() -> Rule:  # 对传入的消息检测，是主qq传入的消息就响应，其他的不响应
-    async def _check_bot_(bot: Bot, event: GroupMessageEvent) -> bool:
-        if str(bot.self_id) in put_bot:
-            if str(event.get_user_id()) in main_bot:
-                return False
-            else:
-                return True
-        else:
-            return False
-
-    return Rule(_check_bot_)
-
-
-async def range_bot(bot: Bot, event: GroupMessageEvent):  # 随机一个qq发送消息
-    group_id = str(event.group_id)
-    return bot, group_id
-
-
-async def assign_bot(bot: Bot, event: GroupMessageEvent):  # 随机一个qq发送消息
-    group_id = str(event.group_id)
-    return bot, group_id

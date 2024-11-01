@@ -1,7 +1,7 @@
 import random
 from re import I
 from typing import Any, Tuple
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot import on_regex, on_command
 from nonebot.permission import SUPERUSER
 from nonebot.adapters.onebot.v11 import (
@@ -29,18 +29,10 @@ __dufang_help__ = f"""
 """.strip()
 dufang_help = on_command("金银阁帮助", permission=GROUP, priority=7, block=True)
 
+
 @dufang_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def dufang_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    if session_id in cache_help:
-        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
-        await dufang_help.finish()
-    else:
-        msg = __dufang_help__
-        if XiuConfig().img:
-            pic = await get_msg_pic(msg)
-            cache_help[session_id] = pic
-            await bot.send(event=event, message=MessageSegment.image(pic))
-        else:
-            await bot.send(event=event, message=msg)
-        await dufang_help.finish()
+
+    msg = __dufang_help__
+    await bot.send(event=event, message=msg)
+    await dufang_help.finish()

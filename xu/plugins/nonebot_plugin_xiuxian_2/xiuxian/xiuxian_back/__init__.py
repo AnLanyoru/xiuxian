@@ -13,13 +13,10 @@ from nonebot.adapters.onebot.v11 import (
     GROUP_OWNER,
     ActionFailed
 )
-
-from ..xiuxian_buff import limit_dict
-from ..xiuxian_buff.limit import TheLimit
 from ..xiuxian_limit import LimitHandle
 from ..xiuxian_place import Place
 from ..xiuxian_utils.data_source import jsondata
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown, CooldownIsolateLevel
+from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
 from nonebot.log import logger
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
@@ -59,7 +56,7 @@ set_auction_by_scheduler = require("nonebot_plugin_apscheduler").scheduler
 reset_day_num_scheduler = require("nonebot_plugin_apscheduler").scheduler
 
 goods_re_root = on_command("炼金", priority=6, permission=GROUP, block=True)
-goods_re_root_fast = on_command("快速炼金", priority=6, permission=GROUP, block=True)
+goods_re_root_fast = on_command("快速炼金", aliases={"批量炼金"}, priority=6, permission=GROUP, block=True)
 shop = on_command("坊市查看", aliases={"查看坊市"}, priority=8, permission=GROUP, block=True)
 auction_view = on_command("拍卖品查看", aliases={"查看拍卖品"}, priority=8, permission=GROUP, block=True)
 shop_added = on_command("坊市上架", priority=10, permission=GROUP, block=True)
@@ -117,23 +114,15 @@ async def reset_day_num_scheduler_():
 @back_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def back_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """背包帮助"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    if session_id in cache_help:
-        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
-        await back_help.finish()
-    else:
-        msg = __back_help__
-        await bot.send(event=event, message=msg)
-        await back_help.finish()
+    msg = __back_help__
+    await bot.send(event=event, message=msg)
+    await back_help.finish()
 
 
 @xiuxian_sone.handle(parameterless=[Cooldown(at_sender=False)])
 async def xiuxian_sone_(bot: Bot, event: GroupMessageEvent):
     """我的灵石信息"""
     isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await xiuxian_sone.finish()
     msg = f"当前灵石：{number_to(user_info['stone'])} | {user_info['stone']}"
     await bot.send(event=event, message=msg)
     await xiuxian_sone.finish()
@@ -145,12 +134,8 @@ buy_lock = asyncio.Lock()
 @buy.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP)])
 async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """购物"""
-    # 这里曾经是风控模块，但是已经不再需要了
     async with buy_lock:
         isUser, user_info, msg = check_user(event)
-        if not isUser:
-            await bot.send(event=event, message=msg)
-            await buy.finish()
         user_id = user_info['user_id']
         user_name = user_info['user_name']
         place_id = str(Place().get_now_place_id(user_id))
@@ -232,11 +217,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
 @shop.handle(parameterless=[Cooldown(at_sender=False)])
 async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """坊市查看"""
-    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await shop.finish()
     user_id = user_info["user_id"]
     place_id = str(Place().get_now_place_id(user_id))
     shop_data = get_shop_data(place_id)
@@ -281,7 +262,6 @@ async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()
     parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
 async def shop_added_by_admin_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """系统上架坊市"""
-    # 这里曾经是风控模块，但是已经不再需要了
     args = args.extract_plain_text().split()
     if not args:
         msg = "请输入正确指令！例如：系统坊市上架 物品 金额"
@@ -349,11 +329,7 @@ async def shop_added_by_admin_(bot: Bot, event: GroupMessageEvent, args: Message
 @shop_added.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP)])
 async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """用户上架坊市"""
-    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await shop_added.finish()
     user_id = user_info['user_id']
     args = args.extract_plain_text()
     goods_name = get_strs_from_str(args)
@@ -419,10 +395,20 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         if quantity <= 0 or quantity > goods_num:  # 检查指定的数量是否合法
             raise ValueError("数量必须为正数或者小于等于你拥有的物品数!")
     except ValueError as e:
+        quantity = 1
         msg = f"请输入正确的数量: {str(e)}"
         await bot.send(event=event, message=msg)
         await shop_added.finish()
     price = max(price, 500000)  # 最低价格为50w
+
+    item_rank = get_item_msg_rank(goods_id)
+    rank_price = int(1000000 + abs(item_rank - 55) * 100000) * 10
+
+    if price > rank_price:
+        msg = f"道友的价格未免超出物品价值太多！！！请去灵宝楼寄售！！！"
+        await bot.send(event=event, message=msg)
+        await shop_added.finish()
+
     if goods_type == "装备" and int(goods_state) == 1 and int(goods_num) == 1:
         msg = f"装备：{goods_name}已经被道友装备在身，无法上架！"
         await bot.send(event=event, message=msg)
@@ -444,14 +430,10 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     place_name = Place().get_place_name(place_id)
     shop_data = get_shop_data(place_id)
 
-    num = 0
-    for k, v in shop_data[place_id].items():
-        if str(v['user_id']) == str(user_info['user_id']):
-            num += 1
-        else:
-            pass
-    if num >= 5:
-        msg = "每人只可上架五个物品！"
+    # 单个地方坊市上架限制
+    num = len(shop_data[place_id].keys())
+    if num >= 20:
+        msg = "此地坊市摊位已满！！！"
         await bot.send(event=event, message=msg)
         await shop_added.finish()
 
@@ -468,6 +450,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         'user_name': user_info['user_name'],
         'stock': quantity,  # 物品数量
     }
+
     sql_message.update_back_j(user_id, goods_id, num=quantity)
     save_shop(shop_data)
     msg = f"道友成功在【{place_name}】将【{goods_name}】上架坊市，金额：{price}枚灵石，数量{quantity}！"
@@ -479,11 +462,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 @goods_re_root.handle(parameterless=[Cooldown(at_sender=False)])
 async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """炼金"""
-    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await goods_re_root.finish()
     user_id = user_info['user_id']
     strs = args.extract_plain_text()
     args = get_strs_from_str(strs)
@@ -554,29 +533,16 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @goods_re_root_fast.handle(parameterless=[Cooldown(at_sender=False)])
 async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """快速炼金"""
-    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await goods_re_root_fast.finish()
     user_id = user_info['user_id']
     strs = args.extract_plain_text()
     args = get_strs_from_str(strs)
     real_args = []
     if args:
-        if len(args) > 12:
-            msg = "道友想要炼化的物品也太多啦！！！！"
-            await bot.send(event=event, message=msg)
-            await goods_re_root_fast.finish()
         the_same = XiuConfig().elixir_def
         real_args = [the_same[i] if i in the_same else i for i in args]
     else:
         msg = "请输入要炼化的物品等阶！"
-        await bot.send(event=event, message=msg)
-        await goods_re_root_fast.finish()
-    back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,list(back)
-    if back_msg is None:
-        msg = "道友的背包空空如也！"
         await bot.send(event=event, message=msg)
         await goods_re_root_fast.finish()
     msg = "快速炼金以下品阶物品：\n" + "|".join(args)
@@ -584,6 +550,9 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     for goal_level, goal_level_name in zip(real_args, args):
         back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,list(back)
         msg += f"\n快速炼金【{goal_level_name}】结果如下："
+        if back_msg is None:
+            msg += "道友的背包已空！！！"
+            break
         price_pass = 0
         for back in back_msg:
             goods_name = back['goods_name']
@@ -609,7 +578,6 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                     price_pass = 1
                 else:
                     pass
-
         if price_pass:
             pass
         else:
@@ -622,11 +590,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @shop_off.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
 async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """下架商品"""
-    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await shop_off.finish()
     user_id = user_info['user_id']
     group_id = str(Place().get_now_place_id(user_id))
     shop_data = get_shop_data(group_id)
@@ -690,11 +654,7 @@ async def main_back_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    # 这里曾经是风控模块，但是已经不再需要了
     is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await main_back.finish()
     user_id = user_info['user_id']
     msg = get_user_main_back_msg(user_id)
 
@@ -734,11 +694,7 @@ async def no_use_zb_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    # 这里曾经是风控模块，但是已经不再需要了
     isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await no_use_zb.finish()
     user_id = user_info['user_id']
     arg = args.extract_plain_text().strip()
 
@@ -789,11 +745,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await use.finish()
+    is_user, user_info, msg = check_user(event)
     user_id = user_info['user_id']
     args = args.extract_plain_text()
     msg_info = get_strs_from_str(args)
@@ -851,20 +803,19 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             if int(user_buff_info['sec_buff']) == int(goods_id):
                 msg = f"道友已学会该神通：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
-                try:
-                    limit_dict[user_id]
-                except KeyError:
-                    limit_dict[user_id] = TheLimit()
-                if int(skill_info['rank']) > 140:
-                    if limit_dict[user_id].is_get_gift['world_power'] >= 2048:
-                        limit_dict[user_id].is_get_gift['world_power'] -= 2048
-                        use_power = f"\n消耗天地精华2048点，余剩{limit_dict[user_id].is_get_gift['world_power']}点！！"
+
+                power = LimitHandle().get_user_world_power_data(user_id)
+                if int(skill_info['rank']) > 120:
+                    if power >= 2048:
+                        power -= 2048
+                        use_power = f"\n消耗天地精华2048点，余剩{power}点！！"
+                        LimitHandle().update_user_world_power_data(user_id, power)
                         sql_message.update_back_j(user_id, goods_id)
                         sql_message.updata_user_sec_buff(user_id, goods_id)
                         msg = f"恭喜道友学会神通：{skill_info['name']}！" + use_power
                         pass
                     else:
-                        msg = f"需要拥有天地精华2048点，才可习得神通：{skill_info['name']}！"
+                        msg = f"需要拥有天地精华2048点，才可练就神通：{skill_info['name']}！"
                 else:
                     sql_message.update_back_j(user_id, goods_id)
                     sql_message.updata_user_sec_buff(user_id, goods_id)
@@ -977,13 +928,11 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             msg = f"道友背包中的{arg}数量不足，当前仅有{goods_num}个！"
             await bot.send(event=event, message=msg)
             await use.finish()
-        try:
-            limit_dict[user_id]
-        except KeyError:
-            limit_dict[user_id] = TheLimit()
         goods_info = items.get_data_by_item_id(goods_id)
+        power = LimitHandle().get_user_world_power_data(user_id)
         msg = f"道友使用天地奇物{goods_info['name']}{num}个，将{goods_info['buff']*num}点天地精华纳入丹田。\n请尽快利用！！否则天地精华将会消散于天地间！！"
-        limit_dict[user_id].is_get_gift['world_power'] += goods_info['buff']*num
+        power += goods_info['buff']*num
+        LimitHandle().update_user_world_power_data(user_id, power)
         sql_message.update_back_j(user_id, goods_id, num, 0)
         await bot.send(event=event, message=msg)
         await use.finish()
@@ -1007,7 +956,6 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
 @check_items.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
 async def check_items_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """查看修仙界物品"""
-    # 这里曾经是风控模块，但是已经不再需要了
     args = args.extract_plain_text()
     items_id = get_num_from_str(args)
     items_name = get_strs_from_str(args)
@@ -1029,7 +977,7 @@ async def check_items_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         if items_id != -1:
             msg = get_item_msg(items_id)
         else:
-            msg = f"不存在物品：{items_name}的信息，请检查名字是否输入正确！"
+            msg = f"不存在该物品的信息，请检查名字是否输入正确！"
     else:
         msg = "请输入正确的物品id！！！"
 
@@ -1059,11 +1007,6 @@ async def master_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 @shop_off_all.handle(parameterless=[Cooldown(60, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
 async def shop_off_all_(bot: Bot, event: GroupMessageEvent):
     """坊市清空"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await shop_off_all.finish()
     group_id = str(event.group_id)
     shop_data = get_shop_data(group_id)
     if shop_data[group_id] == {}:

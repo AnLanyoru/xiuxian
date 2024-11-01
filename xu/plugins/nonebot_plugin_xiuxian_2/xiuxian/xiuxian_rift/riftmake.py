@@ -51,7 +51,7 @@ TREASUREMSG_5 = [
 
 STORY = {
     "宝物": {
-        "type_rate": 300,
+        "type_rate": 400,
         "功法": {
             "type_rate": 50,
         },
@@ -73,7 +73,7 @@ STORY = {
         }
     },
     "战斗": {
-        "type_rate": 70,
+        "type_rate": 50,
         "Boss战斗": {
             "type_rate": 200,
             "Boss数据": {
@@ -112,18 +112,18 @@ STORY = {
                     "value": [0.003, 0.004, 0.005]
                 },
                 "hp": {
-                    "type_rate": 300,
+                    "type_rate": 30,
                     "value": [0.3, 0.5, 0.7]
                 },
                 "stone": {
-                    "type_rate": 50,
+                    "type_rate": 25,
                     "value": [5000000, 10000000, 15000000]
                 },
             }
         },
     },
     "无事": {
-        "type_rate": 20,
+        "type_rate": 50,
     }
 }
 

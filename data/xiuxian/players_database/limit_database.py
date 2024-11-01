@@ -14,7 +14,7 @@ try:
     from .. import DRIVER
 except:
     pass
-DATABASE = Path() / "data" / "xiuxian" / "players_database"
+DATABASE = Path()
 xiuxian_num = "578043031"  # 这里其实是修仙1作者的QQ号
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
@@ -463,7 +463,7 @@ class LimitHandle:
         LimitData().update_limit_data(limit_dict)
         pass
 
-    def update_user_offset(self, user_id, offset_id: int) -> bool | tuple[bool, str]:
+    def update_user_offset(self, user_id, offset_id: int) -> bool:
         """
         更新用户补偿状态，附带检查限制效果，通过获取参数传出布尔值可直接用于检查限制
         :param user_id: 用户ID
@@ -482,8 +482,7 @@ class LimitHandle:
         last_time = datetime.strptime(last_time_str, "%Y-%m-%d")  # 格式化至time对象
         last_time = last_time.date()
         if start_time > now_date or last_time < now_date:
-            msg = "该补偿当前时间无法领取！！！"
-            return False, msg
+            return False
         limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
         offset_get = limit_dict[object_key]
         try:
@@ -499,7 +498,6 @@ class LimitHandle:
             last_act_time = last_act_time.date()
             if daily:  # 检查补偿类型
                 if now_date == last_act_time:  # 日刷新判断
-                    msg = "道友今日已经领取过该补偿啦！！"
                     pass  # 同日则不变
                 else:
                     # 非同日则更新
@@ -518,7 +516,6 @@ class LimitHandle:
                     LimitData().update_limit_data_with_key(limit_dict, object_key)
                     return True  # 返回检查成功
                     pass
-                msg = "道友已经领取过该补偿啦！！！！"
                 pass
         else:
             # 若无则初始化 返回True
@@ -526,7 +523,7 @@ class LimitHandle:
             limit_dict[object_key] = offset_get
             LimitData().update_limit_data_with_key(limit_dict, object_key)
             return True  # 返回检查成功
-        return False, msg  # 流程均检查失败 返回检查失败
+        return False  # 流程均检查失败 返回检查失败
 
     def check_user_offset(self, user_id, offset_id: int) -> bool:
         """
@@ -692,38 +689,6 @@ class LimitHandle:
         state_dict = limit_dict[object_key]
         try:
             logs = state_dict.get('week_donate_log')
-        except:
-            logs = None
-        if logs:
-            return int(logs)
-        else:
-            return 0
-
-    def update_user_world_power_data(self, user_id, world_power) -> bool:
-        """
-        写入用户天地精华信息
-        :param user_id: 用户ID
-        :param world_power:
-        :return: bool
-        """
-        object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
-        state_dict = limit_dict[object_key]
-        logs = world_power
-        try:
-            state_dict['world_power'] = logs
-        except TypeError:
-            state_dict = {'world_power': logs}
-        limit_dict[object_key] = state_dict
-        LimitData().update_limit_data_with_key(limit_dict, object_key)
-        return True
-
-    def get_user_world_power_data(self, user_id):
-        object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
-        state_dict = limit_dict[object_key]
-        try:
-            logs = state_dict.get('world_power')
         except:
             logs = None
         if logs:

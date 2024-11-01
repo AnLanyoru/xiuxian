@@ -153,10 +153,13 @@ class Place:
         """
         place_start = int(place_start)
         place_to = int(place_to)
+        place_name_1 = self.get_place_dict()[place_start][0]
+        try:
+            place_name_2 = self.get_place_dict()[place_to][0]
+        except KeyError:
+            return "unachievable", place_name_1, "不存在的地点"
         set_start = self.get_place_dict()[place_start][1]
         set_to = self.get_place_dict()[place_to][1]
-        place_name_1 = self.get_place_dict()[place_start][0]
-        place_name_2 = self.get_place_dict()[place_to][0]
         x1 = set_start[0]
         x2 = set_to[0]
         y1 = set_start[1]

@@ -22,7 +22,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed
 )
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.utils import (
@@ -65,10 +65,9 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent, args: Message = C
         args = args[0]
     else:
         args = None
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await xiuxian_message.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     user_info = sql_message.get_user_real_info(user_id)
     user_name = user_info['user_name']

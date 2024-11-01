@@ -4,11 +4,10 @@ import asyncio
 from datetime import datetime
 from nonebot.typing import T_State
 
-from ..xiuxian_buff import limit_dict
-from ..xiuxian_buff.limit import CheckLimit
+from ..xiuxian_buff import CheckLimit
 from ..xiuxian_limit import LimitHandle
 from ..xiuxian_place import Place
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot import require, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -65,8 +64,6 @@ gm_command_miss = on_command("思恋结晶", permission=SUPERUSER, priority=10, 
 gmm_command = on_command("灵根更换", permission=SUPERUSER, priority=10, block=True)
 cz = on_command('创造', permission=SUPERUSER, priority=15, block=True)
 rob_stone = on_command("抢灵石", priority=5, permission=GROUP, block=True)
-set_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'},
-                         permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
 user_stamina = on_command('我的体力', aliases={'体力'}, priority=5, permission=GROUP, block=True)
 xiuxian_update_data = on_fullmatch('更新记录', priority=15, permission=GROUP, block=True)
@@ -126,20 +123,15 @@ async def mix_elixir_help_(bot: Bot, event: GroupMessageEvent):
     await xiuxian_update_data.finish()
 
 
-
-
-@run_xiuxian.handle(parameterless=[Cooldown(at_sender=False)])
+@run_xiuxian.handle(parameterless=[Cooldown(check_user=False)])
 async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
     """加入修仙"""
-    # 这里曾经是风控模块，但是已经不再需要了
     user_id = event.get_user_id()
-    user_name = sql_message.random_name()
-    #    event.sender.card if event.sender.card else event.sender.nickname
-    # )  # 获取为用户名(旧)
+    user_name = sql_message.random_name()  # 获取随机名称
     root, root_type = XiuxianJsonDate().linggen_get()  # 获取灵根，灵根类型
     rate = sql_message.get_root_rate(root_type)  # 灵根倍率
     power = 100 * float(rate)  # 战力=境界的power字段 * 灵根的rate字段
-    create_time = str(datetime.now())
+    create_time = str(datetime.now())  # 创建账号时间
     is_new_user, msg = sql_message.create_user(
         user_id, root, root_type, int(power), create_time, user_name
     )
@@ -162,10 +154,7 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
 async def sign_in_(bot: Bot, event: GroupMessageEvent):
     """修仙签到"""
     # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await sign_in.finish()
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
     result = sql_message.get_sign(user_id)
     msg = result
@@ -203,10 +192,7 @@ async def level_help_(bot: Bot, event: GroupMessageEvent):
 async def restart_(bot: Bot, event: GroupMessageEvent, state: T_State):
     """刷新灵根信息"""
     # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await restart.finish()
+    _, user_info, _ = check_user(event)
 
     if user_info['stone'] < XiuConfig().remake:
         msg = "你的灵石还不够呢，快去赚点灵石吧！"
@@ -329,10 +315,7 @@ async def rank_(bot: Bot, event: GroupMessageEvent):
 async def remaname_(bot: Bot, event: GroupMessageEvent):
     """修改道号"""
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await rename.finish()
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
     user_name = sql_message.random_name()
     msg = f"道友前往一处偏僻之地，施展乾坤换面诀\n霎时之间面容变换，并且修改道号为：{user_name}"
@@ -345,10 +328,7 @@ async def remaname_(bot: Bot, event: GroupMessageEvent):
 async def level_up_(bot: Bot, event: GroupMessageEvent):
     """突破"""
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await level_up.finish()
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
     if user_info['hp'] is None:
         # 判断用户气血是否为空
@@ -398,10 +378,7 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
 async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
     """直接突破"""
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await level_up_zj.finish()
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
     if user_info['hp'] is None:
         # 判断用户气血是否为空
@@ -479,10 +456,7 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
 async def level_up_zj_all_(bot: Bot, event: GroupMessageEvent):
     """快速突破"""
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await level_up_zj_all.finish()
+    _, user_info, _ = check_user(event)
     run = 0
     user_id = user_info['user_id']
     lost_exp = 0
@@ -564,10 +538,7 @@ async def level_up_zj_all_(bot: Bot, event: GroupMessageEvent):
 async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
     """渡厄 金丹 突破"""
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await level_up_drjd.finish()
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
     if user_info['hp'] is None:
         # 判断用户气血是否为空
@@ -670,10 +641,7 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
 async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
     """渡厄 突破"""
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await level_up_dr.finish()
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
     if user_info['hp'] is None:
         # 判断用户气血是否为空
@@ -772,14 +740,10 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
 async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
     """我的突破概率"""
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await user_leveluprate.finish()
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
-    user_msg = sql_message.get_user_info_with_id(user_id)  # 用户信息
-    leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
-    level_name = user_msg['level']  # 用户境界
+    leveluprate = int(user_info['level_up_rate'])  # 用户失败次数加成
+    level_name = user_info['level']  # 用户境界
     level_rate = jsondata.level_rate_data()[level_name]  # 
     main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data()  # 功法突破概率提升
     number = main_rate_buff['number'] if main_rate_buff is not None else 0
@@ -792,10 +756,7 @@ async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
 async def user_stamina_(bot: Bot, event: GroupMessageEvent):
     """我的体力信息"""
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await user_stamina.finish()
+    _, user_info, _ = check_user(event)
     msg = f"当前体力：{user_info['user_stamina']}"
     await bot.send(event=event, message=msg)
     await user_stamina.finish()
@@ -805,10 +766,7 @@ async def user_stamina_(bot: Bot, event: GroupMessageEvent):
 async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """送灵石"""
     # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await give_stone.finish()
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
     user_name = user_info['user_name']
     user_stone_num = user_info['stone']
@@ -843,24 +801,26 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                     await give_stone.finish()
                 if Place().is_the_same_place(give_qq, user_id):
                     num = int(give_stone_num)
-                    sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
-                    sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
-                    msg = give_user['user_name'] + "道友" + str(num) + "灵石"
-                    msg = f"\n{user_name}道友与好友在同一位置，当面赠送：\n" + msg
-                    LimitHandle().update_user_log_data(user_id, msg)
-                    LimitHandle().update_user_log_data(give_qq, msg)
+                    msg, is_pass = CheckLimit().send_stone_check(user_id, give_qq, num)
+                    if is_pass:
+                        sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
+                        sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
+                        msg = f"\n{user_name}道友与好友在同一位置，当面赠送：\n" + msg
+                        LimitHandle().update_user_log_data(user_id, msg)
+                        LimitHandle().update_user_log_data(give_qq, msg)
                     await bot.send(event=event, message=msg)
                     await give_stone.finish()
 
                 give_stone_num2 = int(give_stone_num) * 0.1
                 num = int(give_stone_num) - int(give_stone_num2)
-                sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
-                sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
-                msg = give_user['user_name'] + "道友" + str(num) + "灵石"
-                msg = (f"\n{user_name}道友与好友不在一地，通过远程邮寄赠送：\n" + msg +
-                       f"\n收取远程邮寄手续费{(number_to(give_stone_num2))}|{int(give_stone_num2)}枚！")
-                LimitHandle().update_user_log_data(user_id, msg)
-                LimitHandle().update_user_log_data(give_qq, msg)
+                msg, is_pass = CheckLimit().send_stone_check(user_id, give_qq, num)
+                if is_pass:
+                    sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
+                    sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
+                    msg = (f"\n{user_name}道友与好友不在一地，通过远程邮寄赠送：\n" + msg +
+                           f"\n收取远程邮寄手续费{(number_to(give_stone_num2))}|{int(give_stone_num2)}枚！")
+                    LimitHandle().update_user_log_data(user_id, msg)
+                    LimitHandle().update_user_log_data(give_qq, msg)
                 await bot.send(event=event, message=msg)
                 await give_stone.finish()
             else:
@@ -877,11 +837,8 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 @steal_stone.handle(parameterless=[Cooldown(stamina_cost=2400, at_sender=False)])
 async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    args = args.extract_plain_text().split()
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await steal_stone.finish()
+    _, user_info, _ = check_user(event)
+    args = args.extract_plain_text()
     user_id = user_info['user_id']
     steal_user = None
     steal_user_stone = None
@@ -892,7 +849,7 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         sql_message.update_user_stamina(user_id, 1000, 1)
         await bot.send(event=event, message=msg)
         await steal_stone.finish()
-    steal_qq = sql_message.get_user_id(args)  # 使用道号获取用户id，代替原at
+    steal_qq = get_id_from_str(args)  # 使用道号获取用户id，代替原at
     if steal_qq:
         if steal_qq == user_id:
             msg = f"请不要偷自己刷成就！"
@@ -942,7 +899,7 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     # 这里曾经是风控模块，但是已经不再需要了
     msg_text = args.extract_plain_text()
-    stone_num_match = re.findall(r"\d+", msg_text)  # 提取数字
+    stone_num_match = get_num_from_str(msg_text)  # 提取数字
     give_qq = get_id_from_str(msg_text)  # 道号
     command_target = get_strs_from_str(msg_text)
     if command_target:
@@ -972,7 +929,7 @@ async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 async def gm_command_miss_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     # 这里曾经是风控模块，但是已经不再需要了
     msg_text = args.extract_plain_text()
-    stone_num_match = re.findall(r"\d+", msg_text)  # 提取数字
+    stone_num_match = get_num_from_str(msg_text)  # 提取数字
     give_qq = get_id_from_str(msg_text)  # 道号
     command_target = get_strs_from_str(msg_text)
     if command_target:
@@ -1060,17 +1017,18 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 @gmm_command.handle(parameterless=[Cooldown(at_sender=False)])
 async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     # 这里曾经是风控模块，但是已经不再需要了
-    msg = args.extract_plain_text().strip()
+    arg = args.extract_plain_text()
     if not args:
         msg = f"请输入正确指令！例如：灵根更换 x(1为混沌,2为融合,3为超,4为龙,5为天,6为千世,7为万世,8为无上)"
         await bot.send(event=event, message=msg)
         await gm_command.finish()
 
-    give_qq = sql_message.get_user_id(args)  # 使用道号获取用户id，代替原at
-
+    give_qq = get_id_from_str(arg)  # 使用道号获取用户id，代替原at
+    num = get_num_from_str(arg)
+    root_num = num[0] if num else 1
     give_user = sql_message.get_user_info_with_id(give_qq)
     if give_user:
-        root_name = sql_message.update_root(give_qq, msg)
+        root_name = sql_message.update_root(give_qq, root_num)
         sql_message.update_power2(give_qq)
         msg = f"{give_user['user_name']}道友的灵根已变更为{root_name}！"
         await bot.send(event=event, message=msg)
@@ -1090,36 +1048,28 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             "ATK": ATK,
             "COMBO": COMBO
         }"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await give_stone.finish()
+    _, user_info, _ = check_user(event)
     user_id = user_info["user_id"]
-    user_mes = sql_message.get_user_info_with_id(user_id)
     give_qq = sql_message.get_user_id(args)  # 使用道号获取用户id，代替原at
     player1 = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '爆伤': None,
                '防御': 0}
     player2 = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '爆伤': None,
                '防御': 0}
     user_2 = sql_message.get_user_info_with_id(give_qq)
-    if user_mes and user_2:
+    if user_info and user_2:
         if user_info['root'] == "器师":
             msg = f"目前职业无法抢劫！"
-            sql_message.update_user_stamina(user_id, 1500, 1)
             await bot.send(event=event, message=msg)
             await rob_stone.finish()
 
         if give_qq:
             if str(give_qq) == str(user_id):
                 msg = f"请不要抢自己刷成就！"
-                sql_message.update_user_stamina(user_id, 1500, 1)
                 await bot.send(event=event, message=msg)
                 await rob_stone.finish()
 
             if user_2['root'] == "器师":
                 msg = f"对方职业无法被抢劫！"
-                sql_message.update_user_stamina(user_id, 1500, 1)
                 await bot.send(event=event, message=msg)
                 await rob_stone.finish()
 
@@ -1135,7 +1085,6 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 if user_2['hp'] <= user_2['exp'] / 10:
                     time_2 = leave_harm_time(give_qq)
                     msg = f"对方重伤藏匿了，无法抢劫！距离对方脱离生命危险还需要{time_2}分钟！"
-                    sql_message.update_user_stamina(user_id, 1500, 1)
                     await bot.send(event=event, message=msg)
                     await rob_stone.finish()
 
@@ -1143,7 +1092,6 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     time_msg = leave_harm_time(user_id)
                     msg = f"重伤未愈，动弹不得！距离脱离生命危险还需要{time_msg}分钟！"
                     msg += f"请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
-                    sql_message.update_user_stamina(user_id, 1500, 1)
                     await bot.send(event=event, message=msg)
                     await rob_stone.finish()
 
@@ -1241,34 +1189,3 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         await rob_stone.finish()
 
 
-@set_xiuxian.handle()
-async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
-    """群修仙开关配置"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    group_msg = str(event.message)
-    group_id = str(event.group_id)
-    conf_data = JsonConfig().read_data()
-
-    if "启用" in group_msg:
-        if group_id not in conf_data["group"]:
-            msg = "当前群聊修仙模组已启用，请勿重复操作！"
-            await bot.send(event=event, message=msg)
-            await set_xiuxian.finish()
-        JsonConfig().write_data(2, group_id)
-        msg = "当前群聊修仙基础模组已启用，快发送 踏入仙途 加入修仙世界吧！"
-        await bot.send(event=event, message=msg)
-        await set_xiuxian.finish()
-
-    elif "禁用" in group_msg:
-        if group_id in conf_data["group"]:
-            msg = "当前群聊修仙模组已禁用，请勿重复操作！"
-            await bot.send(event=event, message=msg)
-            await set_xiuxian.finish()
-        JsonConfig().write_data(1, group_id)
-        msg = "当前群聊修仙基础模组已禁用！"
-        await bot.send(event=event, message=msg)
-        await set_xiuxian.finish()
-    else:
-        msg = "指令错误，请输入：启用修仙功能/禁用修仙功能"
-        await bot.send(event=event, message=msg)
-        await set_xiuxian.finish()

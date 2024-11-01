@@ -15,7 +15,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed
 )
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic, send_msg_handler,
@@ -131,11 +131,8 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 @impart_draw_fast.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """传承抽卡多次"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await impart_draw_fast.finish()
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     arg = args.extract_plain_text()
@@ -208,11 +205,8 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
 @impart_draw.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     """传承抽卡"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await impart_draw.finish()
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
@@ -291,11 +285,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
 @impart_back.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_back_(bot: Bot, event: GroupMessageEvent):
     """传承背包"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await impart_back.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
@@ -341,11 +333,9 @@ boss战攻击提升:{int(impart_data_draw['boss_atk'] * 100)}%
 @re_impart_load.handle(parameterless=[Cooldown(at_sender=False)])
 async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     """加载传承数据"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await re_impart_load.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
@@ -365,11 +355,9 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
 @impart_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_info_(bot: Bot, event: GroupMessageEvent):
     """传承信息"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await impart_info.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:

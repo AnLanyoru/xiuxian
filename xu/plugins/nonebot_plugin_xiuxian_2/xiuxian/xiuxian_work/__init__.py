@@ -1,3 +1,4 @@
+import math
 import os
 from typing import Any, Tuple, Dict
 from nonebot import on_regex, require, on_command
@@ -7,7 +8,7 @@ from nonebot.typing import T_State
 from ..xiuxian_limit import LimitHandle
 from ..xiuxian_move import read_move_data
 from ..xiuxian_place import Place
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
@@ -62,11 +63,9 @@ __work_help__ = f"""
 
 @last_work.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def last_work_(bot: Bot, event: GroupMessageEvent):
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await last_work.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     user_level = user_info['level']
     user_rank = convert_rank(user_level)[0]
@@ -143,11 +142,9 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
 
 @do_work.handle(parameterless=[Cooldown(cd_time=6, stamina_cost=0, at_sender=False)])
 async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tuple[Any, ...] = RegexGroup()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await do_work.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     sql_message.update_last_check_info_time(user_id)  # 更新查看修仙信息时间
     user_cd_message = sql_message.get_user_cd(user_id)
@@ -190,7 +187,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
         need_time = move_info["need_time"]
         place_name = Place().get_place_name(move_info["to_id"])
         if pass_time < need_time:
-            msg = f"道友现在正在赶往【{place_name}】中！预计还有{need_time - pass_time:.1f}分钟到达目的地！！"
+            last_time = math.ceil(need_time - pass_time)
+            msg = f"道友现在正在赶往【{place_name}】中！预计还有{last_time}分钟到达目的地！！"
             await bot.send(event=event, message=msg)
             await do_work.finish()
         else:  # 移动结算逻辑
@@ -405,7 +403,10 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
 async def get_work_num(bot: Bot, event: GroupMessageEvent, state: T_State):
     # 这里曾经是风控模块，但是已经不再需要了
     num = get_num_from_str(event.get_plaintext())
-    user_id = event.user_id
+
+    _, user_info, _ = check_user(event)
+
+    user_id = user_info.get('user_id')
     is_type, msg = check_user_type(user_id, 0)  # 需要无状态的用户
     if is_type:  # 接取逻辑
         if not num:

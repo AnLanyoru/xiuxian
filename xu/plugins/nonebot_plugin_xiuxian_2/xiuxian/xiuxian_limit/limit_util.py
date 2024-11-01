@@ -12,7 +12,7 @@ class LimitCheck:
         self.two_exp_limit = XiuConfig().two_exp_limit
         pass
 
-    def two_exp_limit_check(self, user_id_1, user_id_2) -> [bool, str]:
+    def two_exp_limit_check(self, user_id_1, user_id_2) -> tuple[bool, str]:
         user_limit_1, is_pass_1 = LimitData().get_limit_by_user_id(user_id_1)
         user_limit_2, is_pass_2 = LimitData().get_limit_by_user_id(user_id_2)
         user_exp_1 = user_limit_1['two_exp_up']

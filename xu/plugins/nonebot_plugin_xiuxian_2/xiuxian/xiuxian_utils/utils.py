@@ -7,6 +7,8 @@ import datetime
 import re
 
 import unicodedata
+
+from .clean_utils import get_num_from_str
 from .xiuxian2_handle import XiuxianDateManage
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
@@ -97,7 +99,8 @@ def check_user_type(user_id, need_type):
             need_time = move_info["need_time"]
             place_name = Place().get_place_name(move_info["to_id"])
             if pass_time < need_time:
-                msg = f"道友现在正在赶往【{place_name}】中！预计还有{need_time - pass_time:.1f}分钟到达目的地！！"
+                last_time = math.ceil(need_time - pass_time)
+                msg = f"道友现在正在赶往【{place_name}】中！预计还有{last_time}分钟到达目的地！！"
             else:  # 移动结算逻辑
                 sql_message.do_work(user_id, 0)
                 place_id = move_info["to_id"]
@@ -115,17 +118,10 @@ def check_user(event: GroupMessageEvent):
       * `user_info: 用户
       * `msg: 消息体
     """
-
-    isUser = False
     user_id = event.get_user_id()
     user_info = sql_message.get_user_info_with_id(user_id)
-    if user_info is None:
-        msg = "修仙界没有道友的信息，请输入【踏入仙途】加入！"
-    else:
-        isUser = True
-        msg = ''
 
-    return isUser, user_info, msg
+    return True, user_info, ''
 
 
 class Txt2Img:
@@ -651,17 +647,6 @@ def get_strs_from_str(msg: str) -> list:
     """
     strs = re.findall(r"[\u4e00-\u9fa5_a-zA-Z]+", msg)
     return strs
-
-
-def get_num_from_str(msg) -> list:
-    """
-    从消息字符串中获取数字列表
-    :param msg: 从纯字符串中获取的获取的消息字符串
-    :return: 提取到的分块整数
-    """
-    num = re.findall(r"\d+", msg)
-    return num
-
 
 async def pic_msg_format(msg, event):
     user_name = (

@@ -16,7 +16,7 @@ from .old_rift_info import old_rift_info
 from .. import DRIVER
 from ..xiuxian_limit import LimitHandle
 from ..xiuxian_place import Place
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
@@ -145,11 +145,8 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
 @explore_rift.handle(parameterless=[Cooldown(stamina_cost=240, at_sender=False)])
 async def explore_rift_(bot: Bot, event: GroupMessageEvent):
     """探索秘境"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await explore_rift.finish()
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)  # 需要无状态的用户
@@ -194,11 +191,9 @@ async def explore_rift_(bot: Bot, event: GroupMessageEvent):
 @complete_rift.handle(parameterless=[Cooldown(at_sender=False)])
 async def complete_rift_(bot: Bot, event: GroupMessageEvent):
     """秘境结算"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await complete_rift.finish()
+
+    _, user_info, _ = check_user(event)
+
 
     user_id = user_info['user_id']
 

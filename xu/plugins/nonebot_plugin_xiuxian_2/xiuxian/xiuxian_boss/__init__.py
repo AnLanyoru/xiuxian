@@ -19,7 +19,7 @@ from nonebot.adapters.onebot.v11 import (
     ActionFailed,
     MessageSegment
 )
-from ..xiuxian_utils.lay_out import assign_bot, put_bot, layout_bot_dict, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from ..xiuxian_utils.xiuxian2_handle import (
@@ -117,41 +117,23 @@ async def read_boss_():
     logger.opt(colors=True).info(f"<green>历史boss数据读取成功</green>")
 
 
-
-
-
 @DRIVER.on_shutdown
 async def save_boss_():
-    global group_boss
     old_boss_info.save_boss(group_boss)
     logger.opt(colors=True).info(f"<green>boss数据已保存</green>")
 
 
 @boss_help.handle(parameterless=[Cooldown(at_sender=False)])
-async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    if session_id in cache_help:
-        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
-        await boss_help.finish()
-    else:
-        msg = __boss_help__
-        if XiuConfig().img:
-            pic = await get_msg_pic(msg)
-            cache_help[session_id] = pic
-            await bot.send(event=event, message=MessageSegment.image(pic))
-        else:
-            await bot.send(event=event, message=msg)
-        await boss_help.finish()
+async def boss_help_(bot: Bot, event: GroupMessageEvent):
+    msg = __boss_help__
+    await bot.send(event=event, message=msg)
+    await boss_help.finish()
 
 
 @battle.handle(parameterless=[Cooldown(stamina_cost=60, at_sender=False)])
 async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """讨伐世界boss"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await battle.finish()
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     sql_message.update_last_check_info_time(user_id)  # 更新查看修仙信息时间
@@ -498,10 +480,7 @@ async def boss_integral_info_(bot: Bot, event: GroupMessageEvent):
 async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """世界积分商店兑换"""
     # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await boss_integral_use.finish()
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     msg = args.extract_plain_text().strip()

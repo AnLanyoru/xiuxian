@@ -1,8 +1,9 @@
+import math
 from datetime import datetime
 
 from .jsondata_move import save_move_data, Move, read_move_data
 from ..xiuxian_config import convert_rank
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot import on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -31,23 +32,19 @@ stop_move = on_fullmatch("停止移动", permission=GROUP, priority=10, block=Tr
 @go_to.handle(parameterless=[Cooldown(at_sender=False)])
 async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """
-    移动位置测试 到 位置id
-    :param bot:
-    :param event:
-    :param args:
-    :return: msg：distance
+    移动位置
     """
-    # 这里曾经是风控模块，但是已经不再需要了
+
     is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await get_map.finish()
+
     user_id = user_info['user_id']
 
     is_type, msg = check_user_type(user_id, 0)  # 需要空闲的用户
+
     if not is_type:
         await bot.send(event=event, message=msg)
         await complete_move.finish()
+
     msg_text = args.extract_plain_text()
     start_id = Place().get_now_place_id(user_id)
     num = get_num_from_str(msg_text)
@@ -61,6 +58,7 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
         msg = "请输入正确的地点或地点id！！！"
         await bot.send(event=event, message=msg)
         await go_to.finish()
+
     far, name_1, name_2 = Place().get_distance(start_id, place_id)
     if far == "unachievable":
         msg = f"无法从【{name_1}】移动至【{name_2}】！！！目的地跨位面或不可到达"
@@ -77,7 +75,8 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
         }
         save_move_data(user_id, move_data)
         sql_message.do_work(user_id, -1, need_time)
-        msg = f"道友开始从【{name_1}】移动至【{name_2}】, 距离约：{far:.1f}万里, 预计耗时{need_time:.1f}分钟！"
+        need_time = math.ceil(need_time)
+        msg = f"道友开始从【{name_1}】移动至【{name_2}】, 距离约：{far:.1f}万里, 预计耗时{need_time}分钟！"
 
     await bot.send(event=event, message=msg)
     await go_to.finish()
@@ -85,12 +84,9 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
 
 @stop_move.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def stop_move_(bot: Bot, event: GroupMessageEvent):
-    """移动结算"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await stop_move.finish()
+    """停止移动"""
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
 
@@ -107,11 +103,8 @@ async def stop_move_(bot: Bot, event: GroupMessageEvent):
 @complete_move.handle(parameterless=[Cooldown(at_sender=False)])
 async def complete_move_(bot: Bot, event: GroupMessageEvent):
     """移动结算"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await complete_move.finish()
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
 
@@ -129,7 +122,8 @@ async def complete_move_(bot: Bot, event: GroupMessageEvent):
         need_time = move_info["need_time"]
         place_name = Place().get_place_name(move_info["to_id"])
         if pass_time < need_time:
-            msg = f"向【{place_name}】的移动，预计{need_time - pass_time:.1f}分钟后可结束"
+            last_time = math.ceil(need_time - pass_time)
+            msg = f"向【{place_name}】的移动，预计{last_time}分钟后可结束"
             await bot.send(event=event, message=msg)
             await complete_move.finish()
         else:  # 移动结算逻辑
@@ -143,11 +137,12 @@ async def complete_move_(bot: Bot, event: GroupMessageEvent):
 
 @get_map.handle(parameterless=[Cooldown(at_sender=False)])
 async def get_map_(bot: Bot, event: GroupMessageEvent):
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await get_map.finish()
+    """
+    获取地图
+    """
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     place_id = Place().get_now_place_id(user_id)
     world_name = Place().get_world_name(place_id)

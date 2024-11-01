@@ -540,7 +540,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 )
             break
 
-        ## 对方回合结束 处理 辅修功法14
+        # 对方回合结束 处理 辅修功法14
         player2, player1, msg = after_atk_sub_buff_handle(player2_sub_open, player2, user2_main_buff_data,
                                                           user2_sub_buff_date,
                                                           player1_health_temp - player1['气血'], player1)
@@ -560,7 +560,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
             user2_turn_skip = False
             player2_turn_cost += 1
 
-        if user1_turn_skip == False and user2_turn_skip == False:
+        if user1_turn_skip is False and user2_turn_skip is False:
             play_list.append(
                 {"type": "node", "data": {"name": "Bot", "uin": int(bot_id), "content": "双方都动弹不得！"}})
             user1_turn_skip = True
@@ -572,8 +572,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     try:
         suc
     except NameError:
-        play_list.append(
-            {"type": "node", "data": {"name": "Bot", "uin": int(bot_id), "content": "你们打到天昏地暗被大能制止！！！！"}})
+        play_list.append({"type": "node", "data": {"name": "Bot", "uin": int(bot_id), "content": "你们打到天昏地暗被大能制止！！！！"}})
         suc = "None"
     return play_list, suc
 

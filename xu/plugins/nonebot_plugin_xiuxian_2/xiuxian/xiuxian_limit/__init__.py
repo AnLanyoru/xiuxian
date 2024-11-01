@@ -1,7 +1,7 @@
 import pickle
 
 from .limit_database import LimitData, LimitHandle
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.params import CommandArg
 from nonebot import on_command
 from ..xiuxian_config import XiuConfig
@@ -29,11 +29,9 @@ get_shop_log = on_command('坊市日志', aliases={"查询坊市日志", "查看
 
 @offset.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await offset.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     msg_list = LimitHandle().get_all_user_offset_msg(user_id)  # 存入需要被翻页的数据
     if msg_list:
@@ -62,11 +60,9 @@ async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
 @offset_get.handle(parameterless=[Cooldown(cd_time=3, at_sender=False)])
 async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await offset.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     num_msg = get_num_from_str(args.extract_plain_text())
     num = int(num_msg[0]) if num_msg else 1
@@ -75,9 +71,8 @@ async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         msg = f"不存在ID为 {num}，的补偿，请检查！！"
         await bot.send(event=event, message=msg)
         await offset.finish()
-    is_pass = LimitHandle().update_user_offset(user_id, num)  # 申领检查
+    is_pass, msg = LimitHandle().update_user_offset(user_id, num)  # 申领检查
     if not is_pass:
-        msg = f"你已领取补偿【{offset_info['offset_name']}】，请不要重复申领！！"
         await bot.send(event=event, message=msg)
         await offset.finish()
     # 检查通过，发放奖励
@@ -101,12 +96,10 @@ async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
 
 @get_log.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
-async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await get_log.finish()
+async def offset_(bot: Bot, event: GroupMessageEvent):
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     logs = LimitHandle().get_user_log_data(user_id)
     if logs:
@@ -119,12 +112,10 @@ async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
 
 @get_shop_log.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
-async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    # 这里曾经是风控模块，但是已经不再需要了
-    is_user, user_info, msg = check_user(event)
-    if not is_user:
-        await bot.send(event=event, message=msg)
-        await get_shop_log.finish()
+async def offset_(bot: Bot, event: GroupMessageEvent):
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     logs = LimitHandle().get_user_shop_log_data(user_id)
     if logs:

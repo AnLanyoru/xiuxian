@@ -6,8 +6,6 @@ from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_limit import LimitData,
 
 
 class TWO_EXP_CD(object):
-    def __init__(self):
-        self.dir_path = Path(__file__).parent
 
     def find_user(self, user_id):
         """

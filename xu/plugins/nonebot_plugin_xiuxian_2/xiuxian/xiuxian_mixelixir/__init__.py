@@ -10,7 +10,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed, Message
 )
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import Cooldown
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, get_player_info, save_player_info,
     UserBuffDate, XIUXIAN_IMPART_BUFF
@@ -62,19 +62,15 @@ __mix_elixir_help__ = f"""
 1、炼丹需要主药、药引、辅药
 2、主药和药引控制炼丹时的冷热调和,冷热失和则炼不出丹药
 3、草药的类型控制产出丹药的类型
-4、来自群友猫猫头工具网址 
-https://huggingface.co/spaces/chewing/liandan
 """
 
 
 @mix_elixir_sqdj_up.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_sqdj_up_(bot: Bot, event: GroupMessageEvent):
     """收取等级升级"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await mix_elixir_sqdj_up.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
         msg = f"道友还没有洞天福地呢，请发送洞天福地购买吧~"
@@ -103,11 +99,9 @@ async def mix_elixir_sqdj_up_(bot: Bot, event: GroupMessageEvent):
 @mix_elixir_dykh_up.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
     """丹药控火升级"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await mix_elixir_dykh_up.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     DYKHCONFIG = MIXELIXIRCONFIG['丹药控火']
     mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
@@ -132,11 +126,8 @@ async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
 @yaocai_get.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
 async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
     """灵田收取"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await yaocai_get.finish()
+
+    _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
@@ -202,11 +193,9 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
 @my_mix_elixir_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
     """我的炼丹信息"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await my_mix_elixir_info.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     mix_elixir_info = get_player_info(user_id, 'mix_elixir_info')
     l_msg = [f"☆------道友的炼丹信息------☆"]
@@ -230,18 +219,9 @@ async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
 async def elixir_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """炼丹帮助"""
     # 这里曾经是风控模块，但是已经不再需要了
-    if session_id in cache_help:
-        await bot.send(event=event, message=MessageSegment.image(cache_help[session_id]))
-        await elixir_help.finish()
-    else:
-        msg = __elixir_help__
-        if XiuConfig().img:
-            pic = await get_msg_pic(msg)
-            cache_help[session_id] = pic
-            await bot.send(event=event, message=MessageSegment.image(pic))
-        else:
-            await bot.send(event=event, message=msg)
-        await elixir_help.finish()
+    msg = __elixir_help__
+    await bot.send(event=event, message=msg)
+    await elixir_help.finish()
 
 
 @mix_elixir_help.handle(parameterless=[Cooldown(at_sender=False)])
@@ -260,11 +240,9 @@ user_ldl_flag = {}
 @mix_elixir.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
     global user_ldl_dict, user_ldl_flag
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await mix_elixir.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     user_back = sql_message.get_back_msg(user_id)
     yaocai_dict = {}
@@ -452,11 +430,9 @@ async def elixir_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await elixir_back.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     msg = get_user_elixir_back_msg(user_id)
 
@@ -496,11 +472,9 @@ async def yaocai_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    # 这里曾经是风控模块，但是已经不再需要了
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
-        await bot.send(event=event, message=msg)
-        await yaocai_back.finish()
+
+    _, user_info, _ = check_user(event)
+
     user_id = user_info['user_id']
     msg = get_user_yaocai_back_msg(user_id)
 
