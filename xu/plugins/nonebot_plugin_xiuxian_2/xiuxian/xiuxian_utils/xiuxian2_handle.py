@@ -17,7 +17,7 @@ from nonebot.log import logger
 from .data_source import jsondata
 from ..xiuxian_config import XiuConfig, convert_rank
 from .. import DRIVER
-from .item_json import Items
+from .item_json import items
 from .xn_xiuxian_impart_config import config_impart
 import threading
 
@@ -28,8 +28,7 @@ DATABASE_IMPARTBUFF = Path() / "data" / "xiuxian"
 SKILLPATHH = DATABASE / "功法"
 WEAPONPATH = DATABASE / "装备"
 xiuxian_num = "578043031"  # 这里其实是修仙1作者的QQ号
-impart_num = "123451234"
-items = Items()
+impart_number = "123451234"
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
@@ -280,7 +279,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         result = cur.fetchone()
         if result:
             columns = cur.description
-            user_data_dict = final_user_data(result, columns)
+            user_data_dict = final_user_data(result, columns)  # 意义不明的分装，增加维护难度
             return user_data_dict
         else:
             return None
@@ -397,12 +396,12 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
     def update_power2(self, user_id) -> None:
         """更新战力"""
-        UserMessage = self.get_user_info_with_id(user_id)
+        user_info = self.get_user_info_with_id(user_id)
         cur = self.conn.cursor()
         level = jsondata.level_data()
         root = jsondata.root_data()
         sql = f"UPDATE user_xiuxian SET power=round(exp*?*?,0) WHERE user_id=?"
-        cur.execute(sql, (root[UserMessage['root_type']]["type_speeds"], level[UserMessage['level']]["spend"], user_id))
+        cur.execute(sql, (root[user_info['root_type']]["type_speeds"], level[user_info['level']]["spend"], user_id))
         self.conn.commit()
 
     def update_ls(self, user_id, price, key):
@@ -421,6 +420,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def update_root(self, user_id, key):
         """更新灵根  1为混沌,2为融合,3为超,4为龙,5为天,6为千世,7为万世"""
         cur = self.conn.cursor()
+        root_name = None
         if int(key) == 1:
             sql = f"UPDATE user_xiuxian SET root=?,root_type=? WHERE user_id=?"
             cur.execute(sql, ("全属性灵根", "混沌灵根", user_id))
@@ -628,7 +628,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur.execute(sql, (sect_name, user_id))
         self.conn.commit()
 
-    def update_sect_name(self, sect_id, sect_name) -> None:
+    def update_sect_name(self, sect_id, sect_name) -> bool:
         """
         修改宗门名称
         :param sect_id: 宗门id
@@ -1032,6 +1032,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """更新用户HP,MP,ATK信息"""
         sql = f"UPDATE user_xiuxian SET hp=?,mp=?,atk=? WHERE user_id=?"
         cur = self.conn.cursor()
+        print(f"收到血量更改请求: {hp}")
         cur.execute(sql, (str(hp), str(mp), str(atk), user_id))
         self.conn.commit()
 
@@ -1566,6 +1567,11 @@ def number_to(num):
     return final_num
 
 
+"""
+糟糕的模块
+"""
+
+
 class OtherSet(XiuConfig):
 
     def __init__(self):
@@ -1661,23 +1667,6 @@ class OtherSet(XiuConfig):
 
         return list(rate.keys())[index_num]
 
-    def date_diff(self, new_time, old_time):
-        """计算日期差"""
-        if isinstance(new_time, datetime):
-            pass
-        else:
-            new_time = datetime.strptime(new_time, '%Y-%m-%d %H:%M:%S.%f')
-
-        if isinstance(old_time, datetime):
-            pass
-        else:
-            old_time = datetime.strptime(old_time, '%Y-%m-%d %H:%M:%S.%f')
-
-        day = (new_time - old_time).days
-        sec = (new_time - old_time).seconds
-
-        return (day * 24 * 60 * 60) + sec
-
     def get_power_rate(self, mind, other):
         power_rate = mind / (other + mind)
         if power_rate >= 0.8:
@@ -1764,7 +1753,7 @@ class OtherSet(XiuConfig):
                 msg.append(f',回复气血：{number_to(hp)}|{hp}')
             else:
                 new_hp = max_hp
-                msg.append(',气血已回满！')
+                msg.append(f',回复气血：{number_to(hp)}|{hp},气血已回满！')
         else:
             new_hp = user_msg['hp']
             msg.append('')
@@ -1788,11 +1777,13 @@ class OtherSet(XiuConfig):
 
 
 sql_message = XiuxianDateManage()  # sql类
-items = Items()
 
 
 def final_user_data(user_data, columns):
-    """传入用户当前信息、buff信息,返回最终信息"""
+    """
+    传入用户当前信息、buff信息,返回最终信息
+    糟糕的函数
+    """
     user_dict = dict(zip((col[0] for col in columns), user_data))
 
     # 通过字段名称获取相应的值
@@ -1833,19 +1824,20 @@ def final_user_data(user_data, columns):
 
 
 # 这里是虚神界部分
+
 class XIUXIAN_IMPART_BUFF:
-    global impart_num
+    global impart_number
     _instance = {}
     _has_init = {}
 
     def __new__(cls):
-        if cls._instance.get(impart_num) is None:
-            cls._instance[impart_num] = super(XIUXIAN_IMPART_BUFF, cls).__new__(cls)
-        return cls._instance[impart_num]
+        if cls._instance.get(impart_number) is None:
+            cls._instance[impart_number] = super(XIUXIAN_IMPART_BUFF, cls).__new__(cls)
+        return cls._instance[impart_number]
 
     def __init__(self):
-        if not self._has_init.get(impart_num):
-            self._has_init[impart_num] = True
+        if not self._has_init.get(impart_number):
+            self._has_init[impart_number] = True
             self.database_path = DATABASE_IMPARTBUFF
             if not self.database_path.exists():
                 self.database_path.mkdir(parents=True)
@@ -1861,19 +1853,6 @@ class XIUXIAN_IMPART_BUFF:
     def close(self):
         self.conn.close()
         logger.opt(colors=True).info(f"<green>xiuxian_impart数据库关闭!</green>")
-
-    def _create_file(self) -> None:
-        """创建数据库文件"""
-        c = self.conn.cursor()
-        c.execute('''CREATE TABLE xiuxian_impart
-                           (NO            INTEGER PRIMARY KEY UNIQUE,
-                           USERID         TEXT     ,
-                           level          INTEGER  ,
-                           root           INTEGER
-                           );''')
-        c.execute('''''')
-        c.execute('''''')
-        self.conn.commit()
 
     def _check_data(self):
         """检查数据完整性"""
@@ -1928,13 +1907,16 @@ class XIUXIAN_IMPART_BUFF:
         else:
             return True
 
-    def _create_user(self, user_id: str) -> None:
+    def _create_user(self, user_id: str | int) -> None:
         """在数据库中创建用户并初始化"""
         if self.create_user(user_id):
             pass
         else:
             c = self.conn.cursor()
-            sql = f"INSERT INTO xiuxian_impart (user_id, impart_hp_per, impart_atk_per, impart_mp_per, impart_exp_up ,boss_atk,impart_know_per,impart_burst_per,impart_mix_per,impart_reap_per,impart_two_exp,stone_num,exp_day,wish) VALUES(?, 0, 0, 0, 0 ,0, 0, 0, 0, 0 ,0 ,0 ,0, 0)"
+            sql = (f"INSERT INTO xiuxian_impart ("
+                   f"user_id, impart_hp_per, impart_atk_per, impart_mp_per, impart_exp_up , boss_atk, impart_know_per,"
+                   f"impart_burst_per, impart_mix_per, impart_reap_per, impart_two_exp, stone_num, exp_day, wish) "
+                   f"VALUES(?, 0, 0, 0, 0 ,0, 0, 0, 0, 0 ,0 ,0 ,0, 0)")
             c.execute(sql, (user_id,))
             self.conn.commit()
 

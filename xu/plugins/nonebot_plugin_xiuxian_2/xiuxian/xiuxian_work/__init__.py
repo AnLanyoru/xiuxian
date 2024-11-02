@@ -1,37 +1,32 @@
 import math
 import os
-from typing import Any, Tuple, Dict
+from typing import Any, Tuple
 from nonebot import on_regex, require, on_command
 from nonebot.params import RegexGroup
-from nonebot.typing import T_State
 
-from ..xiuxian_limit import LimitHandle
+from ..xiuxian_limit import limit_handle
 from ..xiuxian_move import read_move_data
 from ..xiuxian_place import Place
+from ..xiuxian_utils.clean_utils import get_datetime_from_str
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
-    GroupMessageEvent,
-    MessageSegment,
+    GroupMessageEvent
 )
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, OtherSet
 from .work_handle import workhandle
 from datetime import datetime
 from ..xiuxian_utils.xiuxian_opertion import do_is_work
-from ..xiuxian_utils.utils import check_user, check_user_type, get_msg_pic, get_num_from_str
-from nonebot.log import logger
+from ..xiuxian_utils.utils import check_user, check_user_type, get_num_from_str
 from .reward_data_source import PLAYERSDATA
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 from ..xiuxian_config import convert_rank, XiuConfig
 
 # 定时任务
 resetrefreshnum = require("nonebot_plugin_apscheduler").scheduler
 work = {}  # 悬赏令信息记录
-refreshnum: Dict[str, int] = {}  # 用户悬赏令刷新次数记录
 sql_message = XiuxianDateManage()  # sql类
-items = Items()
-lscost = 1000000000  # 刷新灵石消耗
 count = 9  # 免费次数
 
 # 重置悬赏令刷新次数（已改被动）
@@ -141,14 +136,14 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
 
 
 @do_work.handle(parameterless=[Cooldown(cd_time=6, stamina_cost=0, at_sender=False)])
-async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tuple[Any, ...] = RegexGroup()):
+async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = RegexGroup()):
 
     _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
     sql_message.update_last_check_info_time(user_id)  # 更新查看修仙信息时间
-    user_cd_message = sql_message.get_user_cd(user_id)
-    if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message['type'] == 2:
+    user_cd_info = sql_message.get_user_cd(user_id)
+    if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_info['type'] == 2:
         sql_message.do_work(user_id, 0)
         msg = "悬赏令已更新，已重置道友的状态！"
         await bot.send(event=event, message=msg)
@@ -160,74 +155,66 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
         msg = "道友的修为已经到达上限，悬赏令已无法再获得经验！"
         await bot.send(event=event, message=msg)
         await do_work.finish()
-    if user_cd_message['type'] == 1:
-        msg = "已经在闭关中，请输入【出关】结束后才能获取悬赏令！"
+    user_type = user_cd_info['type']
+    if user_type and user_type != 2:
+        msg_map = {1: "已经在闭关中，请输入【出关】结束后才能获取悬赏令！",
+                   3: "道友在秘境中，请等待结束后才能获取悬赏令！",
+                   4: "道友还在修炼中，请等待结束后才能获取悬赏令！",
+                   5: "道友还在虚神界修炼中，请等待结束后才能获取悬赏令！"
+                   }
+        msg = msg_map.get(user_type)
+        if not msg:
+            # 赶路检测
+            user_cd_info = sql_message.get_user_cd(user_id)
+            work_time = datetime.strptime(
+                user_cd_info['create_time'], "%Y-%m-%d %H:%M:%S.%f"
+            )
+            pass_time = (datetime.now() - work_time).seconds // 60  # 时长计算
+            move_info = read_move_data(user_id)
+            need_time = move_info["need_time"]
+            place_name = Place().get_place_name(move_info["to_id"])
+            if pass_time < need_time:
+                last_time = math.ceil(need_time - pass_time)
+                msg = f"道友现在正在赶往【{place_name}】中！预计还有{last_time}分钟到达目的地！！"
+            else:  # 移动结算逻辑
+                sql_message.do_work(user_id, 0)
+                place_id = move_info["to_id"]
+                Place().set_now_place_id(user_id, place_id)
         await bot.send(event=event, message=msg)
         await do_work.finish()
-    if user_cd_message['type'] == 3:
-        msg = "道友在秘境中，请等待结束后才能获取悬赏令！"
-        await bot.send(event=event, message=msg)
-        await do_work.finish()
-    if user_cd_message['type'] == 4:
-        msg = "道友还在修炼中，请等待结束后才能获取悬赏令！"
-        await bot.send(event=event, message=msg)
-        await do_work.finish()
-    if user_cd_message['type'] == 5:
-        msg = "道友还在虚神界修炼中，请等待结束后才能获取悬赏令！"
-        await bot.send(event=event, message=msg)
-        await do_work.finish()
-    if user_cd_message['type'] == -1:
-        # 赶路检测
-        user_cd_message = sql_message.get_user_cd(user_id)
-        work_time = datetime.strptime(
-            user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
-        )
-        pass_time = (datetime.now() - work_time).seconds // 60  # 时长计算
-        move_info = read_move_data(user_id)
-        need_time = move_info["need_time"]
-        place_name = Place().get_place_name(move_info["to_id"])
-        if pass_time < need_time:
-            last_time = math.ceil(need_time - pass_time)
-            msg = f"道友现在正在赶往【{place_name}】中！预计还有{last_time}分钟到达目的地！！"
-            await bot.send(event=event, message=msg)
-            await do_work.finish()
-        else:  # 移动结算逻辑
-            sql_message.do_work(user_id, 0)
-            place_id = move_info["to_id"]
-            Place().set_now_place_id(user_id, place_id)
 
     if mode is None:  # 接取逻辑
-        if (user_cd_message['scheduled_time'] is None) or (user_cd_message['type'] == 0):
+        if (user_cd_info['scheduled_time'] is None) or (user_cd_info['type'] == 0):
             try:
                 msg = work[user_id].msg + "\n——————————————\n使用 悬赏令接取【序号】 接取对应悬赏令！"
             except KeyError:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
-        elif user_cd_message['type'] == 2:
+        elif user_cd_info['type'] == 2:
             work_time = datetime.strptime(
-                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
+                user_cd_info['create_time'], "%Y-%m-%d %H:%M:%S.%f"
             )
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
-            time2 = workhandle().do_work(key=1, name=user_cd_message['scheduled_time'], user_id=user_info['user_id'])
+            time2 = workhandle().do_work(key=1, name=user_cd_info['scheduled_time'], user_id=user_info['user_id'])
             if exp_time < time2:
-                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
+                msg = f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
             else:
-                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
+                msg = f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
         else:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
         await bot.send(event=event, message=msg)
         await do_work.finish()
 
     if mode == "刷新":  # 刷新逻辑
-        if user_cd_message['type'] == 2:
+        if user_cd_info['type'] == 2:
             work_time = datetime.strptime(
-                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
+                user_cd_info['create_time'], "%Y-%m-%d %H:%M:%S.%f"
             )
             exp_time = (datetime.now() - work_time).seconds // 60
-            time2 = workhandle().do_work(key=1, name=user_cd_message['scheduled_time'], user_id=user_info['user_id'])
+            time2 = workhandle().do_work(key=1, name=user_cd_info['scheduled_time'], user_id=user_info['user_id'])
             if exp_time < time2:
-                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
+                msg = f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
             else:
-                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
+                msg = f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
             await bot.send(event=event, message=msg)
             await do_work.finish()
         usernums = sql_message.get_work_num(user_id)
@@ -283,34 +270,29 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
         if is_type:
             sql_message.do_work(user_id, 0)
             msg = f"悬赏令已终止！"
-            await bot.send(event=event, message=msg)
-            await do_work.finish()
         else:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
-            await bot.send(event=event, message=msg)
-            await do_work.finish()
+        await bot.send(event=event, message=msg)
+        await do_work.finish()
 
     elif mode == "结算":
         is_type, msg = check_user_type(user_id, 2)  # 需要在悬赏令中的用户
         if is_type:
-            user_cd_message = sql_message.get_user_cd(user_id)
-            work_time = datetime.strptime(
-                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
-            )
+            user_cd_info = sql_message.get_user_cd(user_id)
+            work_time = get_datetime_from_str(user_cd_info['create_time'])
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
             time2 = workhandle().do_work(
-                key=1, name=user_cd_message['scheduled_time'], level=user_level, exp=user_info['exp'],
+                key=1, name=user_cd_info['scheduled_time'], level=user_level, exp=user_info['exp'],
                 user_id=user_info['user_id']
             )
             time2 = 0
             if exp_time < time2:
-                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
+                msg = f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
                 await bot.send(event=event, message=msg)
                 await do_work.finish()
             else:
                 msg, give_exp, s_o_f, item_id, big_suc = workhandle().do_work(2,
-                                                                              work_list=user_cd_message[
-                                                                                  'scheduled_time'],
+                                                                              work_list=user_cd_info['scheduled_time'],
                                                                               level=user_level,
                                                                               exp=user_info['exp'],
                                                                               user_id=user_info['user_id'])
@@ -331,7 +313,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                         msg += f"，额外获得奖励：{item_msg}!"
                     else:
                         msg += "!"
-                    LimitHandle().update_user_log_data(user_id, msg)
+                    limit_handle.update_user_log_data(user_id, msg)
                     await bot.send(event=event, message=msg)
                     await do_work.finish()
 
@@ -345,15 +327,13 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                             msg += f"，额外获得奖励：{item_msg}!"
                         else:
                             msg += "!"
-                        LimitHandle().update_user_log_data(user_id, msg)
-                        await bot.send(event=event, message=msg)
-                        await do_work.finish()
+                        limit_handle.update_user_log_data(user_id, msg)
 
                     else:  # 失败
                         msg += "!"
-                        LimitHandle().update_user_log_data(user_id, msg)
-                        await bot.send(event=event, message=msg)
-                        await do_work.finish()
+                        limit_handle.update_user_log_data(user_id, msg)
+                    await bot.send(event=event, message=msg)
+                    await do_work.finish()
         else:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
             await bot.send(event=event, message=msg)
@@ -376,22 +356,16 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
                     sql_message.do_work(user_id, 2, get_work[0])
                     del work[user_id]
                     msg = f"接取任务【{get_work[0]}】成功"
-                    await bot.send(event=event, message=msg)
-                    await do_work.finish()
 
                 except IndexError:
                     msg = "没有这样的任务"
-                    await bot.send(event=event, message=msg)
-                    await do_work.finish()
 
             except KeyError:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
-                await bot.send(event=event, message=msg)
-                await do_work.finish()
         else:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
-            await bot.send(event=event, message=msg)
-            await do_work.finish()
+        await bot.send(event=event, message=msg)
+        await do_work.finish()
 
     elif mode == "帮助":
         msg = __work_help__
@@ -400,7 +374,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, state: T_State, args: Tup
 
 
 @do_work.receive()
-async def get_work_num(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def get_work_num(bot: Bot, event: GroupMessageEvent):
     # 这里曾经是风控模块，但是已经不再需要了
     num = get_num_from_str(event.get_plaintext())
 
@@ -422,17 +396,12 @@ async def get_work_num(bot: Bot, event: GroupMessageEvent, state: T_State):
                 sql_message.do_work(user_id, 2, get_work[0])
                 del work[user_id]
                 msg = f"接取任务【{get_work[0]}】成功"
-                await bot.send(event=event, message=msg)
-                await do_work.finish()
             except IndexError:
                 msg = "没有这样的任务"
-                await bot.send(event=event, message=msg)
-                await do_work.finish()
-                pass
         except KeyError:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
-            await bot.send(event=event, message=msg)
-            await do_work.finish()
+    await bot.send(event=event, message=msg)
+    await do_work.finish()
 
 
 def get_work_msg(work_):

@@ -13,7 +13,7 @@ from nonebot.adapters.onebot.v11 import (
     GROUP_OWNER,
     ActionFailed
 )
-from ..xiuxian_limit import LimitHandle
+from ..xiuxian_limit import limit_handle
 from ..xiuxian_place import Place
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
@@ -27,7 +27,7 @@ from .back_util import (
     get_use_jlq_msg, get_no_use_equipment_sql, get_use_tool_msg
 )
 from .backconfig import get_auction_config, savef_auction, remove_auction_item
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.utils import (
     check_user, get_msg_pic,
     send_msg_handler, CommandObjectID,
@@ -39,7 +39,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
 )
 from ..xiuxian_config import XiuConfig, convert_rank
 
-items = Items()
+
 config = get_auction_config()
 groups = config['open']  # list，群交流会使用
 auction = {}
@@ -208,8 +208,8 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 sql_message.update_ls(shop_user_id, give_stone, 1)
             shop_data[place_id] = reset_dict_num(shop_data[place_id])
             save_shop(shop_data)
-            LimitHandle().update_user_shop_log_data(user_id, msg)
-            LimitHandle().update_user_shop_log_data(shop_user_id, msg)
+            limit_handle.update_user_shop_log_data(user_id, msg)
+            limit_handle.update_user_shop_log_data(shop_user_id, msg)
             await bot.send(event=event, message=msg)
             await buy.finish()
 
@@ -230,7 +230,7 @@ async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()
     for k, v in shop_data[place_id].items():
         msg = f"编号：{k}\n"
         msg += f"{v['desc']}"
-        msg += f"\n价格：{v['price']}枚灵石\n"
+        msg += f"\n价格：{number_to(v['price'])}|{v['price']}枚灵石\n"
         if v['user_id'] != 0:
             msg += f"拥有人：{v['user_name']}道友\n"
             msg += f"数量：{v['stock']}\n"
@@ -454,7 +454,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     sql_message.update_back_j(user_id, goods_id, num=quantity)
     save_shop(shop_data)
     msg = f"道友成功在【{place_name}】将【{goods_name}】上架坊市，金额：{price}枚灵石，数量{quantity}！"
-    LimitHandle().update_user_shop_log_data(user_id, msg)
+    limit_handle.update_user_shop_log_data(user_id, msg)
     await bot.send(event=event, message=msg)
     await shop_added.finish()
 
@@ -804,12 +804,12 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 msg = f"道友已学会该神通：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
 
-                power = LimitHandle().get_user_world_power_data(user_id)
+                power = limit_handle.get_user_world_power_data(user_id)
                 if int(skill_info['rank']) > 120:
                     if power >= 2048:
                         power -= 2048
                         use_power = f"\n消耗天地精华2048点，余剩{power}点！！"
-                        LimitHandle().update_user_world_power_data(user_id, power)
+                        limit_handle.update_user_world_power_data(user_id, power)
                         sql_message.update_back_j(user_id, goods_id)
                         sql_message.updata_user_sec_buff(user_id, goods_id)
                         msg = f"恭喜道友学会神通：{skill_info['name']}！" + use_power
@@ -929,10 +929,10 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             await bot.send(event=event, message=msg)
             await use.finish()
         goods_info = items.get_data_by_item_id(goods_id)
-        power = LimitHandle().get_user_world_power_data(user_id)
+        power = limit_handle.get_user_world_power_data(user_id)
         msg = f"道友使用天地奇物{goods_info['name']}{num}个，将{goods_info['buff']*num}点天地精华纳入丹田。\n请尽快利用！！否则天地精华将会消散于天地间！！"
         power += goods_info['buff']*num
-        LimitHandle().update_user_world_power_data(user_id, power)
+        limit_handle.update_user_world_power_data(user_id, power)
         sql_message.update_back_j(user_id, goods_id, num, 0)
         await bot.send(event=event, message=msg)
         await use.finish()

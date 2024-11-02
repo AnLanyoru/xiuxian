@@ -6,12 +6,11 @@ from ..xiuxian_utils.xiuxian2_handle import OtherSet
 from .jsondata import read_f
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, UserBuffDate, XIUXIAN_IMPART_BUFF
 from ..xiuxian_utils.player_fight import Boss_fight
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 from ..xiuxian_config import convert_rank
 
 sql_message = XiuxianDateManage()
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
-items = Items()
 skill_data = read_f()
 
 NONEMSG = [

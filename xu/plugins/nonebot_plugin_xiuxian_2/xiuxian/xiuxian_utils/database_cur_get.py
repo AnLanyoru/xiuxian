@@ -13,7 +13,7 @@ from nonebot.log import logger
 from .data_source import jsondata
 from ..xiuxian_config import XiuConfig, convert_rank
 from .. import DRIVER
-from .item_json import Items
+from .item_json import items
 from .xn_xiuxian_impart_config import config_impart
 
 WORKDATA = Path() / "data" / "xiuxian" / "work"
@@ -23,8 +23,7 @@ DATABASE_IMPARTBUFF = Path() / "data" / "xiuxian"
 SKILLPATHH = DATABASE / "功法"
 WEAPONPATH = DATABASE / "装备"
 xiuxian_num = "578043031"  # 这里其实是修仙1作者的QQ号
-impart_num = "123451234"
-items = Items()
+impart_number = "123451234"
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 

@@ -19,7 +19,7 @@ from ..xiuxian_utils.utils import (
     check_user, send_msg_handler,
     get_msg_pic, CommandObjectID, number_to
 )
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 from .mixelixirutil import get_mix_elixir_msg, tiaohe, check_mix, make_dict
 from ..xiuxian_config import convert_rank, XiuConfig
 from datetime import datetime
@@ -28,7 +28,6 @@ from ..xiuxian_back.back_util import get_user_elixir_back_msg, get_user_yaocai_b
 
 sql_message = XiuxianDateManage()  # sql类
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
-items = Items()
 cache_help = {}
 
 mix_elixir = on_fullmatch("炼丹", priority=17, permission=GROUP, block=True)

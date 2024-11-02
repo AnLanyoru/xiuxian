@@ -1,7 +1,7 @@
 from ..xiuxian_utils.xiuxian2_handle import *
 from .workmake import *
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 
 sql_message = XiuxianDateManage()  # sql类
 
@@ -17,7 +17,7 @@ class workhandle(XiuxianJsonDate):
                 if v[3] == 0:
                     item_msg = '!'
                 else:
-                    item_info = Items().get_data_by_item_id(v[3])
+                    item_info = items.get_data_by_item_id(v[3])
                     item_msg = f"，可能额外获得：{item_info['level']}:{item_info['name']}!"
                 get_work_list.append([k, v[0], v[1], v[2], item_msg])
             savef(user_id, json.dumps(data, ensure_ascii=False))

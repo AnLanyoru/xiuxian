@@ -1,8 +1,8 @@
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 from random import shuffle
 from collections import Counter
 
-mix_config = Items().get_data_by_item_type(['合成丹药'])
+mix_config = items.get_data_by_item_type(['合成丹药'])
 mix_configs = {}
 for k, v in mix_config.items():
     mix_configs[k] = v['elixir_config']

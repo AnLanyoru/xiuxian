@@ -26,9 +26,8 @@ from ..xiuxian_utils.utils import (
     get_msg_pic, send_msg_handler, CommandObjectID,
     Txt2Img, get_num_from_str, get_strs_from_str
 )
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 
-items = Items()
 sql_message = XiuxianDateManage()  # sql类
 config = get_config()
 LEVLECOST = config["LEVLECOST"]

@@ -1,6 +1,6 @@
 from .reward_data_source import *
 import random
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items as item_s
 from ..xiuxian_config import convert_rank
 from ..xiuxian_utils.xiuxian2_handle import OtherSet
 
@@ -12,7 +12,6 @@ def workmake(work_level, exp, user_level):
         work_level = work_level[:3]  # 取境界前3位，补全初期、中期、圆满任务可不取
 
     jsondata_ = reward()
-    item_s = Items()
     yaocai_data = jsondata_.reward_yaocai_data()
     levelpricedata = jsondata_.reward_levelprice_data()
     ansha_data = jsondata_.reward_ansa_data()

@@ -17,7 +17,7 @@ BOSSDROPS = READPATH / "boss掉落物"
 class Items:
     def __init__(self) -> None:
         self.mainbuff_jsonpath = SKILLPATHH / "主功法.json"
-        self.subbuff_jsonpath = SKILLPATHH / "辅修功法.json" 
+        self.subbuff_jsonpath = SKILLPATHH / "辅修功法.json"
         self.secbuff_jsonpath = SKILLPATHH / "神通.json"
         self.weapon_jsonpath = WEAPONPATH / "法器.json"
         self.armor_jsonpath = WEAPONPATH / "防具.json"
@@ -35,7 +35,7 @@ class Items:
         self.set_item_data(self.get_armor_data(), "防具")
         self.set_item_data(self.get_weapon_data(), "法器")
         self.set_item_data(self.get_main_buff_data(), "功法")
-        self.set_item_data(self.get_sub_buff_data(), "辅修功法") 
+        self.set_item_data(self.get_sub_buff_data(), "辅修功法")
         self.set_item_data(self.get_sec_buff_data(), "神通")
         self.set_item_data(self.get_elixir_data(), "丹药")
         self.set_item_data(self.get_lb_data(), "礼包")
@@ -47,6 +47,7 @@ class Items:
         self.set_item_data(self.get_dlw_data(), "掉落物")
         self.set_item_data(self.get_sw_data(), "神物")
         self.set_item_data(self.get_world_qw_data(), "天地奇物")
+        self.items_map = self.get_items_map()
         self.savef(self.items)
 
     def readf(self, FILEPATH):
@@ -70,8 +71,8 @@ class Items:
 
     def get_main_buff_data(self):
         return self.readf(self.mainbuff_jsonpath)
-    
-    def get_sub_buff_data(self):#辅修功法5
+
+    def get_sub_buff_data(self):  # 辅修功法5
         return self.readf(self.subbuff_jsonpath)
 
     def get_sec_buff_data(self):
@@ -79,7 +80,7 @@ class Items:
 
     def get_elixir_data(self):
         return self.readf(self.elixir_jsonpath)
-    
+
     def get_lb_data(self):
         return self.readf(self.lb_jsonpath)
 
@@ -97,10 +98,10 @@ class Items:
 
     def get_tools_data(self):
         return self.readf(self.tools_jsonpath)
-    
+
     def get_dlw_data(self):
         return self.readf(self.dlw_jsonpath)
-    
+
     def get_sw_data(self):
         return self.readf(self.sw_jsonpath)
 
@@ -134,26 +135,34 @@ class Items:
 
     def get_random_id_list_by_rank_and_item_type(
             self,
-            fanil_rank: int,
+            final_rank: int,
             item_type: List = None
     ):
         """
         获取随机一个物品ID,可以指定物品类型,物品等级和用户等级相差150级以上会被抛弃
-        :param fanil_rank:用户的最终rank,最终rank由用户rank和rank增幅事件构成
+        :param final_rank:用户的最终rank,最终rank由用户rank和rank增幅事件构成
         :param item_type:type:list,物品类型，可以为空，枚举值：法器、防具、神通、功法、丹药
         :return 获得的ID列表,type:list
         """
         l_id = []
-        fanil_rank += 0  # 新增境界补正
+        final_rank += 0  # 新增境界补正
         for k, v in self.items.items():
             if item_type is not None:
-                if v['item_type'] in item_type and int(abs(int(v['rank']) - 55)) <= fanil_rank and fanil_rank - int(abs(int(v['rank']) - 55)) <= 150:
+                if v['item_type'] in item_type and int(abs(int(v['rank']) - 55)) <= final_rank and final_rank - int(
+                        abs(int(v['rank']) - 55)) <= 150:
                     l_id.append(k)
                 else:
                     continue
             else:  # 全部随机
-                if int(abs(int(v['rank']) - 55)) <= fanil_rank and fanil_rank - int(abs(int(v['rank']) - 55)) <= 150:
+                if int(abs(int(v['rank']) - 55)) <= final_rank and final_rank - int(abs(int(v['rank']) - 55)) <= 150:
                     l_id.append(k)
                 else:
                     continue
         return l_id
+
+    def get_items_map(self):
+        items_map = {self.items[item_id]['name']: item_id for item_id in self.items}
+        return items_map
+
+
+items = Items()

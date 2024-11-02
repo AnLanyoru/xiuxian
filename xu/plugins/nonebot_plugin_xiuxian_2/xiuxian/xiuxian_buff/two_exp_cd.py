@@ -2,7 +2,8 @@ import time
 from pathlib import Path
 import os
 
-from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_limit import LimitData, LimitHandle
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_limit import LimitData
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_limit.limit_database import limit_handle
 
 
 class TWO_EXP_CD(object):
@@ -22,7 +23,7 @@ class TWO_EXP_CD(object):
         :param user_id: qq号
         :return: True or False
         """
-        LimitHandle().update_user_limit(user_id, 5, 1)
+        limit_handle.update_user_limit(user_id, 5, 1)
         return True
 
     def re_data(self):

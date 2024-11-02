@@ -1,6 +1,6 @@
 import pickle
 
-from .limit_database import LimitData, LimitHandle
+from .limit_database import LimitData, limit_handle
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.params import CommandArg
 from nonebot import on_command
@@ -16,9 +16,8 @@ from nonebot.adapters.onebot.v11 import (
 from ..xiuxian_utils.utils import (
     check_user, get_msg_pic, get_num_from_str, send_msg_handler
 )
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 
-items = Items()
 sql_message = XiuxianDateManage()  # sql类
 limit = LimitData()
 offset = on_command('补偿', priority=1, permission=GROUP, block=True)
@@ -33,7 +32,7 @@ async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
-    msg_list = LimitHandle().get_all_user_offset_msg(user_id)  # 存入需要被翻页的数据
+    msg_list = limit_handle.get_all_user_offset_msg(user_id)  # 存入需要被翻页的数据
     if msg_list:
         page_msg = get_num_from_str(args.extract_plain_text())
         items_all = len(msg_list)
@@ -71,7 +70,7 @@ async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         msg = f"不存在ID为 {num}，的补偿，请检查！！"
         await bot.send(event=event, message=msg)
         await offset.finish()
-    is_pass, msg = LimitHandle().update_user_offset(user_id, num)  # 申领检查
+    is_pass, msg = limit_handle.update_user_offset(user_id, num)  # 申领检查
     if not is_pass:
         await bot.send(event=event, message=msg)
         await offset.finish()
@@ -101,7 +100,7 @@ async def offset_(bot: Bot, event: GroupMessageEvent):
     _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
-    logs = LimitHandle().get_user_log_data(user_id)
+    logs = limit_handle.get_user_log_data(user_id)
     if logs:
         await send_msg_handler(bot, event, '日志', bot.self_id, logs)
         await get_log.finish()
@@ -117,7 +116,7 @@ async def offset_(bot: Bot, event: GroupMessageEvent):
     _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
-    logs = LimitHandle().get_user_shop_log_data(user_id)
+    logs = limit_handle.get_user_shop_log_data(user_id)
     if logs:
         await send_msg_handler(bot, event, '坊市日志', bot.self_id, logs)
         await get_shop_log.finish()

@@ -3,7 +3,7 @@ import random
 from ..xiuxian_place import Place
 from ..xiuxian_utils.data_source import jsondata
 import json
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.xiuxian2_handle import (
     XIUXIAN_IMPART_BUFF
 )
@@ -19,7 +19,6 @@ import os
 from pathlib import Path
 from ..xiuxian_config import convert_rank, XiuConfig
 
-items = Items()
 sql_message = XiuxianDateManage()
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 

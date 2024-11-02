@@ -5,7 +5,7 @@ import threading
 
 DATABASE = Path()
 xiuxian_num = "578043031"  # 这里其实是修仙1作者的QQ号
-impart_num = "123451234"
+impart_number = "123451234"
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 

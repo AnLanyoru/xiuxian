@@ -5,8 +5,9 @@ from datetime import datetime
 from nonebot.typing import T_State
 
 from ..xiuxian_buff import CheckLimit
-from ..xiuxian_limit import LimitHandle
+from ..xiuxian_limit.limit_database import limit_handle
 from ..xiuxian_place import Place
+from ..xiuxian_utils.clean_utils import date_sub
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot import require, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
@@ -34,9 +35,7 @@ from ..xiuxian_utils.utils import (
     CommandObjectID,
     Txt2Img, send_msg_handler, get_num_from_str, get_id_from_str, get_strs_from_str
 )
-from ..xiuxian_utils.item_json import Items
-
-items = Items()
+from ..xiuxian_utils.item_json import items
 
 # 定时任务
 scheduler = require("nonebot_plugin_apscheduler").scheduler
@@ -339,7 +338,7 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
-        cd = OtherSet().date_diff(time_now, level_cd)  # 获取second
+        cd = date_sub(time_now, level_cd)  # 获取second
         if cd < XiuConfig().level_up_cd * 60:
             # 如果cd小于配置的cd，返回等待时间
             msg = f"目前无法突破，还需要{XiuConfig().level_up_cd - (cd // 60)}分钟"
@@ -351,7 +350,6 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
     level_name = user_msg['level']  # 用户境界
     level_rate = jsondata.level_rate_data()[level_name]  # 对应境界突破的概率
     user_backs = sql_message.get_back_msg(user_id)  # list(back)
-    items = Items()
     pause_flag = False
     elixir_name = None
     elixir_desc = None
@@ -388,7 +386,7 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
-        cd = OtherSet().date_diff(time_now, level_cd)  # 获取second
+        cd = date_sub(time_now, level_cd)  # 获取second
         if cd < XiuConfig().level_up_cd * 60:
             # 如果cd小于配置的cd，返回等待时间
             msg = f"目前无法突破，还需要{XiuConfig().level_up_cd - (cd // 60)}分钟"
@@ -548,7 +546,7 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
-        cd = OtherSet().date_diff(time_now, level_cd)  # 获取second
+        cd = date_sub(time_now, level_cd)  # 获取second
         if cd < XiuConfig().level_up_cd * 60:
             # 如果cd小于配置的cd，返回等待时间
             msg = f"目前无法突破，还需要{XiuConfig().level_up_cd - (cd // 60)}分钟"
@@ -651,7 +649,7 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
-        cd = OtherSet().date_diff(time_now, level_cd)  # 获取second
+        cd = date_sub(time_now, level_cd)  # 获取second
         if cd < XiuConfig().level_up_cd * 60:
             # 如果cd小于配置的cd，返回等待时间
             msg = f"目前无法突破，还需要{XiuConfig().level_up_cd - (cd // 60)}分钟"
@@ -806,8 +804,8 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                         sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
                         sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
                         msg = f"\n{user_name}道友与好友在同一位置，当面赠送：\n" + msg
-                        LimitHandle().update_user_log_data(user_id, msg)
-                        LimitHandle().update_user_log_data(give_qq, msg)
+                        limit_handle.update_user_log_data(user_id, msg)
+                        limit_handle.update_user_log_data(give_qq, msg)
                     await bot.send(event=event, message=msg)
                     await give_stone.finish()
 
@@ -819,8 +817,8 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                     sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
                     msg = (f"\n{user_name}道友与好友不在一地，通过远程邮寄赠送：\n" + msg +
                            f"\n收取远程邮寄手续费{(number_to(give_stone_num2))}|{int(give_stone_num2)}枚！")
-                    LimitHandle().update_user_log_data(user_id, msg)
-                    LimitHandle().update_user_log_data(give_qq, msg)
+                    limit_handle.update_user_log_data(user_id, msg)
+                    limit_handle.update_user_log_data(give_qq, msg)
                 await bot.send(event=event, message=msg)
                 await give_stone.finish()
             else:

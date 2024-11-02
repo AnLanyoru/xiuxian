@@ -14,7 +14,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from .old_rift_info import old_rift_info
 from .. import DRIVER
-from ..xiuxian_limit import LimitHandle
+from ..xiuxian_limit import limit_handle
 from ..xiuxian_place import Place
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.permission import SUPERUSER
@@ -216,25 +216,25 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
         rift_type = get_story_type()  # 无事、宝物、战斗
         if rift_type == "无事":
             msg = random.choice(NONEMSG)
-            LimitHandle().update_user_log_data(user_id, msg)
+            limit_handle.update_user_log_data(user_id, msg)
             await bot.send(event=event, message=msg)
             await complete_rift.finish()
         elif rift_type == "战斗":
             rift_type = get_battle_type()
             if rift_type == "掉血事件":
                 msg = get_dxsj_info("掉血事件", user_info)
-                LimitHandle().update_user_log_data(user_id, msg)
+                limit_handle.update_user_log_data(user_id, msg)
                 await bot.send(event=event, message=msg)
                 await complete_rift.finish()
             elif rift_type == "Boss战斗":
                 result, msg = await get_boss_battle_info(user_info, rift_rank, bot.self_id)
                 await send_msg_handler(bot, event, result)
-                LimitHandle().update_user_log_data(user_id, msg)
+                limit_handle.update_user_log_data(user_id, msg)
                 await bot.send(event=event, message=msg)
                 await complete_rift.finish()
         elif rift_type == "宝物":
             msg = get_treasure_info(user_info, rift_rank)
-            LimitHandle().update_user_log_data(user_id, msg)
+            limit_handle.update_user_log_data(user_id, msg)
             await bot.send(event=event, message=msg)
             await complete_rift.finish()
 

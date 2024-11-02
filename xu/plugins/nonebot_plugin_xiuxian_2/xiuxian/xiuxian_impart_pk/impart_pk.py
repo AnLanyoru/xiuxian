@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import os
 
-from ..xiuxian_limit.limit_database import LimitData, LimitHandle
+from ..xiuxian_limit.limit_database import LimitData, limit_handle
 
 
 class IMPART_PK(object):
@@ -25,7 +25,7 @@ class IMPART_PK(object):
         return impart_pk_num
 
     def update_impart_pk_num(self, user_id):
-        is_pass = LimitHandle().update_user_limit(user_id, 4, 1)
+        is_pass = limit_handle.update_user_limit(user_id, 4, 1)
         return is_pass
 
     def re_data(self):

@@ -732,6 +732,7 @@ class LimitHandle:
             return 0
 
 
+limit_handle = LimitHandle()
 
 try:
     @DRIVER.on_shutdown

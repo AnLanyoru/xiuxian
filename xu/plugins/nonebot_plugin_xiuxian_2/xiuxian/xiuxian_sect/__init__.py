@@ -1,7 +1,7 @@
 import re
 import random
 
-from ..xiuxian_limit import LimitHandle, LimitData
+from ..xiuxian_limit import LimitData, limit_handle
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, BuffJsonDate,
     get_main_info_msg, UserBuffDate, get_sec_msg
@@ -27,9 +27,8 @@ from ..xiuxian_utils.utils import (
     get_msg_pic, send_msg_handler, CommandObjectID,
     Txt2Img, get_num_from_str, get_strs_from_str, get_id_from_str
 )
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 
-items = Items()
 sql_message = XiuxianDateManage()  # sql类
 config = get_config()
 LEVLECOST = config["LEVLECOST"]
@@ -213,7 +212,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                 rank_up = sect_now_room_config['give_level']['rank_up']
                 give_dict = {}
                 give_elixir_id_list = items.get_random_id_list_by_rank_and_item_type(
-                    fanil_rank=convert_rank(user_info['level'])[0] + rank_up, item_type=['丹药'])
+                    final_rank=convert_rank(user_info['level'])[0] + rank_up, item_type=['丹药'])
                 if not give_elixir_id_list:  # 没有合适的ID，全部给渡厄丹
                     msg = f"道友成功领取到丹药：渡厄丹 2 枚！"
                     sql_message.send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 2, 1)  # 送1个渡厄丹
@@ -747,7 +746,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
             userlist = userlist[user_num:user_num_end]
             i = user_num + 1
             for user in userlist:
-                week_donate = LimitHandle().get_user_donate_log_data(user['user_id'])
+                week_donate = limit_handle.get_user_donate_log_data(user['user_id'])
                 msg = f"""编号{i}:{user['user_name']},{user['level']}\n宗门职位：{jsondata.sect_config_data()[f"{user['sect_position']}"]['title']}\n宗门贡献度：{number_to(user['sect_contribution'])}|{user['sect_contribution']}\n本周宗门贡献度：{number_to(week_donate)}|{week_donate}\n"""
 
                 msg_list.append(msg)
@@ -782,7 +781,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         sect_info = sql_message.get_sect_info(sect_id)
         userlist = sql_message.get_all_users_by_sect_id(sect_id)
         goal_donate = int(nums[0]) if nums else 10000000
-        userlist = [user for user in userlist if LimitHandle().get_user_donate_log_data(user['user_id']) < goal_donate]
+        userlist = [user for user in userlist if limit_handle.get_user_donate_log_data(user['user_id']) < goal_donate]
         page_all = ((len(userlist) // 12) + 1) if (len(userlist) % 12 != 0) else (len(userlist) // 12)  # 总页数
         page = int(nums[1]) if len(nums) > 1 else 1
         if page_all < page:
@@ -798,7 +797,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         userlist = userlist[user_num:user_num_end]
         i = user_num + 1
         for user in userlist:
-            week_donate = LimitHandle().get_user_donate_log_data(user['user_id'])
+            week_donate = limit_handle.get_user_donate_log_data(user['user_id'])
             msg = (f"编号{i}:{user['user_name']},{user['level']}\n"
                    f"宗门职位：{jsondata.sect_config_data()[str(user['sect_position'])]['title']}\n"
                    f"宗门贡献度：{number_to(user['sect_contribution'])}|{user['sect_contribution']}\n"
@@ -888,9 +887,9 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             sql_message.update_sect_materials(sect_id, sect_stone * 10, 1)
             sql_message.update_user_sect_task(user_id, 1)
             sql_message.update_user_sect_contribution(user_id, user_info['sect_contribution'] + int(sect_stone))
-            msg += f"道友大战一番，气血减少：{number_to(costhp)}|{costhp}，获得修为：{number_to(get_exp)}|{get_exp}，所在宗门建设度增加：{number_to(sect_stone)}|{sect_stone}，资材增加：{number_to(sect_stone * 10)}|{sect_stone * 10}, 宗门贡献度增加：{number_to(sect_stone)}|{int(sect_stone)}"
+            msg = f"道友大战一番，气血减少：{number_to(costhp)}|{costhp}，获得修为：{number_to(get_exp)}|{get_exp}，所在宗门建设度增加：{number_to(sect_stone)}|{sect_stone}，资材增加：{number_to(sect_stone * 10)}|{sect_stone * 10}, 宗门贡献度增加：{number_to(sect_stone)}|{int(sect_stone)}"
             userstask[user_id] = {}
-            LimitHandle().update_user_donate_log_data(user_id, msg)
+            limit_handle.update_user_donate_log_data(user_id, msg)
             await bot.send(event=event, message=msg)
             await sect_task_complete.finish()
 
@@ -924,9 +923,13 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             sql_message.update_sect_materials(sect_id, sect_stone * 10, 1)
             sql_message.update_user_sect_task(user_id, 1)
             sql_message.update_user_sect_contribution(user_id, user_info['sect_contribution'] + int(sect_stone))
-            msg = f"道友为了完成任务购买宝物消耗灵石：{costls}枚，获得修为：{get_exp}，所在宗门建设度增加：{sect_stone}，资材增加：{sect_stone * 10}, 宗门贡献度增加：{int(sect_stone)}"
+            msg = (f"道友为了完成任务购买宝物消耗灵石：{costls}枚\n"
+                   f"获得修为：{number_to(get_exp)}|{get_exp}\n"
+                   f"所在宗门建设度增加：{sect_stone}\n"
+                   f"资材增加：{sect_stone * 10}\n"
+                   f"宗门贡献度增加：{int(sect_stone)}")
             userstask[user_id] = {}
-            LimitHandle().update_user_donate_log_data(user_id, msg)
+            limit_handle.update_user_donate_log_data(user_id, msg)
             await bot.send(event=event, message=msg)
             await sect_task_complete.finish()
     else:
@@ -1164,7 +1167,7 @@ async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             sql_message.donate_update(user_info['sect_id'], int(donate_num[0]))
             sql_message.update_user_sect_contribution(user_id, user_info['sect_contribution'] + int(donate_num[0]))
             msg = f"道友捐献灵石{int(donate_num[0])}枚，宗门建设度增加：{int(donate_num[0])}，宗门贡献度增加：{int(donate_num[0])}点，蒸蒸日上！"
-            LimitHandle().update_user_donate_log_data(user_id, msg)
+            limit_handle.update_user_donate_log_data(user_id, msg)
             await bot.send(event=event, message=msg)
             await sect_donate.finish()
     else:
@@ -1282,7 +1285,7 @@ async def my_sect_(bot: Bot, event: GroupMessageEvent):
     user_name = user_info['user_name']
     sect_info = sql_message.get_sect_info(sect_id)
     owner_idx = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "宗主"]
-    week_donate = LimitHandle().get_user_donate_log_data(user_info['user_id'])
+    week_donate = limit_handle.get_user_donate_log_data(user_info['user_id'])
     owner_position = int(owner_idx[0]) if len(owner_idx) == 1 else 0
     if sect_id:
         sql_res = sql_message.scale_top()

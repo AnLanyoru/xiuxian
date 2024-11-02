@@ -13,9 +13,8 @@ from nonebot.adapters.onebot.v11 import (
 from ..xiuxian_utils.utils import (
     check_user, get_msg_pic
 )
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 
-items = Items()
 sql_message = XiuxianDateManage()  # sql类
 mixture = on_command('合成', priority=15, permission=GROUP,block=True)
 

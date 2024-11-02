@@ -2,7 +2,7 @@ from math import *
 
 from . import DRIVER
 from .xiuxian_utils.database_cur_get import XiuxianDateCur
-from .xiuxian_utils.item_json import Items
+from .xiuxian_utils.item_json import items
 import os
 import random
 import sqlite3
@@ -21,8 +21,7 @@ DATABASE_IMPARTBUFF = Path() / "data" / "xiuxian"
 SKILLPATHH = DATABASE / "功法"
 WEAPONPATH = DATABASE / "装备"
 xiuxian_num = "578043031"  # 这里其实是修仙1作者的QQ号
-impart_num = "123451234"
-items = Items()
+impart_number = "123451234"
 place_all = {}
 place_id_map = {}
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')

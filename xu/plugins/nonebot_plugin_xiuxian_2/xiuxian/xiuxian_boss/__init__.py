@@ -31,7 +31,7 @@ from .makeboss import createboss, createboss_jj
 from .bossconfig import get_boss_config, savef_boss
 from .old_boss_info import old_boss_info
 from ..xiuxian_utils.player_fight import Boss_fight
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import items
 
 from ..xiuxian_utils.utils import (
     number_to, check_user,
@@ -42,7 +42,6 @@ from .. import DRIVER
 
 from nonebot_plugin_apscheduler import scheduler
 
-items = Items()
 # boss定时任务
 require('nonebot_plugin_apscheduler')
 conf_data = JsonConfig().read_data()

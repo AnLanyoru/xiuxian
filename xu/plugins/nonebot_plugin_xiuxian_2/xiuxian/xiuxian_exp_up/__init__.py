@@ -10,7 +10,7 @@ from nonebot import on_command, on_notice
 import asyncio
 
 from nonebot.typing import T_State
-from ..xiuxian_limit import LimitHandle
+from ..xiuxian_limit.limit_database import limit_handle
 from ..xiuxian_place import Place
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, get_player_info,
@@ -38,7 +38,38 @@ exp_up_end = on_command("结束修炼", aliases={"重置修炼状态", "停止�
 all_end = on_command("重置状态", aliases={"重置闭关状态", "重置悬赏令状态"}, priority=12,
                      permission=GROUP, block=True)
 active_gift = on_command("神州大地齐欢腾，祝福祖国永太平", priority=12, permission=GROUP, block=True)
+hp_set = on_command("设置血量", priority=1, permission=GROUP, block=True)
+hp_set_2 = on_command("设置血量2", priority=1, permission=GROUP, block=True)
 
+
+@hp_set.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
+async def hp_set_(bot: Bot, event: GroupMessageEvent):
+    """修炼"""
+
+    _, user_info, _ = check_user(event)
+
+    user_id = user_info['user_id']
+    mp = user_info['mp']
+    atk = user_info['atk']
+    sql_message.update_user_attribute(user_id, 1000, mp, atk)
+    msg = f"已将请求传递至数据库, 传递值hp:1000,mp:{mp},atk:{atk}"
+    await bot.send(event=event, message=msg)
+    await hp_set.finish()
+
+
+@hp_set_2.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
+async def hp_set_2_(bot: Bot, event: GroupMessageEvent):
+    """修炼"""
+
+    _, user_info, _ = check_user(event)
+
+    user_id = user_info['user_id']
+    mp = user_info['mp']
+
+    sql_message.update_user_hp_mp(user_id, 1000, mp)
+    msg = f"已将请求传递至数据库, 传递值hp:1000,mp:{mp}"
+    await bot.send(event=event, message=msg)
+    await hp_set_2.finish()
 
 @exp_up.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
 async def exp_up_(bot: Bot, event: GroupMessageEvent):
@@ -248,7 +279,7 @@ async def power_break_up_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
     if is_type:
-        power = LimitHandle().get_user_world_power_data(user_id)
+        power = limit_handle.get_user_world_power_data(user_id)
         if power == 0:
             msg = "道友体内没有天地精华！！！"
             await bot.send(event=event, message=msg)
@@ -275,7 +306,7 @@ async def power_break_up_(bot: Bot, event: GroupMessageEvent):
         leveluprate = int(user_info['level_up_rate'])  # 用户失败次数加成
         sql_message.update_levelrate(user_id, leveluprate + 1 * rate_up)
         msg = f"道友成功将体内天地精华吸收，突破概率提升了{int(rate_up)}%, 修为提升了{number_to(exp)}|{exp}点！！"
-        LimitHandle().update_user_world_power_data(user_id, 0)
+        limit_handle.update_user_world_power_data(user_id, 0)
     else:
         pass
     await bot.send(event=event, message=msg)
@@ -289,7 +320,7 @@ async def power_break_up_help_(bot: Bot, event: GroupMessageEvent):
     _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
-    power = LimitHandle().get_user_world_power_data(user_id)
+    power = limit_handle.get_user_world_power_data(user_id)
     msg = (f"道友体内拥有天地精华：{power}\n天地精华由使用天地奇物获得\n可以发送 吸收天地精华 将体内天地精华吸收！！\n增加少许修为与突破概率"
            f"\n天地精华还是练就顶级神通的必备能量！！\n请尽快使用天地精华，否则天地精华将会归于天地之间！！！")
     await bot.send(event=event, message=msg)
