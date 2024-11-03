@@ -15,7 +15,7 @@ from nonebot.adapters.onebot.v11 import (
 from .old_rift_info import old_rift_info
 from .. import DRIVER
 from ..xiuxian_limit import limit_handle
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
@@ -75,24 +75,24 @@ async def save_rift_():
 
 # 定时任务生成秘境，原群私有，改公有
 @set_rift.scheduled_job("cron", hour=8, minute=0)
-async def set_rift_():
+async def set_rift_(place_cls=place):
     global world_rift  # 挖坑，不同位置的秘境
-    if Place().get_worlds():
+    if place_cls.get_worlds():
         world_rift = {}
-        for world_id in Place().get_worlds():
-            if world_id == len(Place().get_worlds())-1:
+        for world_id in place_cls.get_worlds():
+            if world_id == len(place_cls.get_worlds())-1:
                 continue
             rift = Rift()
             rift.name = get_rift_type()
-            place_all_id = [place for place in Place().get_world_place_list(world_id)]
+            place_all_id = [place_id for place_id in place_cls.get_world_place_list(world_id)]
             place_id = random.choice(place_all_id)
             rift.place = place_id
             rift.rank = config['rift'][rift.name]['rank']
             rift.count = config['rift'][rift.name]['count']
             rift.time = config['rift'][rift.name]['time']
             world_rift[world_id] = rift
-            world_name = Place().get_world_name(place_id)
-            place_name = Place().get_place_name(place_id)
+            world_name = place_cls.get_world_name(place_id)
+            place_name = place_cls.get_place_name(place_id)
             msg = (f"秘境：【{rift.name}】已在【{world_name}】的【{place_name}】开启！\n"
                    f"请诸位身在{world_name}的道友前往{place_name}(ID:{place_id})发送 探索秘境 来加入吧！")
 
@@ -120,22 +120,22 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
     """
     # 这里曾经是风控模块，但是已经不再需要了
     global world_rift  # 挖坑，不同位置的秘境
-    if Place().get_worlds():
+    if place.get_worlds():
         world_rift = {}
-        for world_id in Place().get_worlds():
-            if world_id == len(Place().get_worlds())-1:
+        for world_id in place.get_worlds():
+            if world_id == len(place.get_worlds())-1:
                 continue
             rift = Rift()
             rift.name = get_rift_type()
-            place_all_id = [place for place in Place().get_world_place_list(world_id)]
+            place_all_id = [place_id for place_id in place.get_world_place_list(world_id)]
             place_id = random.choice(place_all_id)
             rift.place = place_id
             rift.rank = config['rift'][rift.name]['rank']
             rift.count = config['rift'][rift.name]['count']
             rift.time = config['rift'][rift.name]['time']
             world_rift[world_id] = rift
-            world_name = Place().get_world_name(place_id)
-            place_name = Place().get_place_name(place_id)
+            world_name = place.get_world_name(place_id)
+            place_name = place.get_place_name(place_id)
             msg = (f"秘境：【{rift.name}】已在【{world_name}】的【{place_name}】开启！\n"
                    f"请诸位身在{world_name}的道友前往{place_name}(ID:{place_id})发送 探索秘境 来加入吧！")
             await bot.send(event=event, message=msg)
@@ -155,10 +155,10 @@ async def explore_rift_(bot: Bot, event: GroupMessageEvent):
         await bot.send(event=event, message=msg)
         await explore_rift.finish()
     else:
-        place_id = Place().get_now_place_id(user_id)
-        world_id = Place().get_world_id(place_id)
-        world_name = Place().get_world_name(place_id)
-        place_name = Place().get_place_name(place_id)
+        place_id = place.get_now_place_id(user_id)
+        world_id = place.get_world_id(place_id)
+        world_name = place.get_world_name(place_id)
+        place_name = place.get_place_name(place_id)
         try:
             world_rift[world_id]
         except KeyError:
@@ -179,7 +179,7 @@ async def explore_rift_(bot: Bot, event: GroupMessageEvent):
             await bot.send(event=event, message=msg)
             await explore_rift.finish()
         else:
-            far, start_place, to_place = Place().get_distance(place_id, world_rift[world_id].place)
+            far, start_place, to_place = place.get_distance(place_id, world_rift[world_id].place)
             sql_message.update_user_stamina(user_id, 240, 1)
             msg = (f"\n道友所在位置没有秘境出世!!\n"
                    f"当前位面【{world_name}】的秘境【{world_rift[world_id].name}】在距你{far:.1f}万里的：【{to_place}】\n"

@@ -11,7 +11,7 @@ import asyncio
 
 from nonebot.typing import T_State
 from ..xiuxian_limit.limit_database import limit_handle
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, get_player_info,
     save_player_info, UserBuffDate, get_main_info_msg,
@@ -114,8 +114,8 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
     mainbuffdata = user_buff_data.get_user_main_buff_data()
     mainbuffratebuff = mainbuffdata['ratebuff'] if mainbuffdata is not None else 0  # 功法修炼倍率
     mainbuffclors = mainbuffdata['clo_rs'] if mainbuffdata is not None else 0  # 功法闭关回复
-    place_id = Place().get_now_place_id(user_id)
-    world_id = Place().get_world_id(place_id)
+    place_id = place.get_now_place_id(user_id)
+    world_id = place.get_world_id(place_id)
     world_buff = world_id * 0.3  # 位面灵气加成
     exp = int(
         (exp_time * XiuConfig().closing_exp) * (
@@ -223,16 +223,16 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
         await world_rank_up.finish()
 
     else:
-        now_place = Place().get_now_place_id(user_id)
-        now_world = Place().get_world_id(now_place)
+        now_place = place.get_now_place_id(user_id)
+        now_world = place.get_world_id(now_place)
         if now_world == 3:
             msg = "神域之上，谜团重重，敬请期待！"
             await bot.send(event=event, message=msg)
             await world_rank_up.finish()
         next_world = now_world + 1
         user_rank = convert_rank(user_info["level"])[0]
-        next_world_name = Place().get_world_id_name(next_world)
-        now_world_name = Place().get_world_id_name(now_world)
+        next_world_name = place.get_world_id_name(next_world)
+        now_world_name = place.get_world_id_name(now_world)
         need_level = XiuConfig().break_world_need[now_world]
         break_rank = convert_rank(need_level)[0]
         if user_rank >= break_rank:
@@ -254,15 +254,15 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
     user_name = user_info["user_name"]
     user_id = user_info["user_id"]
     next_world = state["world_up"]
-    next_world_name = Place().get_world_id_name(next_world)
-    now_world_name = Place().get_world_id_name(next_world - 1)
+    next_world_name = place.get_world_id_name(next_world)
+    now_world_name = place.get_world_id_name(next_world - 1)
     arg = event.get_plaintext().strip()
     user_choice = get_strs_from_str(arg)[0]
     if user_choice == "确认飞升":
-        next_place_all = Place().get_world_place_list(next_world)
+        next_place_all = place.get_world_place_list(next_world)
         next_place = random.choice(next_place_all)
-        next_place_name = Place().get_place_name(next_place)
-        Place().set_now_place_id(user_id, next_place)
+        next_place_name = place.get_place_name(next_place)
+        place.set_now_place_id(user_id, next_place)
         msg = f"恭喜大能{user_name}踏破虚空离开【{now_world_name}】，前往【{next_world_name}:{next_place_name}】！！！！"
     else:
         msg = "回答有误，取消飞升！！"

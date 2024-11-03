@@ -2,36 +2,22 @@ from math import *
 
 from . import DRIVER
 from .xiuxian_utils.database_cur_get import XiuxianDateCur
-from .xiuxian_utils.item_json import items
-import os
-import random
-import sqlite3
 from nonebot.log import logger
 from datetime import datetime
+from pathlib import Path
 from pathlib import Path
 try:
     import ujson as json
 except ImportError:
     import json
 
-WORKDATA = Path() / "data" / "xiuxian" / "work"
-PLAYERSDATA = Path() / "data" / "xiuxian" / "players"
 DATABASE = Path() / "data" / "xiuxian"
-DATABASE_IMPARTBUFF = Path() / "data" / "xiuxian"
-SKILLPATHH = DATABASE / "功法"
-WEAPONPATH = DATABASE / "装备"
 xiuxian_num = "578043031"  # 这里其实是修仙1作者的QQ号
 impart_number = "123451234"
 place_all = {}
 place_id_map = {}
-current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-try:
-    import ujson as json
-except ImportError:
-    import json
-from pathlib import Path
 
-PLACEPATH = Path() / "data" / "xiuxian" / "place"
+PLACE_PATH = Path() / "data" / "xiuxian" / "place"
 
 
 class Move:
@@ -42,7 +28,7 @@ class Move:
 
 
 def read_place_data():
-    FILEPATH = PLACEPATH / "地区.json"
+    FILEPATH = PLACE_PATH / "地区.json"
     with open(FILEPATH, "r", encoding="UTF-8") as f:
         data = f.read()
         place_data = json.loads(data)
@@ -102,6 +88,7 @@ class Place:
         self.place_all = place_all
         self.place_id_map = place_id_map
         self.worlds = {}
+        self.get_worlds()
         self.world_names = ["凡界", "灵界", "仙界", "无尽神域", "万界洞天中枢"]
 
     def get_place_dict(self):
@@ -285,3 +272,7 @@ class Place:
             return True
         else:
             return False
+
+
+place = Place()
+

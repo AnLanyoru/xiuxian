@@ -7,7 +7,6 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 from nonebot.log import logger
-from ..xiuxian_config import XiuConfig
 from .. import DRIVER
 import threading
 
@@ -235,7 +234,7 @@ class UserStoreHandle:
             msg = "此道友没有任何求购需要！！！"
             return msg
         user_name = user_info['user_name']
-        msg = f"{user_name}道友的求购列表：\n"
+        msg_list = [f"{user_name}道友的求购列表：\n"]
         need_item_map = {}
         num = 1
         for want_item in result:
@@ -248,11 +247,11 @@ class UserStoreHandle:
             else:
                 need_items_num = "不限"
             need_item_map[num] = need_item_id
-            msg += (f"\n编号: {num}\n"
-                    f"物品名称：{need_item_name}\n"
-                    f"求购价格：{need_items_price}\n"
-                    f"需求数量：{need_items_num}\n")
-        return msg, need_item_map
+            msg_list.append(f"\n编号: {num}\n"
+                            f"物品名称：{need_item_name}\n"
+                            f"求购价格：{need_items_price}\n"
+                            f"需求数量：{need_items_num}\n")
+        return msg_list, need_item_map
 
     def check_user_want_item(self, user_id, item_id):
 

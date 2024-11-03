@@ -18,7 +18,7 @@ from ..xiuxian_exp_up.exp_up_def import exp_up_by_time
 from ..xiuxian_impart_pk import impart_pk_check
 from ..xiuxian_limit.limit_database import limit_handle
 from ..xiuxian_limit.limit_util import LimitCheck
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 from ..xiuxian_utils.clean_utils import get_datetime_from_str, date_sub
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, get_player_info,
@@ -313,7 +313,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 await bot.send(event=event, message=msg)
                 await two_exp.finish()
             else:
-                if Place().is_the_same_place(int(user_1_id), int(user_2_id)) is False:
+                if place.is_the_same_place(int(user_1_id), int(user_2_id)) is False:
                     msg = "道友与你的道侣不在同一位置，请邀约道侣前来双修！！！"
                     await bot.send(event=event, message=msg)
                     await two_exp.finish()
@@ -607,7 +607,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     main_critatk = user_main_critatk['critatk'] if user_main_critatk is not None else 0  # 我的状态功法会心伤害
     leveluprate = int(user_info['level_up_rate'])  # 用户失败次数加成
     number = user_main_critatk["number"] if user_main_critatk is not None else 0
-    now_place = Place().get_place_name(Place().get_now_place_id(user_id))
+    now_place = place.get_place_name(place.get_now_place_id(user_id))
 
     msg = f"""
 道号：{user_info['user_name']}

@@ -6,7 +6,7 @@ from nonebot.typing import T_State
 
 from ..xiuxian_buff import CheckLimit
 from ..xiuxian_limit.limit_database import limit_handle
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 from ..xiuxian_utils.clean_utils import date_sub
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot import require, on_command, on_fullmatch
@@ -793,11 +793,11 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         else:
             give_user = sql_message.get_user_info_with_id(give_qq)
             if give_user:
-                if Place().is_the_same_world(give_qq, user_id) is False:
+                if place.is_the_same_world(give_qq, user_id) is False:
                     msg = f"\n{give_user['user_name']}道友与你不在同一位面，无法赠送！！！跨位面赠送灵石费用及其昂贵！！！"
                     await bot.send(event=event, message=msg)
                     await give_stone.finish()
-                if Place().is_the_same_place(give_qq, user_id):
+                if place.is_the_same_place(give_qq, user_id):
                     num = int(give_stone_num)
                     msg, is_pass = CheckLimit().send_stone_check(user_id, give_qq, num)
                     if is_pass:

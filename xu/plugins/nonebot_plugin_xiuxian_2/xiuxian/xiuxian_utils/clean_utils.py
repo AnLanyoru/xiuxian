@@ -1,6 +1,8 @@
 import re
 from datetime import datetime
 
+from nonebot.adapters.onebot.v11 import Message
+
 """
 纯函数工具
 无多余依赖项
@@ -51,4 +53,46 @@ def date_sub(new_time, old_time) -> int:
     sec = (new_time - old_time).seconds
 
     return (day * 24 * 60 * 60) + sec
+
+
+def get_paged_msg(msg_list: list, page: int | Message, cmd: str = '该指令', per_page_item: int = 12) -> list:
+    """
+    翻页化信息
+    :param msg_list: 需要翻页化的信息列表
+    :param page: 获取的页数
+    :param per_page_item: 每页信息
+    :param cmd: 指令名称
+    :return: 处理后信息列表
+    """
+    if isinstance(page, Message):
+        page_msg = get_num_from_str(page.extract_plain_text())
+        page = int(page_msg[0]) if page_msg else 1
+    items_all = len(msg_list)
+    # 总页数
+    page_all = ((items_all // per_page_item) + 1) if (items_all % per_page_item != 0) else (items_all // per_page_item)
+    if page_all < page:
+        msg = [f"\n{cmd}没有那么多页！！！"]
+        return msg
+    item_num = page * per_page_item - per_page_item
+    item_num_end = item_num + per_page_item
+    page_info = [f"第{page}/{page_all}页\n——tips——\n可以发送 {cmd}+页数 来查看更多页！\n"]  # 页面尾
+    msg_list = msg_list[item_num:item_num_end] + page_info
+    return msg_list
+
+
+def get_args_num(args: Message | str, no: int = 1) -> int:
+    """
+    获取消息指令参数中的数字，自动处理报错
+    :param args: 消息指令参数
+    :param no: 需要第几个数字
+    :return: 数字
+    """
+    args_str = args.extract_plain_text() if isinstance(args, Message) else args
+    num_msg = get_num_from_str(args_str)
+    try:
+        num = int(num_msg[no - 1])
+        return num
+    except (IndexError, TypeError):
+        return 0
+
 

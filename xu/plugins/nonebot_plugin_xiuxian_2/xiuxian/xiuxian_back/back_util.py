@@ -1,6 +1,6 @@
 import random
 
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 from ..xiuxian_utils.data_source import jsondata
 import json
 from ..xiuxian_utils.item_json import items
@@ -755,10 +755,10 @@ def get_use_tool_msg(user_id, goods_id, use_num) -> (str, bool):
         world_change = buff_dict.get('world')
         root_change = buff_dict.get('root_level')
         if world_change is not None:
-            place_goal_list = Place().get_world_place_list(world_change)
+            place_goal_list = place.get_world_place_list(world_change)
             place_goal = random.choice(place_goal_list)
-            Place().set_now_place_id(user_id, place_goal)
-            place_name = Place().get_place_name(place_goal)
+            place.set_now_place_id(user_id, place_goal)
+            place_name = place.get_place_name(place_goal)
             msg += f"\n霎时间天旋地转,回过神来道友竟被{item_info['name']}带到了【{place_name}】!!!"
         if root_change:
             root_type = sql_message.update_root(user_id, 8)  # 更换灵根

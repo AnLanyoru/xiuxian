@@ -14,7 +14,7 @@ from nonebot.adapters.onebot.v11 import (
     ActionFailed
 )
 from ..xiuxian_limit import limit_handle
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
 from nonebot.log import logger
@@ -138,7 +138,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         isUser, user_info, msg = check_user(event)
         user_id = user_info['user_id']
         user_name = user_info['user_name']
-        place_id = str(Place().get_now_place_id(user_id))
+        place_id = str(place.get_now_place_id(user_id))
         shop_data = get_shop_data(place_id)
 
         if shop_data[place_id] == {}:
@@ -219,7 +219,7 @@ async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()
     """坊市查看"""
     isUser, user_info, msg = check_user(event)
     user_id = user_info["user_id"]
-    place_id = str(Place().get_now_place_id(user_id))
+    place_id = str(place.get_now_place_id(user_id))
     shop_data = get_shop_data(place_id)
     data_list = []
     if shop_data[place_id] == {}:
@@ -426,8 +426,8 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
             await bot.send(event=event, message=msg)
             await shop_added.finish()
 
-    place_id = str(Place().get_now_place_id(user_id))
-    place_name = Place().get_place_name(place_id)
+    place_id = str(place.get_now_place_id(user_id))
+    place_name = place.get_place_name(place_id)
     shop_data = get_shop_data(place_id)
 
     # 单个地方坊市上架限制
@@ -592,7 +592,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
     """下架商品"""
     isUser, user_info, msg = check_user(event)
     user_id = user_info['user_id']
-    group_id = str(Place().get_now_place_id(user_id))
+    group_id = str(place.get_now_place_id(user_id))
     shop_data = get_shop_data(group_id)
     if shop_data[group_id] == {}:
         msg = "坊市目前空空如也！"

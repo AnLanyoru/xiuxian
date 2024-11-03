@@ -1,4 +1,4 @@
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, UserBuffDate,
     XIUXIAN_IMPART_BUFF
@@ -39,8 +39,8 @@ def exp_up_by_time(user_info, exp_time) -> tuple[str, int, dict]:
     main_buff_clo_exp = main_buff_data['clo_exp'] if main_buff_data is not None else 0  # 功法闭关经验
 
     # 位面灵气加成
-    place_id = Place().get_now_place_id(user_id)
-    world_id = Place().get_world_id(place_id)
+    place_id = place.get_now_place_id(user_id)
+    world_id = place.get_world_id(place_id)
     world_buff = world_id * 0.3
 
     # 计算传承增益

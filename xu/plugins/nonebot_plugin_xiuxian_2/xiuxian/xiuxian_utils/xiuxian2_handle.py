@@ -2,7 +2,7 @@ import operator
 import time
 
 from .database_cur_get import XiuxianDateCur
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 
 try:
     import ujson as json
@@ -1604,9 +1604,9 @@ class OtherSet(XiuConfig):
         # 判断目标境界是否需要特殊灵根
         user_msg = sql_message.get_user_info_with_id(user_id)
         now_root = user_msg["root_type"]
-        user_place = Place().get_now_place_id(user_id)
-        user_world = Place().get_world_id(user_place)
-        world_name = Place().get_world_name(user_place)
+        user_place = place.get_now_place_id(user_id)
+        user_world = place.get_world_id(user_place)
+        world_name = place.get_world_name(user_place)
         if user_level == "合道境后期":
             if user_world < 1:
                 msg = f"道友所在世界【{world_name}】天地法则限制道友无法突破\n【{world_name}】可承载的最高境界为{user_level}"

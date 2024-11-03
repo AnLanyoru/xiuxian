@@ -9,7 +9,7 @@ import re
 import unicodedata
 
 from .clean_utils import get_num_from_str
-from .xiuxian2_handle import XiuxianDateManage
+from .xiuxian2_handle import XiuxianDateManage, PLAYERSDATA
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     MessageSegment
@@ -24,7 +24,7 @@ from nonebot.adapters.onebot.v11 import MessageSegment
 from .data_source import jsondata
 from pathlib import Path
 from base64 import b64encode
-from ..xiuxian_place import Place, PLAYERSDATA
+from ..xiuxian_place import place
 
 sql_message = XiuxianDateManage()  # sql类
 boss_img_path = Path() / "data" / "xiuxian" / "boss_img"
@@ -97,14 +97,14 @@ def check_user_type(user_id, need_type):
             pass_time = (datetime.datetime.now() - work_time).seconds // 60  # 时长计算
             move_info = read_move_data(user_id)
             need_time = move_info["need_time"]
-            place_name = Place().get_place_name(move_info["to_id"])
+            place_name = place.get_place_name(move_info["to_id"])
             if pass_time < need_time:
                 last_time = math.ceil(need_time - pass_time)
                 msg = f"道友现在正在赶往【{place_name}】中！预计还有{last_time}分钟到达目的地！！"
             else:  # 移动结算逻辑
                 sql_message.do_work(user_id, 0)
                 place_id = move_info["to_id"]
-                Place().set_now_place_id(user_id, place_id)
+                place.set_now_place_id(user_id, place_id)
                 msg = f"道友成功抵达【{place_name}】！！！"
 
     return isType, msg

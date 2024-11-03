@@ -1,6 +1,6 @@
 import operator
 import time
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 
 try:
     import ujson as json

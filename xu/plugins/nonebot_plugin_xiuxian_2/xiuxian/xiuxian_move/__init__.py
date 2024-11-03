@@ -15,7 +15,7 @@ from nonebot.params import CommandArg
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage
 )
-from ..xiuxian_place import Place
+from ..xiuxian_place import place
 
 from ..xiuxian_utils.utils import (
     check_user, check_user_type, get_num_from_str, get_strs_from_str
@@ -46,12 +46,12 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
         await complete_move.finish()
 
     msg_text = args.extract_plain_text()
-    start_id = Place().get_now_place_id(user_id)
+    start_id = place.get_now_place_id(user_id)
     num = get_num_from_str(msg_text)
     name = get_strs_from_str(msg_text)
     place_id = None
     if name:
-        place_id = Place().get_place_id(name[0])
+        place_id = place.get_place_id(name[0])
     if num:
         place_id = int(num[0])
     if place_id is None:
@@ -59,7 +59,7 @@ async def go_to_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(
         await bot.send(event=event, message=msg)
         await go_to.finish()
 
-    far, name_1, name_2 = Place().get_distance(start_id, place_id)
+    far, name_1, name_2 = place.get_distance(start_id, place_id)
     if far == "unachievable":
         msg = f"无法从【{name_1}】移动至【{name_2}】！！！目的地跨位面或不可到达"
 
@@ -120,7 +120,7 @@ async def complete_move_(bot: Bot, event: GroupMessageEvent):
         pass_time = (datetime.now() - work_time).seconds // 60  # 时长计算
         move_info = read_move_data(user_id)
         need_time = move_info["need_time"]
-        place_name = Place().get_place_name(move_info["to_id"])
+        place_name = place.get_place_name(move_info["to_id"])
         if pass_time < need_time:
             last_time = math.ceil(need_time - pass_time)
             msg = f"向【{place_name}】的移动，预计{last_time}分钟后可结束"
@@ -129,7 +129,7 @@ async def complete_move_(bot: Bot, event: GroupMessageEvent):
         else:  # 移动结算逻辑
             sql_message.do_work(user_id, 0)
             place_id = move_info["to_id"]
-            Place().set_now_place_id(user_id, place_id)
+            place.set_now_place_id(user_id, place_id)
             msg = f"道友雷厉风行，成功到达【{place_name}】！"
             await bot.send(event=event, message=msg)
             await complete_move.finish()
@@ -144,19 +144,19 @@ async def get_map_(bot: Bot, event: GroupMessageEvent):
     _, user_info, _ = check_user(event)
 
     user_id = user_info['user_id']
-    place_id = Place().get_now_place_id(user_id)
-    world_name = Place().get_world_name(place_id)
-    world_id = Place().get_world_id(place_id)
+    place_id = place.get_now_place_id(user_id)
+    world_name = place.get_world_name(place_id)
+    world_id = place.get_world_id(place_id)
     msg = f"\n————{world_name}地图————\n"
-    place_dict = Place().get_place_dict()
-    for get_place_id, place in place_dict.items():
-        place_world_id = place[1][2]
+    place_dict = place.get_place_dict()
+    for get_place_id, places in place_dict.items():
+        place_world_id = places[1][2]
         if place_world_id == world_id:
             if place_id == get_place_id:
-                msg += f"地区ID:{get_place_id}【{place[0]}】位置:{place[1][:2]}<道友在这\n"
+                msg += f"地区ID:{get_place_id}【{places[0]}】位置:{places[1][:2]}<道友在这\n"
 
             else:
-                msg += f"地区ID:{get_place_id}【{place[0]}】位置:{place[1][:2]}\n"
+                msg += f"地区ID:{get_place_id}【{places[0]}】位置:{places[1][:2]}\n"
         else:
             pass
     msg += "——————————\ntips: 发送【前往】+【目的地ID】来进行移动哦"
