@@ -762,7 +762,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
 
 @sect_users_donate_check.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
-async def sect_users_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+async def sect_users_donate_check_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门划水成员审判"""
     # 这里曾经是风控模块，但是已经不再需要了
     msg_list = []
@@ -1038,7 +1038,7 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent):
     elif user_info['stone'] < XiuConfig().sect_create_cost:
         msg = f"创建宗门要求:需要创建者拥有灵石{XiuConfig().sect_create_cost}枚"
     elif user_info['sect_id']:
-        msg = f"道友已经加入了宗门:{user_info['sect_name']}，无法再创建宗门。"
+        msg = f"道友已经加入了宗门ID为{user_info['sect_id']}的宗门，无法再创建宗门。"
     else:
         # 获取宗门名称
         sect_name_list = "紫霄宗、归一门、天道宗、五行门、玄武三十三天宫、飘渺九天宗 太上青天门、照阳山、天音寺、灵门寺、法华寺、金顶寺、无为道派、无极魔宗、独尊宫、五行灵宗、玄天宗、古月门、斩棘门、神兽宗、潜龙门、黑榜、九煞殿、赤血府、天魔宗、嗜魔宗、青霞派、紫门谷、碧凌谷、顼阳剑派、仙农园、伏龙寺、玄音阁、落日谷、生死门、天心派、隐神谷、天鉴宗、魔泯宫、神意门、天道宗、天衍宗、合欢派、宵水宗、聚魔山庄、寒毒门、衔月楼、无极门、魁星山、终南紫府、天涯海阁、风清门、玄天剑宗、碧云轩、焚香谷、灵寂洞、无心阁、血煞、上清道、天师道、茅山派、龙虎派、焚香谷、恶魔谷、万妖谷、死亡谷、鬼谷、傲剑山庄、幽灵山庄、风云庄、百花山庄".split("、")

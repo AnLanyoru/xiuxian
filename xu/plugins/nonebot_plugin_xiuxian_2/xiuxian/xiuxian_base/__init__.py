@@ -6,7 +6,7 @@ from nonebot.typing import T_State
 
 from ..xiuxian_buff import CheckLimit
 from ..xiuxian_limit.limit_database import limit_handle
-from ..xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 from ..xiuxian_utils.clean_utils import date_sub
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot import require, on_command, on_fullmatch
@@ -14,8 +14,6 @@ from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
     Message,
-    GROUP_ADMIN,
-    GROUP_OWNER,
     GroupMessageEvent,
     MessageSegment,
     ActionFailed
@@ -28,12 +26,11 @@ from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, XiuxianJsonDate, OtherSet,
     UserBuffDate, XIUXIAN_IMPART_BUFF, leave_harm_time
 )
-from ..xiuxian_config import XiuConfig, JsonConfig, convert_rank
+from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic, number_to,
-    CommandObjectID,
-    Txt2Img, send_msg_handler, get_num_from_str, get_id_from_str, get_strs_from_str
+    send_msg_handler, get_num_from_str, get_id_from_str, get_strs_from_str
 )
 from ..xiuxian_utils.item_json import items
 

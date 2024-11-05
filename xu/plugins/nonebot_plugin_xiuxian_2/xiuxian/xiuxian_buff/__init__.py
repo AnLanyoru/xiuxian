@@ -4,8 +4,7 @@ from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
     Message,
-    GroupMessageEvent,
-    MessageSegment
+    GroupMessageEvent
 )
 from nonebot.log import logger
 from datetime import datetime
@@ -13,12 +12,11 @@ from nonebot import on_command, on_fullmatch, require
 from nonebot.permission import SUPERUSER
 
 from .limit import CheckLimit, reset_send_stone, reset_stone_exp_up
-from .. import DRIVER
 from ..xiuxian_exp_up.exp_up_def import exp_up_by_time
 from ..xiuxian_impart_pk import impart_pk_check
 from ..xiuxian_limit.limit_database import limit_handle
 from ..xiuxian_limit.limit_util import LimitCheck
-from ..xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 from ..xiuxian_utils.clean_utils import get_datetime_from_str, date_sub
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, get_player_info,
@@ -32,7 +30,7 @@ from nonebot.params import CommandArg
 from ..xiuxian_utils.player_fight import Player_fight
 from ..xiuxian_utils.utils import (
     number_to, check_user, send_msg_handler,
-    check_user_type, get_msg_pic, CommandObjectID, get_id_from_str
+    check_user_type, get_id_from_str
 )
 from ..xiuxian_utils.lay_out import Cooldown
 from .two_exp_cd import two_exp_cd

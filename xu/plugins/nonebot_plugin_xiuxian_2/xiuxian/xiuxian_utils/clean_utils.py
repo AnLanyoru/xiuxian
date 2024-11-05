@@ -19,6 +19,16 @@ def get_num_from_str(msg: str) -> list:
     return nums
 
 
+def get_strs_from_str(msg: str) -> list:
+    """
+    从消息字符串中获取字符列表
+    :param msg: 从args中获取的消息字符串
+    :return: 提取到的字符列表
+    """
+    strs = re.findall(r"[\u4e00-\u9fa5_a-zA-Z]+", msg)
+    return strs
+
+
 def get_datetime_from_str(datetime_str: str):
     """
     将日期-时间字符串转化回datetime对象
@@ -94,5 +104,3 @@ def get_args_num(args: Message | str, no: int = 1) -> int:
         return num
     except (IndexError, TypeError):
         return 0
-
-

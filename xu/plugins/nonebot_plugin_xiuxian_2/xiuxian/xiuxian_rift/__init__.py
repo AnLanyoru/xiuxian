@@ -1,12 +1,9 @@
 import random
-from datetime import datetime
-from nonebot import get_bots, on_command, require, on_fullmatch
-from nonebot.params import CommandArg
+from nonebot import on_command, require, on_fullmatch
 
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
-    Message,
     GroupMessageEvent,
     GROUP_ADMIN,
     GROUP_OWNER,
@@ -15,18 +12,17 @@ from nonebot.adapters.onebot.v11 import (
 from .old_rift_info import old_rift_info
 from .. import DRIVER
 from ..xiuxian_limit import limit_handle
-from ..xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from ..xiuxian_utils.utils import (
     check_user, check_user_type,
-    send_msg_handler, get_msg_pic, CommandObjectID
+    send_msg_handler, CommandObjectID
 )
 from .riftconfig import get_rift_config, savef_rift
 from .jsondata import save_rift_data, read_rift_data
-from ..xiuxian_config import XiuConfig
 from .riftmake import (
     Rift, get_rift_type, get_story_type, NONEMSG, get_battle_type,
     get_dxsj_info, get_boss_battle_info, get_treasure_info

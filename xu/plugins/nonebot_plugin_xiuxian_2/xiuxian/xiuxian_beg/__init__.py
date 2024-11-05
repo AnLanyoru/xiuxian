@@ -87,7 +87,7 @@ async def beg_stone_(bot: Bot, event: GroupMessageEvent):
 
     elif diff_days > XiuConfig().beg_max_days:
         msg = f"道友已经过了新手期,不能再来此寻求机缘了。"
-        await bot.send(group_id=event, message=msg)
+        await bot.send(event=event, message=msg)
         await beg_stone.finish()
 
     else:

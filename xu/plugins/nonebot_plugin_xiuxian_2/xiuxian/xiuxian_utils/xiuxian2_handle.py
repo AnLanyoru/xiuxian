@@ -2,7 +2,7 @@ import operator
 import time
 
 from .database_cur_get import XiuxianDateCur
-from ..xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 
 try:
     import ujson as json
@@ -792,7 +792,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """去浮点"""
         sql = "UPDATE user_xiuxian SET exp=? WHERE user_id=?"
         cur = self.conn.cursor()
-        cur.execute(sql, (str(exp), user_id))
+        cur.execute(sql, (str(int(exp)), user_id))
         self.conn.commit()
 
     def realm_top(self):
@@ -1404,7 +1404,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
     def get_item_by_good_id_and_user_id(self, user_id, goods_id):
         """根据物品id、用户id获取物品信息"""
-        sql = f"select * from back WHERE user_id=? and goods_id=?"
+        sql = f"select * from back WHERE user_id=? and goods_id=? and goods_num > 0"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id, goods_id))
         result = cur.fetchone()
@@ -1429,34 +1429,22 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         :use_key 是否使用，丹药使用才传 默认0
         """
         back = self.get_item_by_good_id_and_user_id(user_id, goods_id)
-        try:
-            if back['goods_type'] == "丹药" and use_key == 1:  # 丹药要判断耐药性、日使用上限
-                if back['bind_num'] >= 1:
-                    bind_num = back['bind_num'] - num  # 优先使用绑定物品
-                else:
-                    bind_num = back['bind_num']
-                day_num = back['day_num'] + num
-                all_num = back['all_num'] + num
-            else:
-                bind_num = back['bind_num']
-                day_num = back['day_num']
-                all_num = back['all_num']
-            goods_num = back['goods_num'] - num
-            now_time = datetime.now()
-            sql_str = f"UPDATE back set update_time='{now_time}',action_time='{now_time}',goods_num={goods_num},day_num={day_num},all_num={all_num},bind_num={bind_num} WHERE user_id={user_id} and goods_id={goods_id}"
-            cur = self.conn.cursor()
-            cur.execute(sql_str)
-            self.conn.commit()
-        except:
-            bind_num = back['bind_num']
+        goods_num = back['goods_num'] - num
+        if back['goods_type'] == "丹药" and use_key == 1:  # 丹药要判断耐药性、日使用上限
+            day_num = back['day_num'] + num
+            all_num = back['all_num'] + num
+            bind_num = max(back['bind_num'] - num, 0)
+        else:
             day_num = back['day_num']
             all_num = back['all_num']
-            goods_num = back['goods_num'] - num
-            now_time = datetime.now()
-            sql_str = f"UPDATE back set update_time='{now_time}',action_time='{now_time}',goods_num={goods_num},day_num={day_num},all_num={all_num},bind_num={bind_num} WHERE user_id={user_id} and goods_id={goods_id}"
-            cur = self.conn.cursor()
-            cur.execute(sql_str)
-            self.conn.commit()
+            bind_num = min(back['bind_num'], goods_num)
+        now_time = datetime.now()
+        sql_str = (f"UPDATE back set update_time='{now_time}',action_time='{now_time}',goods_num={goods_num},"
+                   f"day_num={day_num},all_num={all_num},bind_num={bind_num} "
+                   f"WHERE user_id={user_id} and goods_id={goods_id}")
+        cur = self.conn.cursor()
+        cur.execute(sql_str)
+        self.conn.commit()
 
 
 @DRIVER.on_shutdown

@@ -1,8 +1,4 @@
-import operator
 import pickle
-import time
-import os
-import random
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -10,6 +6,7 @@ from nonebot.log import logger
 from .. import DRIVER
 import threading
 
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.xiuxian2_handle import sql_message
 
@@ -33,7 +30,7 @@ class UserStoreData:
     def __init__(self):
         self.sql_table_name = "user_store"
         self.sql_col = ["user_id", "need_items_id", "need_items_price", "need_items_num",
-                        "create_time", "update_time", "sell_user"]
+                        "need_world", "create_time", "update_time", "sell_user"]
         self.blob_data_list = ["sell_user"]
         if not self._has_init.get(xiuxian_num):
             self._has_init[xiuxian_num] = True
@@ -62,12 +59,13 @@ class UserStoreData:
         except sqlite3.OperationalError:
             c.execute(f"""CREATE TABLE "{self.sql_table_name}" (
       "user_id" INTEGER NOT NULL,
-      "need_items_id" INTEGER DEFAULT NULL,
-      "need_items_price" INTEGER DEFAULT NULL,
-      "need_items_num" INTEGER DEFAULT NULL,
+      "need_items_id" TEXT NOT NULL,
+      "need_items_price" INTEGER DEFAULT 0,
+      "need_items_num" INTEGER DEFAULT 0,
+      "need_world" INTEGER DEFAULT 0,
       "create_time" TEXT,
       "update_time" TEXT,
-      "sell_user" BLOB,
+      "sell_user" BLOB
       );""")
 
         for i in self.sql_col:  # 自动补全
@@ -84,6 +82,7 @@ class UserStoreData:
     @classmethod
     def close_dbs(cls):
         UserStoreData().close()
+
     # 上面是数据库校验，别动
 
     def get_user_all_want(self, user_id) -> list | None:
@@ -93,7 +92,7 @@ class UserStoreData:
         """
         sql = f"SELECT * FROM {self.sql_table_name} WHERE user_id=?"
         cur = self.conn.cursor()
-        cur.execute(sql, (user_id, ))
+        cur.execute(sql, (user_id,))
         result = cur.fetchall()
         if not result:
             return None
@@ -112,7 +111,26 @@ class UserStoreData:
         :param user_id: 用户id
         :return:
         """
-        sql = f"select * from {self.sql_table_name} WHERE user_id=? and need_item_id=?"
+        sql = f"select * from {self.sql_table_name} WHERE user_id=? and need_items_id=?"
+        cur = self.conn.cursor()
+        cur.execute(sql, (user_id, item_id))
+        result = cur.fetchone()
+        if not result:
+            return None
+
+        columns = [column[0] for column in cur.description]
+        item_dict = dict(zip(columns, result))
+        return item_dict
+        pass
+
+    def del_want_item(self, user_id, item_id):
+        """
+        获取指定用户的指定求购物品
+        :param item_id: 物品id
+        :param user_id: 用户id
+        :return:
+        """
+        sql = f"DELETE FROM {self.sql_table_name} WHERE user_id=? and need_items_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id, item_id))
         result = cur.fetchone()
@@ -130,10 +148,10 @@ class UserStoreData:
         :param item_id: 物品id
         :return:
         """
-        sql = (f"select * from {self.sql_table_name} WHERE need_item_id=? and need_items_price is NOT NULL "
+        sql = (f"select * from {self.sql_table_name} WHERE need_items_id=? and need_items_price is NOT NULL "
                f"ORDER BY need_items_price DESC LIMIT 1")
         cur = self.conn.cursor()
-        cur.execute(sql, (item_id, ))
+        cur.execute(sql, (item_id,))
         result = cur.fetchone()
         if not result:
             return None
@@ -143,10 +161,17 @@ class UserStoreData:
         return item_dict
         pass
 
-    def user_item_want_make(self, user_id: int, need_items_id: int, need_items_price: int, need_items_num: int,
-                            sell_user: dict):
+    def user_item_want_make(
+            self,
+            user_id: int,
+            need_items_id: int,
+            need_items_price: int,
+            need_items_num: int,
+            need_world: int,
+            sell_user: dict):
         """
-        插入求购至数据库，不要不数据处理放这里
+        插入求购至数据库，数据处理不要放这里
+        :param need_world: 求购范围
         :param user_id: 玩家ID
         :param need_items_id: 需求物品id
         :param need_items_price: 期望价格
@@ -161,17 +186,42 @@ class UserStoreData:
         item = self.get_want_item(user_id, need_items_id)
         if item:
             # 判断是否存在，存在则update
-            sql = f"""INSERT INTO mixture_table (user_id, need_items_id, need_items_price, need_items_num,
-                      update_time, sell_user) VALUES (?,?,?,?,?,?)"""
-            cur.execute(sql, (user_id, need_items_id, need_items_price, need_items_num,
-                              now_time_str, sell_user))
+            sql = (
+                f"UPDATE {self.sql_table_name} set "
+                f"need_items_price=?, "
+                f"need_items_num=?,"
+                f"need_world=?, "
+                f"update_time=?, "
+                f"sell_user=? where "
+                f"user_id=?, "
+                f"need_items_id=?")
+            cur.execute(sql, (
+                need_items_price,
+                need_items_num,
+                need_world,
+                now_time_str,
+                sell_user,
+                user_id,
+                need_items_id)
+            )
+            is_new = False
         else:
             # 判断是否存在，不存在则INSERT
-            sql = f"""INSERT INTO mixture_table (user_id, need_items_id, need_items_price, need_items_num,
-                        create_time, update_time, sell_user VALUES (?,?,?,?,?,?,?)"""
-            cur.execute(sql, (user_id, need_items_id, need_items_price, need_items_num,
-                              now_time_str, now_time_str, sell_user))
+            sql = f"""INSERT INTO {self.sql_table_name} (user_id, need_items_id, need_items_price, need_items_num,
+                        need_world, create_time, update_time, sell_user) VALUES (?,?,?,?,?,?,?,?)"""
+            cur.execute(sql, (
+                user_id,
+                need_items_id,
+                need_items_price,
+                need_items_num,
+                need_world,
+                now_time_str,
+                now_time_str,
+                sell_user)
+            )
+            is_new = True
         self.conn.commit()
+        return is_new
 
 
 class UserStoreHandle:
@@ -187,14 +237,25 @@ class UserStoreHandle:
         """
         # 序列化数据
         for blob_data in self.blob_data_list:
-            if not want_dict[blob_data]:
+            if not want_dict.get(blob_data):
                 want_dict[blob_data] = {}
             want_dict[blob_data] = pickle.dumps(want_dict[blob_data])
+
         need_item_id = want_dict['need_items_id']
         need_items_price = want_dict['need_items_price']
         need_items_num = want_dict['need_items_num']
+        need_world = want_dict.get('need_world', place.get_now_world_id(user_id))
         sell_user = want_dict['sell_user']
-        UserStoreData().user_item_want_make(user_id, need_item_id, need_items_price, need_items_num, sell_user)
+
+        is_new = UserStoreData().user_item_want_make(
+            user_id,
+            need_item_id,
+            need_items_price,
+            need_items_num,
+            need_world,
+            sell_user
+        )
+        return is_new
 
     def update_user_want(self, seller_info, sell_num, user_id, want_dict):
         """
@@ -202,7 +263,7 @@ class UserStoreHandle:
         :param seller_info: 卖家信息
         :param sell_num: 出售数量
         :param user_id: 用户id
-        :param want_dict: 要求键：["need_items_id", "need_items_price", "need_items_num"]
+        :param want_dict: 要求键：{"need_items_id", "need_items_price", "need_items_num", "need_world": 可选}
         :return:
         """
         # 加入购买者名单
@@ -214,68 +275,80 @@ class UserStoreHandle:
             want_dict['sell_user'][seller_name] = sell_num
         # 序列化数据
         for blob_data in self.blob_data_list:
-            if not want_dict[blob_data]:
+            if not want_dict.get(blob_data):
                 want_dict[blob_data] = {}
             want_dict[blob_data] = pickle.dumps(want_dict[blob_data])
+
         need_item_id = want_dict['need_items_id']
         need_items_price = want_dict['need_items_price']
-        need_items_num = want_dict['need_items_num'] - 1 if want_dict['need_items_num'] else 0
+        need_items_num = want_dict['need_items_num'] - sell_num if want_dict['need_items_num'] else 0
+        need_world = want_dict.get('need_world', place.get_now_world_id(user_id))
         sell_user = want_dict['sell_user']
-        UserStoreData().user_item_want_make(user_id, need_item_id, need_items_price, need_items_num, sell_user)
+        is_new = UserStoreData().user_item_want_make(
+            user_id,
+            need_item_id,
+            need_items_price,
+            need_items_num,
+            need_world,
+            sell_user
+        )
+        return is_new
 
-    def check_user_want_all(self, user_id):
-
+    def check_user_want_all(self, user_id: int) -> tuple[list, dict]:
+        """
+        获取指定用户的所有求购物品
+        :param user_id: 用户id
+        :return: 消息列表，物品idmap
+        """
         user_info = sql_message.get_user_info_with_id(user_id)
-        if not user_info:
-            msg = "用户不存在！！"
-            return msg
         result = UserStoreData().get_user_all_want(user_id)
         if not result:
-            msg = "此道友没有任何求购需要！！！"
-            return msg
+            msg = ["此道友没有任何求购需要！！！"]
+            return msg, {}
         user_name = user_info['user_name']
         msg_list = [f"{user_name}道友的求购列表：\n"]
         need_item_map = {}
         num = 1
         for want_item in result:
             need_item_id = want_item['need_items_id']
-            need_item_name = items.items[need_item_id]
+            need_item_name = items.items[need_item_id]['name']
             need_items_price = want_item['need_items_price']
             need_items_num = want_item['need_items_num']
-            if need_items_num:
-                pass
-            else:
-                need_items_num = "不限"
+            need_items_num = need_items_num if need_items_num else "不限"
             need_item_map[num] = need_item_id
-            msg_list.append(f"\n编号: {num}\n"
-                            f"物品名称：{need_item_name}\n"
-                            f"求购价格：{need_items_price}\n"
-                            f"需求数量：{need_items_num}\n")
+            msg_list.append(
+                f"\n编号: {num}\n"
+                f"物品名称：{need_item_name}\n"
+                f"求购价格：{need_items_price}\n"
+                f"需求数量：{need_items_num}\n"
+            )
         return msg_list, need_item_map
 
-    def check_user_want_item(self, user_id, item_id):
-
-        user_info = sql_message.get_user_info_with_id(user_id)
-        if not user_info:
-            msg = "用户不存在！！"
-            return msg
+    def check_user_want_item(self, user_id, item_id, get_info: str = 0) -> str | dict:
+        """
+        获取指定用户的指定求购物品
+        :param user_id: 用户id
+        :param item_id: 物品id
+        :param get_info: 是否仅获取物品信息
+        :return: 消息
+        """
         want_item = UserStoreData().get_want_item(user_id, item_id)
+        if get_info:
+            return want_item
         if not want_item:
             msg = "此道友没有此物的求购需要！！！"
             return msg
+        user_info = sql_message.get_user_info_with_id(user_id)
         user_name = user_info['user_name']
         msg = f"{user_name}道友的求购：\n"
         need_item_map = {}
         num = 1
 
         need_item_id = want_item['need_items_id']
-        need_item_name = items.items.get(need_item_id)
+        need_item_name = items.items[need_item_id]['name']
         need_items_price = want_item['need_items_price']
         need_items_num = want_item['need_items_num']
-        if need_items_num:
-            pass
-        else:
-            need_items_num = "不限"
+        need_items_num = need_items_num if need_items_num else "不限"
         need_item_map[num] = need_item_id
         msg += (f"物品名称：{need_item_name}\n"
                 f"求购价格：{need_items_price}\n"
@@ -285,7 +358,7 @@ class UserStoreHandle:
 
 user_store = UserStoreHandle()
 
+
 @DRIVER.on_shutdown
 async def close_db():
     UserStoreData().close()
-

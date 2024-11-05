@@ -1,6 +1,6 @@
 import random
 
-from ..xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 from ..xiuxian_utils.data_source import jsondata
 import json
 from ..xiuxian_utils.item_json import items
@@ -15,7 +15,6 @@ from ..xiuxian_utils.xiuxian2_handle import (
     get_sec_msg, get_main_info_msg, get_sub_info_msg
 )
 from datetime import datetime
-import os
 from pathlib import Path
 from ..xiuxian_config import convert_rank, XiuConfig
 

@@ -1,20 +1,17 @@
 import asyncio
-import random
 import re
-from datetime import datetime
 from nonebot import on_command, require, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
     Message,
     GroupMessageEvent,
-    MessageSegment,
     GROUP_ADMIN,
     GROUP_OWNER,
     ActionFailed
 )
 from ..xiuxian_limit import limit_handle
-from ..xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
 from nonebot.log import logger
@@ -29,9 +26,8 @@ from .back_util import (
 from .backconfig import get_auction_config, savef_auction, remove_auction_item
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.utils import (
-    check_user, get_msg_pic,
-    send_msg_handler, CommandObjectID,
-    Txt2Img, number_to, get_strs_from_str, get_num_from_str
+    check_user, send_msg_handler, CommandObjectID,
+    number_to, get_strs_from_str, get_num_from_str
 )
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, get_weapon_info_msg, get_armor_info_msg,
@@ -217,7 +213,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
 @shop.handle(parameterless=[Cooldown(at_sender=False)])
 async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """坊市查看"""
-    isUser, user_info, msg = check_user(event)
+    _, user_info, _ = check_user(event)
     user_id = user_info["user_id"]
     place_id = str(place.get_now_place_id(user_id))
     shop_data = get_shop_data(place_id)
@@ -249,7 +245,7 @@ async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()
         msg = "此地坊市没有那么多东西！！！"
         await bot.send(event=event, message=msg)
         await shop.finish()
-    items_start = page * 12 -12
+    items_start = page * 12 - 12
     items_end = items_start + 12
     data_list = data_list[items_start:items_end]
     page_info = f"第{page}/{page_all}页\n———tips———\n可以发送 查看坊市 页数 来查看更多商品哦"
@@ -329,7 +325,7 @@ async def shop_added_by_admin_(bot: Bot, event: GroupMessageEvent, args: Message
 @shop_added.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP)])
 async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """用户上架坊市"""
-    isUser, user_info, msg = check_user(event)
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
     args = args.extract_plain_text()
     goods_name = get_strs_from_str(args)
@@ -375,7 +371,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
             goods_bind_num = back['bind_num']
             break
     if not in_flag:
-        msg = f"请检查该道具 {goods_name} 是否在背包内！"
+        msg = f"请检查该道具是否在背包内！"
         await bot.send(event=event, message=msg)
         await shop_added.finish()
     price = None
@@ -432,7 +428,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
     # 单个地方坊市上架限制
     num = len(shop_data[place_id].keys())
-    if num >= 20:
+    if num >= 100:
         msg = "此地坊市摊位已满！！！"
         await bot.send(event=event, message=msg)
         await shop_added.finish()
@@ -568,7 +564,6 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                 if goods_type == "装备" and int(goods_state) == 1:
                     msg += f"\n装备：{goods_name}已经被道友装备在身，无法炼金！"
                     price_pass = 1
-                    pass
                 elif item_rank != 520:
                     price = int(1000000 + abs(item_rank - 55) * 100000) * num
                     sql_message.update_back_j(user_id, goods_id, num=num)
@@ -576,11 +571,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                     price_sum += price
                     msg += f"\n物品：{goods_name} 数量：{num} 炼金成功，凝聚{number_to(price)}|{price}枚灵石！"
                     price_pass = 1
-                else:
-                    pass
-        if price_pass:
-            pass
-        else:
+        if not price_pass:
             msg += f"\n道友没有【{goal_level_name}】"
     msg += f"\n总计凝聚{number_to(price_sum)}|{price_sum}枚灵石"
     await bot.send(event=event, message=msg)

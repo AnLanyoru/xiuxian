@@ -8,11 +8,10 @@ import re
 
 import unicodedata
 
-from .clean_utils import get_num_from_str
+from .clean_utils import get_num_from_str, get_strs_from_str
 from .xiuxian2_handle import XiuxianDateManage, PLAYERSDATA
 from nonebot.adapters.onebot.v11 import (
-    GroupMessageEvent,
-    MessageSegment
+    GroupMessageEvent
 )
 from nonebot.params import Depends
 from io import BytesIO
@@ -24,7 +23,7 @@ from nonebot.adapters.onebot.v11 import MessageSegment
 from .data_source import jsondata
 from pathlib import Path
 from base64 import b64encode
-from ..xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 
 sql_message = XiuxianDateManage()  # sql类
 boss_img_path = Path() / "data" / "xiuxian" / "boss_img"
@@ -547,14 +546,14 @@ def number_to(num):
     else:
         # 打回
         return "无"
-    if type(num) == str:
+    if isinstance(num, str):
         hf = ""
         num = num.split("、")
         final_num = ""
         for num_per in num:
             # 对列表型数值每个处理输出到新list
             # 处理字符串输入
-            if type(num_per) != int:
+            if not isinstance(num_per, int):
                 # 处理坑爹的伤害列表
                 if num_per[-2:] == "伤害":
                     num_per = num_per[:-2]
@@ -582,7 +581,7 @@ def number_to(num):
                      '亿京垓', '万亿京垓', '兆京垓', '万兆京垓']
             # 处理科学计数法
             if "e" in str(num_per):
-                num_per = float(f"{num_per  :.1f}")
+                num_per = float(f"{num_per:.1f}")
             num_per, level = strofsize(num_per, 0)
             if level >= len(units):
                 level = len(units) - 1
@@ -590,7 +589,7 @@ def number_to(num):
         return final_num[1:]
     else:
         # 处理字符串输入
-        if type(num) == str:
+        if isinstance(num, str):
             # 处理坑爹的伤害列表
             if num[-2:] == "伤害":
                 num = num[:-2]
@@ -638,15 +637,6 @@ def get_id_from_str(msg: str):
         user_id = None
     return user_id
 
-
-def get_strs_from_str(msg: str) -> list:
-    """
-    从消息字符串中获取字符列表
-    :param msg: 从args中获取的消息字符串
-    :return: 提取到的字符列表
-    """
-    strs = re.findall(r"[\u4e00-\u9fa5_a-zA-Z]+", msg)
-    return strs
 
 async def pic_msg_format(msg, event):
     user_name = (

@@ -1,7 +1,7 @@
 from math import *
 
-from . import DRIVER
-from .xiuxian_utils.database_cur_get import XiuxianDateCur
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian import DRIVER
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_utils.database_cur_get import XiuxianDateCur
 from nonebot.log import logger
 from datetime import datetime
 from pathlib import Path
@@ -84,12 +84,12 @@ async def read_places_():
 class Place:
     def __init__(self):
         self.distance = 0
+        self.world_names = ["凡界", "灵界", "仙界", "无尽神域", "万界洞天中枢"]
         self.conn = XiuxianDateCur().conn
         self.place_all = place_all
         self.place_id_map = place_id_map
         self.worlds = {}
         self.get_worlds()
-        self.world_names = ["凡界", "灵界", "仙界", "无尽神域", "万界洞天中枢"]
 
     def get_place_dict(self):
         return self.place_all
@@ -184,9 +184,9 @@ class Place:
         :return: 区域id列表
         """
         place_list = []
-        for place, place_set in self.place_all.items():
+        for place_id, place_set in self.place_all.items():
             if place_set[1][2] == world_id:
-                place_list.append(place)
+                place_list.append(place_id)
             else:
                 pass
         return place_list
@@ -242,6 +242,16 @@ class Place:
         cur.execute(sql, (place_id, user_id))
         self.conn.commit()
         pass
+
+    def get_now_world_id(self, user_id):
+        """
+        获取玩家当前位面
+        :param user_id:
+        :return:
+        """
+        user_place = self.get_now_place_id(user_id)
+        user_world = self.get_world_id(user_place)
+        return user_world
 
     def is_the_same_world(self, player_1, player_2) -> bool:
         """

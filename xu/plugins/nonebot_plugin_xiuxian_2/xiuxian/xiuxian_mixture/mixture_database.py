@@ -1,18 +1,12 @@
-import operator
-import time
-from ..xiuxian_place import place
-
 try:
     import ujson as json
 except ImportError:
     import json
-import os
-import random
 import sqlite3
 from datetime import datetime
 from pathlib import Path
 from nonebot.log import logger
-from ..xiuxian_config import XiuConfig, convert_rank
+from ..xiuxian_config import XiuConfig
 from .. import DRIVER
 import threading
 

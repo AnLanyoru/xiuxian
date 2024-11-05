@@ -1,4 +1,4 @@
-from ..xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet, UserBuffDate,
     XIUXIAN_IMPART_BUFF

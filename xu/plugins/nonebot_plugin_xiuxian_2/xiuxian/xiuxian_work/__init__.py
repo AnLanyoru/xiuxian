@@ -6,7 +6,7 @@ from nonebot.params import RegexGroup
 
 from ..xiuxian_limit import limit_handle
 from ..xiuxian_move import read_move_data
-from ..xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
 from ..xiuxian_utils.clean_utils import get_datetime_from_str
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.adapters.onebot.v11 import (

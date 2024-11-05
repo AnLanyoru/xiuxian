@@ -28,7 +28,6 @@ class Items:
         self.ldl_jsonpath = ELIXIRPATH / "炼丹炉.json"
         self.jlq_jsonpath = XIULIANITEMPATH / "聚灵旗.json"
         self.tools_jsonpath = XIULIANITEMPATH / "道具.json"
-        self.dlw_jsonpath = BOSSDROPS / "boss掉落物.json"
         self.sw_jsonpath = ELIXIRPATH / "神物.json"
         self.world_qw_jsonpath = ELIXIRPATH / "天地奇物.json"
         self.items = {}
@@ -44,10 +43,9 @@ class Items:
         self.set_item_data(self.get_ldl_data(), "炼丹炉")
         self.set_item_data(self.get_jlq_data(), "聚灵旗")
         self.set_item_data(self.get_tools_data(), "道具")
-        self.set_item_data(self.get_dlw_data(), "掉落物")
         self.set_item_data(self.get_sw_data(), "神物")
         self.set_item_data(self.get_world_qw_data(), "天地奇物")
-        self.items_map = self.get_items_map()
+        self.items_map = {self.items[item_id]['name']: item_id for item_id in self.items}
         self.savef(self.items)
 
     def readf(self, FILEPATH):
@@ -98,9 +96,6 @@ class Items:
 
     def get_tools_data(self):
         return self.readf(self.tools_jsonpath)
-
-    def get_dlw_data(self):
-        return self.readf(self.dlw_jsonpath)
 
     def get_sw_data(self):
         return self.readf(self.sw_jsonpath)
@@ -160,9 +155,9 @@ class Items:
                     continue
         return l_id
 
-    def get_items_map(self):
-        items_map = {self.items[item_id]['name']: item_id for item_id in self.items}
-        return items_map
+    def get_item_id(self, item_name):
+        item_id = self.items_map.get(item_name, 0)
+        return item_id
 
 
 items = Items()
