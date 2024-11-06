@@ -4,11 +4,12 @@ import asyncio
 import json
 import math
 import datetime
+import random
 import re
 
 import unicodedata
 
-from .clean_utils import get_num_from_str, get_strs_from_str
+from .other_set import OtherSet
 from .xiuxian2_handle import XiuxianDateManage, PLAYERSDATA
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent
@@ -23,7 +24,7 @@ from nonebot.adapters.onebot.v11 import MessageSegment
 from .data_source import jsondata
 from pathlib import Path
 from base64 import b64encode
-from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
 
 sql_message = XiuxianDateManage()  # sql类
 boss_img_path = Path() / "data" / "xiuxian" / "boss_img"
@@ -626,7 +627,7 @@ def number_to(num):
 
 def get_id_from_str(msg: str):
     """
-    将消息中的首个字符组合转换为
+    将消息中的首个字符组合转换为用户id
     :param msg: 从args中获取的消息字符串
     :return: 如果有该用户，返回用户ID，若无，返回None
     """
@@ -644,3 +645,28 @@ async def pic_msg_format(msg, event):
     )
     result = "@" + user_name + "\n" + msg
     return result
+
+
+def linggen_get():
+    """获取灵根信息"""
+    data = jsondata.root_data()
+    rate_dict = {}
+    for i, v in data.items():
+        rate_dict[i] = v["type_rate"]
+    lgen = OtherSet().calculated(rate_dict)
+    if data[lgen]["type_flag"]:
+        flag = random.choice(data[lgen]["type_flag"])
+        root = random.sample(data[lgen]["type_list"], flag)
+        msg = ""
+        for j in root:
+            if j == root[-1]:
+                msg += j
+                break
+            msg += (j + "、")
+
+        return msg + '属性灵根', lgen
+    else:
+        root = random.choice(data[lgen]["type_list"])
+        return root, lgen
+
+

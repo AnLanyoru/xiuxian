@@ -16,14 +16,15 @@ from ..xiuxian_exp_up.exp_up_def import exp_up_by_time
 from ..xiuxian_impart_pk import impart_pk_check
 from ..xiuxian_limit.limit_database import limit_handle
 from ..xiuxian_limit.limit_util import LimitCheck
-from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
 from ..xiuxian_utils.clean_utils import get_datetime_from_str, date_sub
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, OtherSet, get_player_info,
+    XiuxianDateManage, get_player_info,
     save_player_info, UserBuffDate, get_main_info_msg,
     get_user_buff, get_sec_msg, get_sub_info_msg,
     XIUXIAN_IMPART_BUFF
 )
+from ..xiuxian_utils.other_set import OtherSet
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.data_source import jsondata
 from nonebot.params import CommandArg

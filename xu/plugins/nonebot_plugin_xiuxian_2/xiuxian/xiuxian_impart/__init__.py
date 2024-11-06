@@ -19,8 +19,9 @@ from ..xiuxian_utils.lay_out import Cooldown
 from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic, send_msg_handler,
-    CommandObjectID, get_num_from_str
+    CommandObjectID
 )
+from ..xiuxian_utils.clean_utils import get_num_from_str
 from .impart_uitls import impart_check, get_rank, re_impart_data
 from .impart_data import impart_data_json
 from ..xiuxian_config import XiuConfig

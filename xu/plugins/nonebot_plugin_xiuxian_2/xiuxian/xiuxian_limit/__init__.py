@@ -14,8 +14,9 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment
 )
 from ..xiuxian_utils.utils import (
-    check_user, get_msg_pic, get_num_from_str, send_msg_handler
+    check_user, get_msg_pic, send_msg_handler
 )
+from ..xiuxian_utils.clean_utils import get_num_from_str
 from ..xiuxian_utils.item_json import items
 
 sql_message = XiuxianDateManage()  # sql类

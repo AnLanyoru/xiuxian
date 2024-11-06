@@ -12,7 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 from .old_rift_info import old_rift_info
 from .. import DRIVER
 from ..xiuxian_limit import limit_handle
-from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger

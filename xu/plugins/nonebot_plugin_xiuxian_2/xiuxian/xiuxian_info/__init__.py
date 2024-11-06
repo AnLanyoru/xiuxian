@@ -10,9 +10,10 @@ from nonebot.permission import SUPERUSER
 from .draw_user_info import draw_user_info_img
 from .send_image_tool import convert_img
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, OtherSet, BuffJsonDate,
+    XiuxianDateManage, BuffJsonDate,
     get_main_info_msg, UserBuffDate, get_sec_msg
 )
+from ..xiuxian_utils.other_set import OtherSet
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -26,8 +27,9 @@ from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.utils import (
-    check_user, number_to, get_strs_from_str
+    check_user, number_to
 )
+from ..xiuxian_utils.clean_utils import get_strs_from_str
 
 xiuxian_message = on_command("我的修仙信息", aliases={"我的存档", "我的信息", "存档", "修仙信息"}, priority=23, permission=GROUP, block=True)
 pic_test = on_command("测试图片", aliases={"图片测试"}, priority=23, permission=SUPERUSER, block=True)

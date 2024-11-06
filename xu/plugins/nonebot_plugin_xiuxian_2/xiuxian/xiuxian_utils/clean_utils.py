@@ -9,24 +9,111 @@ from nonebot.adapters.onebot.v11 import Message
 """
 
 
-def get_num_from_str(msg: str) -> list:
+def number_to(num):
     """
-    从消息字符串中获取数字列表
-    :param msg: 从纯字符串中获取的获取的消息字符串
-    :return: 提取到的分块整数
+    递归实现，精确为最大单位值 + 小数点后一位
+    处理科学计数法表示的数值
     """
-    nums = re.findall(r"\d+", msg)
-    return nums
+
+    # 处理列表类数据
+    if num:
+        pass
+    else:
+        # 打回
+        return "零"
+    # 处理字符串输入, 你想随意输入为什么不用plus版？
+    if isinstance(num, str):
+        num = int(num)
+    # 处理负数输出
+    fh = ""
+    if num < 0:
+        fh = "-"
+        num = abs(num)
+
+    def str_of_size(goal_num, num_level):
+        if num_level >= 29:
+            return goal_num, num_level
+        elif goal_num >= 10000:
+            goal_num /= 10000
+            num_level += 1
+            return str_of_size(goal_num, num_level)
+        else:
+            return goal_num, num_level
+
+    units = ['', '万', '亿', '万亿', '兆', '万兆', '亿兆', '万亿兆', '京', '万京', '亿京', '万亿京', '兆京', '万兆京', '亿兆京',
+             '万亿兆京', '垓', '万垓', '亿垓', '万亿垓', '兆垓', '万兆垓', '亿兆垓', '万亿兆垓', '京垓', '万京垓', '亿京垓',
+             '万亿京垓', '兆京垓', '万兆京垓', '亿兆京垓', '万亿兆京垓', '秭', '万秭', '亿秭', '万亿秭', '兆秭', '万兆秭', '亿兆秭',
+             '万亿兆秭', '京秭', '万京秭', '亿京秭', '万亿京秭', '兆京秭', '万兆京秭', '亿兆京秭', '万亿兆京秭', '垓秭', '万垓秭',
+             '亿垓秭', '万亿垓秭', '兆垓秭', '万兆垓秭', '亿兆垓秭', '万亿兆垓秭', '京垓秭', '万京垓秭', '亿京垓秭', '万亿京垓秭',
+             '兆京垓秭', '万兆京垓秭', '亿兆京垓秭', '万亿兆京垓秭', '壤', '万壤', '亿壤', '万亿壤', '兆壤', '万兆壤', '亿兆壤',
+             '万亿兆壤', '京壤', '万京壤', '亿京壤', '万亿京壤', '兆京壤', '万兆京壤', '亿兆京壤', '万亿兆京壤', '垓壤', '万垓壤',
+             '亿垓壤', '万亿垓壤', '兆垓壤', '万兆垓壤', '亿兆垓壤', '万亿兆垓壤', '京垓壤', '万京垓壤', '亿京垓壤', '万亿京垓壤',
+             '兆京垓壤', '万兆京垓壤', '亿兆京垓壤', '万亿兆京垓壤', '秭壤', '万秭壤', '亿秭壤', '万亿秭壤', '兆秭壤', '万兆秭壤',
+             '亿兆秭壤', '万亿兆秭壤', '京秭壤', '万京秭壤', '亿京秭壤', '万亿京秭壤', '兆京秭壤', '万兆京秭壤', '亿兆京秭壤',
+             '万亿兆京秭壤', '垓秭壤', '万垓秭壤', '亿垓秭壤', '万亿垓秭壤', '兆垓秭壤', '万兆垓秭壤', '亿兆垓秭壤', '万亿兆垓秭壤',
+             '京垓秭壤', '万京垓秭壤', '亿京垓秭壤', '万亿京垓秭壤', '兆京垓秭壤', '万兆京垓秭壤', '亿兆京垓秭壤', '万亿兆京垓秭壤', ]
+    # 处理科学计数法
+    if "e" in str(num):
+        num = float(f"{num:.1f}")
+    num, level = str_of_size(num, 0)
+    if level >= len(units):
+        level = len(units) - 1
+    final_num = f"{fh}{round(num, 1)}{units[level]}"
+    return final_num
 
 
-def get_strs_from_str(msg: str) -> list:
+def number_to_pro(string):
     """
-    从消息字符串中获取字符列表
-    :param msg: 从args中获取的消息字符串
-    :return: 提取到的字符列表
+    快速搜索替换文本内数字到单位制
+    :param string:
+    :return:
     """
-    strs = re.findall(r"[\u4e00-\u9fa5_a-zA-Z]+", msg)
-    return strs
+    new_string = re.sub(r'\d+', lambda x: number_to(x.group()), string)
+    return new_string
+
+
+def number_to_msg(string):
+    """
+    快速搜索替换文本内数字到单位制
+    :param string:
+    :return:
+    """
+    new_string = f"{number_to(string)}|{string}"
+    return new_string
+
+
+def number_to_msg_pro(string):
+    """
+    快速搜索替换文本内数字到单位制
+    :param string:
+    :return:
+    """
+    new_string = re.sub(r'\d+', lambda x: f"{number_to(x.group())}|{x.group()}", string)
+    return new_string
+
+
+def number_to_pro_plus(string):
+    """
+    快速搜索替换数字到单位制
+    兼容列表内容，字典值改变
+    没事别用这个，需求单纯为什么不去用number_to
+    :param string:
+    :return:
+    """
+    if isinstance(string, str):
+        new_string = number_to_pro(string)
+    elif isinstance(string, list):
+        new_string = []
+        for msg in string:
+            new_string.append(number_to_pro(msg))
+    elif isinstance(string, dict):
+        for keys in string:
+            string[keys] = number_to_pro(string[keys])
+        new_string = string
+    else:
+        new_string = "无"
+    return new_string
+
 
 
 def get_datetime_from_str(datetime_str: str):
@@ -65,13 +152,15 @@ def date_sub(new_time, old_time) -> int:
     return (day * 24 * 60 * 60) + sec
 
 
-def get_paged_msg(msg_list: list, page: int | Message, cmd: str = '该指令', per_page_item: int = 12) -> list:
+def get_paged_msg(msg_list: list, page: int | Message,
+                  cmd: str = '该指令', per_page_item: int = 12, msg_head: str = "") -> list:
     """
     翻页化信息
     :param msg_list: 需要翻页化的信息列表
     :param page: 获取的页数
     :param per_page_item: 每页信息
     :param cmd: 指令名称
+    :param msg_head: 可选消息头
     :return: 处理后信息列表
     """
     if isinstance(page, Message):
@@ -85,8 +174,9 @@ def get_paged_msg(msg_list: list, page: int | Message, cmd: str = '该指令', p
         return msg
     item_num = page * per_page_item - per_page_item
     item_num_end = item_num + per_page_item
+    msg_head = [msg_head] if msg_head else []
     page_info = [f"第{page}/{page_all}页\n——tips——\n可以发送 {cmd}+页数 来查看更多页！\n"]  # 页面尾
-    msg_list = msg_list[item_num:item_num_end] + page_info
+    msg_list = msg_head + msg_list[item_num:item_num_end] + page_info
     return msg_list
 
 
@@ -104,3 +194,23 @@ def get_args_num(args: Message | str, no: int = 1) -> int:
         return num
     except (IndexError, TypeError):
         return 0
+
+
+def get_num_from_str(msg: str) -> list:
+    """
+    从消息字符串中获取数字列表
+    :param msg: 从纯字符串中获取的获取的消息字符串
+    :return: 提取到的分块整数
+    """
+    nums = re.findall(r"\d+", msg)
+    return nums
+
+
+def get_strs_from_str(msg: str) -> list:
+    """
+    从消息字符串中获取字符列表
+    :param msg: 从args中获取的消息字符串
+    :return: 提取到的字符列表
+    """
+    strs = re.findall(r"[\u4e00-\u9fa5_a-zA-Z]+", msg)
+    return strs

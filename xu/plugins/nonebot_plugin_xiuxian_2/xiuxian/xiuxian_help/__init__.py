@@ -3,9 +3,10 @@ import random
 
 from ..xiuxian_sect import get_config
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, OtherSet, BuffJsonDate,
+    XiuxianDateManage, BuffJsonDate,
     get_main_info_msg, UserBuffDate, get_sec_msg
 )
+from ..xiuxian_utils.other_set import OtherSet
 from nonebot import on_command, on_fullmatch, require
 from nonebot.log import logger
 from nonebot.adapters.onebot.v11 import (
@@ -24,8 +25,9 @@ from ..xiuxian_config import XiuConfig, convert_rank, JsonConfig
 from ..xiuxian_utils.utils import (
     check_user, number_to,
     get_msg_pic, send_msg_handler, CommandObjectID,
-    Txt2Img, get_num_from_str, get_strs_from_str
+    Txt2Img
 )
+from ..xiuxian_utils.clean_utils import get_num_from_str, get_strs_from_str
 from ..xiuxian_utils.item_json import items
 
 sql_message = XiuxianDateManage()  # sql类

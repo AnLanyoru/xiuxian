@@ -11,7 +11,8 @@ from nonebot.adapters.onebot.v11 import (
     ActionFailed
 )
 from ..xiuxian_limit import limit_handle
-from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
+from ..xiuxian_utils.clean_utils import get_args_num, get_num_from_str, get_strs_from_str
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
 from nonebot.log import logger
@@ -27,7 +28,7 @@ from .backconfig import get_auction_config, savef_auction, remove_auction_item
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.utils import (
     check_user, send_msg_handler, CommandObjectID,
-    number_to, get_strs_from_str, get_num_from_str
+    number_to
 )
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, get_weapon_info_msg, get_armor_info_msg,
@@ -957,15 +958,8 @@ async def check_items_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         except KeyError:
             msg = "请输入正确的物品id！！！"
     elif items_name:
-        items_id = -1
-        items_name = items_name[0]
-        for k, v in items.items.items():
-            if items_name == v['name']:
-                items_id = k
-                break
-            else:
-                continue
-        if items_id != -1:
+        items_id = items.items_map.get(items_name)
+        if items_id:
             msg = get_item_msg(items_id)
         else:
             msg = f"不存在该物品的信息，请检查名字是否输入正确！"
@@ -996,11 +990,11 @@ async def master_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 
 
 @shop_off_all.handle(parameterless=[Cooldown(60, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
-async def shop_off_all_(bot: Bot, event: GroupMessageEvent):
+async def shop_off_all_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """坊市清空"""
-    group_id = str(event.group_id)
+    group_id = get_args_num(args, 1)
     shop_data = get_shop_data(group_id)
-    if shop_data[group_id] == {}:
+    if not shop_data.get(group_id):
         msg = "坊市目前空空如也！"
         await bot.send(event=event, message=msg)
         await shop_off_all.finish()

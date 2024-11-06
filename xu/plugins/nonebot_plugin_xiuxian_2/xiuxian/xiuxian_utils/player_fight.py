@@ -1,7 +1,8 @@
 import random
 
 from .data_source import jsondata
-from .xiuxian2_handle import XiuxianDateManage, OtherSet, UserBuffDate, XIUXIAN_IMPART_BUFF
+from .xiuxian2_handle import XiuxianDateManage, UserBuffDate, XIUXIAN_IMPART_BUFF
+from .other_set import OtherSet
 from ..xiuxian_config import convert_rank
 from .utils import number_to
 

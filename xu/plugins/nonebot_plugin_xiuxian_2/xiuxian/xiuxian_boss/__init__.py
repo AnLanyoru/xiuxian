@@ -23,9 +23,10 @@ from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, OtherSet, UserBuffDate,
+    XiuxianDateManage, UserBuffDate,
     XIUXIAN_IMPART_BUFF, leave_harm_time
 )
+from ..xiuxian_utils.other_set import OtherSet
 from ..xiuxian_config import convert_rank, XiuConfig, JsonConfig
 from .makeboss import createboss, createboss_jj
 from .bossconfig import get_boss_config, savef_boss

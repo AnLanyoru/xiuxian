@@ -6,8 +6,8 @@ from nonebot.typing import T_State
 
 from ..xiuxian_buff import CheckLimit
 from ..xiuxian_limit.limit_database import limit_handle
-from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_move.xiuxian_place import place
-from ..xiuxian_utils.clean_utils import date_sub
+from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
+from ..xiuxian_utils.clean_utils import date_sub, get_num_from_str, get_strs_from_str
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot import require, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
@@ -23,14 +23,14 @@ from nonebot.log import logger
 from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, XiuxianJsonDate, OtherSet,
-    UserBuffDate, XIUXIAN_IMPART_BUFF, leave_harm_time
+    XiuxianDateManage, UserBuffDate, XIUXIAN_IMPART_BUFF, leave_harm_time
 )
+from ..xiuxian_utils.other_set import OtherSet
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic, number_to,
-    send_msg_handler, get_num_from_str, get_id_from_str, get_strs_from_str
+    send_msg_handler, get_id_from_str, linggen_get
 )
 from ..xiuxian_utils.item_json import items
 
@@ -50,7 +50,6 @@ rename = on_command("改头换面", aliases={"修仙改名", "改名", "改头",
                     block=True)
 level_up = on_command("突破", aliases={"tp"}, priority=6, permission=GROUP, block=True)
 level_up_dr = on_fullmatch("渡厄突破", priority=7, permission=GROUP, block=True)
-level_up_drjd = on_command("渡厄金丹突破", aliases={"金丹突破"}, priority=7, permission=GROUP, block=True)
 level_up_zj = on_command("直接突破", aliases={"破", "/突破"}, priority=2, permission=GROUP, block=True)
 level_up_zj_all = on_command("快速突破", aliases={"连续突破", "一键突破"}, priority=2, permission=GROUP, block=True)
 give_stone = on_command("送灵石", priority=5, permission=GROUP, block=True)
@@ -124,7 +123,7 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
     """加入修仙"""
     user_id = event.get_user_id()
     user_name = sql_message.random_name()  # 获取随机名称
-    root, root_type = XiuxianJsonDate().linggen_get()  # 获取灵根，灵根类型
+    root, root_type = linggen_get()  # 获取灵根，灵根类型
     rate = sql_message.get_root_rate(root_type)  # 灵根倍率
     power = 100 * float(rate)  # 战力=境界的power字段 * 灵根的rate字段
     create_time = str(datetime.now())  # 创建账号时间
@@ -197,7 +196,7 @@ async def restart_(bot: Bot, event: GroupMessageEvent, state: T_State):
 
     linggen_options = []
     for _ in range(10):
-        name, root_type = XiuxianJsonDate().linggen_get()
+        name, root_type = linggen_get()
         linggen_options.append((name, root_type))
 
     linggen_list_msg = "\n".join(
@@ -527,109 +526,6 @@ async def level_up_zj_all_(bot: Bot, event: GroupMessageEvent):
         msg += OtherSet().get_type(exp, level_rate + leveluprate + number, level_name, user_id)
     await bot.send(event=event, message=msg)
     await level_up_zj_all.finish()
-
-
-@level_up_drjd.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
-async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
-    """渡厄 金丹 突破"""
-    # 这里曾经是风控模块，但是已经不再需要了
-    _, user_info, _ = check_user(event)
-    user_id = user_info['user_id']
-    if user_info['hp'] is None:
-        # 判断用户气血是否为空
-        sql_message.update_user_hp(user_id)
-    user_msg = sql_message.get_user_info_with_id(user_id)  # 用户信息
-    level_cd = user_msg['level_up_cd']
-    if level_cd:
-        # 校验是否存在CD
-        time_now = datetime.now()
-        cd = date_sub(time_now, level_cd)  # 获取second
-        if cd < XiuConfig().level_up_cd * 60:
-            # 如果cd小于配置的cd，返回等待时间
-            msg = f"目前无法突破，还需要{XiuConfig().level_up_cd - (cd // 60)}分钟"
-            await bot.send(event=event, message=msg)
-            await level_up_drjd.finish()
-    else:
-        pass
-    elixir_name = "渡厄金丹"
-    level_name = user_msg['level']  # 用户境界
-    exp = user_msg['exp']  # 用户修为
-    level_rate = jsondata.level_rate_data()[level_name]  # 对应境界突破的概率
-    user_leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
-    main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data()  # 功法突破概率提升
-    number = main_rate_buff['number'] if main_rate_buff is not None else 0
-    le = OtherSet().get_type(exp, level_rate + user_leveluprate + number, level_name, user_id)
-    user_backs = sql_message.get_back_msg(user_id)  # list(back)
-    pause_flag = False
-    if user_backs is not None:
-        for back in user_backs:
-            if int(back['goods_id']) == 1998:  # 检测到有对应丹药
-                pause_flag = True
-                elixir_name = back['goods_name']
-                break
-
-    if not pause_flag:
-        msg = f"道友突破需要使用{elixir_name}，但您的背包中没有该丹药！"
-        await bot.send(event=event, message=msg)
-        await level_up_drjd.finish()
-
-    if le == "失败":
-        # 突破失败
-        sql_message.updata_level_cd(user_id)  # 更新突破CD
-        if pause_flag:
-            # 使用丹药减少的sql
-            sql_message.update_back_j(user_id, 1998, use_key=1)
-            now_exp = int(int(exp) * 0.1)
-            sql_message.update_exp(user_id, now_exp)  # 渡厄金丹增加用户修为
-            update_rate = 1 if int(level_rate * XiuConfig().level_up_probability) <= 1 else int(
-                level_rate * XiuConfig().level_up_probability)  # 失败增加突破几率
-            sql_message.update_levelrate(user_id, user_leveluprate + update_rate)
-            msg = f"道友突破失败，但是使用了丹药{elixir_name}，本次突破失败不扣除修为反而增加了一成，下次突破成功率增加{update_rate}%！！"
-        else:
-            # 失败惩罚，随机扣减修为
-            percentage = random.randint(
-                XiuConfig().level_punishment_floor, XiuConfig().level_punishment_limit
-            )
-            main_exp_buff = UserBuffDate(user_id).get_user_main_buff_data()  # 功法突破扣修为减少
-            exp_buff = main_exp_buff['exp_buff'] if main_exp_buff is not None else 0
-            now_exp = int(int(exp) * ((percentage / 100) * exp_buff))
-            sql_message.update_j_exp(user_id, now_exp)  # 更新用户修为
-            user_msg = XiuxianDateManage().get_user_info_with_id(user_id)
-            user_buff_data = UserBuffDate(user_id)
-            main_buff_data = user_buff_data.get_user_main_buff_data()
-            impart_data = xiuxian_impart.get_user_info_with_id(user_id)
-            impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
-            main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
-
-            nowhp = user_msg['hp'] - int(
-                (now_exp / 2) * (1 + main_hp_buff + impart_hp_per) * jsondata.level_data()[user_msg['level']][
-                    "HP"]) if (user_msg['hp'] - (now_exp / 2)) > 0 else 1
-            nowmp = user_msg['mp'] - now_exp if (user_msg['mp'] - now_exp) > 0 else 1
-            sql_message.update_user_hp_mp(user_id, nowhp, nowmp)  # 修为掉了，血量、真元也要掉
-            update_rate = 1 if int(level_rate * XiuConfig().level_up_probability) <= 1 else int(
-                level_rate * XiuConfig().level_up_probability)  # 失败增加突破几率
-            sql_message.update_levelrate(user_id, user_leveluprate + update_rate)
-            msg = f"没有检测到{elixir_name}，道友突破失败,境界受损,修为减少{now_exp}，下次突破成功率增加{update_rate}%，道友不要放弃！"
-        await bot.send(event=event, message=msg)
-        await level_up_drjd.finish()
-
-    elif type(le) is list:
-        # 突破成功
-        sql_message.updata_level(user_id, le[0])  # 更新境界
-        sql_message.update_power2(user_id)  # 更新战力
-        sql_message.updata_level_cd(user_id)  # 更新CD
-        sql_message.update_levelrate(user_id, 0)
-        sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
-        now_exp = int(int(exp) * 0.1)
-        sql_message.update_exp(user_id, now_exp)  # 渡厄金丹增加用户修为
-        msg = f"恭喜道友突破{le[0]}成功，因为使用了渡厄金丹，修为也增加了一成！！"
-        await bot.send(event=event, message=msg)
-        await level_up_drjd.finish()
-    else:
-        # 最高境界
-        msg = le
-        await bot.send(event=event, message=msg)
-        await level_up_drjd.finish()
 
 
 @level_up_dr.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
