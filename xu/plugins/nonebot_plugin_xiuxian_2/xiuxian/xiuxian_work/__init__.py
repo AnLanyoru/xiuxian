@@ -28,7 +28,7 @@ from ..xiuxian_config import convert_rank, XiuConfig
 resetrefreshnum = require("nonebot_plugin_apscheduler").scheduler
 work = {}  # 悬赏令信息记录
 sql_message = XiuxianDateManage()  # sql类
-count = 9  # 免费次数
+count = 6  # 免费次数
 
 # 重置悬赏令刷新次数（已改被动）
 # @resetrefreshnum.scheduled_job("cron", hour=3, minute=0)

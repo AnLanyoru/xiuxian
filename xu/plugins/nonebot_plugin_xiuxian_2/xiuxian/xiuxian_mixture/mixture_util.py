@@ -24,8 +24,8 @@ class Mixture:
                 cls = MixtureTable()
                 self.all_table[table_id] = cls
                 self.all_table[table_id].item_id = table['item_id']
-                self.all_table[table_id].need_items_id = list(table['need_items_id'])
-                self.all_table[table_id].need_items_num = list(table['need_items_num'])
+                self.all_table[table_id].need_items_id = table['need_items_id']
+                self.all_table[table_id].need_items_num = table['need_items_num']
                 self.all_table[table_id].state = table['state']
                 self.all_table[table_id].is_bind_mixture = table['is_bind_mixture']
             return self.all_table

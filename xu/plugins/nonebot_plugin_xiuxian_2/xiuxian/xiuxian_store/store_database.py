@@ -7,6 +7,7 @@ from .. import DRIVER
 import threading
 
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
+from ..xiuxian_utils.clean_utils import number_to_msg
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.xiuxian2_handle import sql_message
 
@@ -121,7 +122,7 @@ class UserStoreData:
         """
         # 检查物品是否存在，存在则update
         cur = self.conn.cursor()
-        item = self.get_want_item(user_id, funds)
+        item = self.get_user_store_info(user_id)
         if item:
             # 判断是否存在，存在则update
             sql = f"UPDATE {self.sql_info_table_name} set funds=? where user_id=?"
@@ -198,7 +199,7 @@ class UserStoreData:
         :return:
         """
         sql = (f"select * from {self.sql_items_table_name} WHERE need_items_id=? and need_items_price is NOT NULL "
-               f"ORDER BY need_items_price DESC LIMIT 1")
+               f"and need_items_num > 0 ORDER BY need_items_price DESC LIMIT 1")
         cur = self.conn.cursor()
         cur.execute(sql, (item_id,))
         result = cur.fetchone()
@@ -242,7 +243,7 @@ class UserStoreData:
                 f"need_world=?, "
                 f"update_time=?, "
                 f"sell_user=? where "
-                f"user_id=?, "
+                f"user_id=? and "
                 f"need_items_id=?")
             cur.execute(sql, (
                 need_items_price,
@@ -350,11 +351,13 @@ class UserStoreHandle:
         :param user_id: 用户id
         :return: 消息列表，物品idmap
         """
-        user_info = sql_message.get_user_info_with_id(user_id)
         result = self.store_data.get_user_all_want(user_id)
+
         if not result:
             msg = ["此道友没有任何求购需要！！！"]
             return msg, {}
+
+        user_info = sql_message.get_user_info_with_id(user_id)
         user_name = user_info['user_name']
         msg_list = [f"{user_name}道友的求购列表：\n"]
         need_item_map = {}
@@ -369,12 +372,13 @@ class UserStoreHandle:
             msg_list.append(
                 f"\n编号: {num}\n"
                 f"物品名称：{need_item_name}\n"
-                f"求购价格：{need_items_price}\n"
+                f"求购价格：{number_to_msg(need_items_price)}\n"
                 f"需求数量：{need_items_num}\n"
             )
+            num += 1
         return msg_list, need_item_map
 
-    def check_user_want_item(self, user_id, item_id, get_info: str = 0) -> str | dict:
+    def check_user_want_item(self, user_id, item_id, get_info: str = 0) -> str | dict |None:
         """
         获取指定用户的指定求购物品
         :param user_id: 用户id
@@ -383,11 +387,20 @@ class UserStoreHandle:
         :return: 消息
         """
         want_item = self.store_data.get_want_item(user_id, item_id)
+
+        if not want_item:
+            if get_info:
+                return None
+            else:
+                msg = "此道友没有此物的求购需要！！！"
+                return msg
+
+        for blob_data in self.blob_data_list:
+            want_item[blob_data] = pickle.loads(want_item[blob_data])
+
         if get_info:
             return want_item
-        if not want_item:
-            msg = "此道友没有此物的求购需要！！！"
-            return msg
+
         user_info = sql_message.get_user_info_with_id(user_id)
         user_name = user_info['user_name']
         msg = f"{user_name}道友的求购：\n"
@@ -398,11 +411,11 @@ class UserStoreHandle:
         need_items_num = want_item['need_items_num']
         need_items_num = need_items_num if need_items_num else "不限"
         msg += (f"物品名称：{need_item_name}\n"
-                f"求购价格：{need_items_price}\n"
+                f"求购价格：{number_to_msg(need_items_price)}\n"
                 f"需求数量：{need_items_num}\n")
         return msg
 
-    def check_highest_want_item(self, item_id, get_info: str = 0) -> str | dict:
+    def check_highest_want_item(self, item_id, get_info: str = 0) -> str | dict | None:
         """
         获取指定物品的最高求有限购价格
         :param item_id: 物品id
@@ -411,12 +424,18 @@ class UserStoreHandle:
         """
         want_item = self.store_data.get_highest_want_item(item_id)
 
+        if not want_item:
+            if get_info:
+                return None
+            else:
+                msg = "暂时没有此物的求购需要！！！"
+                return msg
+
+        for blob_data in self.blob_data_list:
+            want_item[blob_data] = pickle.loads(want_item[blob_data])
+
         if get_info:
             return want_item
-
-        if not want_item:
-            msg = "暂时没有此物的求购需要！！！"
-            return msg
 
         need_item_id = want_item['need_items_id']
         need_item_name = items.items[need_item_id]['name']
@@ -425,7 +444,7 @@ class UserStoreHandle:
         need_items_num = need_items_num if need_items_num else "不限"
         msg = f"{need_item_name}的最高求购：\n"
         msg += (f"物品名称：{need_item_name}\n"
-                f"求购价格：{need_items_price}\n"
+                f"求购价格：{number_to_msg(need_items_price)}\n"
                 f"需求数量：{need_items_num}\n")
         return msg
 

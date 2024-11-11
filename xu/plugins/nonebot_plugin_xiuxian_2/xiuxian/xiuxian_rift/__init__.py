@@ -7,12 +7,15 @@ from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     GROUP_ADMIN,
     GROUP_OWNER,
-    MessageSegment
+    MessageSegment, Message
 )
+from nonebot.params import CommandArg
+
 from .old_rift_info import old_rift_info
 from .. import DRIVER
 from ..xiuxian_limit import limit_handle
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
+from ..xiuxian_utils.clean_utils import get_strs_from_str
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
@@ -37,10 +40,12 @@ world_rift = {}  # dict
 # 定时任务
 set_rift = require("nonebot_plugin_apscheduler").scheduler
 
-explore_rift = on_fullmatch("探索秘境", priority=5, permission=GROUP, block=True)
-rift_help = on_fullmatch("秘境帮助", priority=6, permission=GROUP, block=True)
-create_rift = on_fullmatch("生成秘境", priority=5, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
+explore_rift = on_command("探索秘境", priority=5, permission=GROUP, block=True)
+rift_help = on_command("秘境帮助", priority=6, permission=GROUP, block=True)
+create_rift = on_command("生成秘境", priority=5, permission=SUPERUSER, block=True)
 complete_rift = on_command("秘境结算", aliases={"结算秘境"}, priority=7, permission=GROUP, block=True)
+rift_protect_handle = on_command("秘境战斗事件保底", priority=5, permission=GROUP, block=True)
+rift_protect_msg = on_command("查看秘境战斗事件保底", priority=5, permission=GROUP, block=True)
 
 # 秘境类改动，将原group分隔的群秘境形式更改为位置（依旧套用group），位置实现方式为位置与状态压成元组，原状态访问[0]数据，位置访问[1]数据
 __rift_help__ = f"""
@@ -50,6 +55,9 @@ __rift_help__ = f"""
 2、秘境结算:
 >结算秘境奖励
 >获取秘境帮助信息
+3、秘境战斗事件保底开启|关闭
+>开启或关闭秘境战斗事件保底
+4、查看秘境战斗事件保底
 ——————————————
 tips：每天早八各位面将会生成一个随机等级的秘境供各位道友探索
 """.strip()
@@ -190,7 +198,6 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
 
     _, user_info, _ = check_user(event)
 
-
     user_id = user_info['user_id']
 
     is_type, msg = check_user_type(user_id, 3)  # 需要在秘境的用户
@@ -209,30 +216,78 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
             await complete_rift.finish()
         sql_message.do_work(user_id, 0)
         rift_rank = rift_info["rank"]  # 秘境等级
-        rift_type = get_story_type()  # 无事、宝物、战斗
+        rift_protect = limit_handle.get_user_rift_protect(user_id)
+        rift_type = get_story_type(rift_protect=rift_protect)  # 无事、宝物、战斗
+        if rift_protect:
+            if rift_type != "战斗":
+                if rift_protect == 1:
+                    rift_type = "战斗"
+                else:
+                    limit_handle.update_user_limit(user_id, 8, 1, 1)
         if rift_type == "无事":
             msg = random.choice(NONEMSG)
-            limit_handle.update_user_log_data(user_id, msg)
-            await bot.send(event=event, message=msg)
-            await complete_rift.finish()
         elif rift_type == "战斗":
-            rift_type = get_battle_type()
-            if rift_type == "掉血事件":
-                msg = get_dxsj_info("掉血事件", user_info)
-                limit_handle.update_user_log_data(user_id, msg)
-                await bot.send(event=event, message=msg)
-                await complete_rift.finish()
-            elif rift_type == "Boss战斗":
-                result, msg = await get_boss_battle_info(user_info, rift_rank, bot.self_id)
-                await send_msg_handler(bot, event, result)
-                limit_handle.update_user_log_data(user_id, msg)
-                await bot.send(event=event, message=msg)
-                await complete_rift.finish()
+            result, msg = await get_boss_battle_info(user_info, rift_rank, bot.self_id)
+            if rift_protect:
+                limit_handle.update_user_limit(user_id, 8, 9)
+            await send_msg_handler(bot, event, result)
         elif rift_type == "宝物":
             msg = get_treasure_info(user_info, rift_rank)
-            limit_handle.update_user_log_data(user_id, msg)
-            await bot.send(event=event, message=msg)
-            await complete_rift.finish()
+        elif rift_type == "掉血事件":
+            msg = get_dxsj_info("掉血事件", user_info)
+        limit_handle.update_user_log_data(user_id, msg)
+        await bot.send(event=event, message=msg)
+        await complete_rift.finish()
+
+
+@rift_protect_handle.handle(parameterless=[Cooldown(cd_time=2400, at_sender=False)])
+async def rift_protect_handle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    """秘境保底"""
+
+    _, user_info, _ = check_user(event)
+
+    user_id = user_info['user_id']
+
+    args_str = args.extract_plain_text()
+    arg_strs = get_strs_from_str(args_str)
+    handle_type = arg_strs[0] if arg_strs else 0
+
+    rift_protect = limit_handle.get_user_rift_protect(user_id)
+    msg = "请输入正确的指令！！开启|关闭！！"
+    if handle_type == "开启":
+        if rift_protect:
+            msg = "道友已开启秘境战斗事件保底，请勿重复开启！！！"
+        else:
+            msg = "成功开启秘境战斗事件保底！！！可以使用【查看秘境战斗事件保底】来查看距离保底探索次数！！"
+            limit_handle.update_user_limit(user_id, 8, 10)
+    if handle_type == "关闭":
+        if rift_protect:
+            if rift_protect > 10:
+                msg = f"当前无法关闭秘境保底！！！请在距离秘境保底10次以内时关闭！！！当前距离保底余剩{rift_protect}次"
+            else:
+                msg = "成功关闭秘境战斗事件保底！！！"
+                limit_handle.update_user_limit(user_id, 8, rift_protect, 1)
+        else:
+            msg = "道友未开启秘境战斗事件保底！！！"
+    await bot.send(event=event, message=msg)
+    await rift_protect_handle.finish()
+
+
+@rift_protect_msg.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
+async def rift_protect_msg_(bot: Bot, event: GroupMessageEvent):
+    """秘境保底"""
+
+    _, user_info, _ = check_user(event)
+
+    user_id = user_info['user_id']
+
+    rift_protect = limit_handle.get_user_rift_protect(user_id)
+    if rift_protect:
+        msg = f"当前距离保底余剩{rift_protect}次"
+    else:
+        msg = "道友未开启秘境战斗事件保底！！！"
+    await bot.send(event=event, message=msg)
+    await rift_protect_msg.finish()
 
 
 def is_in_groups(event: GroupMessageEvent):

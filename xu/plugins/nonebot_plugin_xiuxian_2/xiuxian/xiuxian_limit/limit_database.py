@@ -10,6 +10,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Tuple, Dict, Any
 import threading
+
+from ..xiuxian_utils.item_json import items
+
 try:
     from .. import DRIVER
 except:
@@ -68,7 +71,8 @@ class LimitData:
                 self.conn = sqlite3.connect(self.database_path, check_same_thread=False)
             print(f"记录数据库已连接！")
             self.sql_limit = ["user_id", "stone_exp_up", "send_stone", "receive_stone",
-                              "impart_pk", "two_exp_up", "offset_get", "active_get", "last_time", "state"]
+                              "impart_pk", "two_exp_up", "rift_protect",
+                              "offset_get", "active_get", "last_time", "state"]
             self._check_data()
 
     def close(self):
@@ -88,11 +92,17 @@ class LimitData:
       "receive_stone" INTEGER DEFAULT 0,
       "impart_pk" integer DEFAULT 0,
       "two_exp_up" integer DEFAULT 0,
+      "rift_protect" integer DEFAULT 0,
       "offset_get" BLOB,
       "active_get" BLOB,
       "last_time" TEXT,
       "state" BLOB
       );""")
+        try:
+            c.execute(f"select rift_protect from user_limit")
+        except sqlite3.OperationalError:
+            sql = f"ALTER TABLE user_limit ADD COLUMN rift_protect integer DEFAULT 0;"
+            c.execute(sql)
         try:
             c.execute(f"select count(1) from active")
         except sqlite3.OperationalError:
@@ -265,6 +275,7 @@ class LimitData:
         receive_stone = limit_dict['receive_stone']
         impart_pk = limit_dict['impart_pk']
         two_exp_up = limit_dict['two_exp_up']
+        rift_protect = limit_dict['rift_protect']
         offset_get = limit_dict['offset_get']
         active_get = limit_dict['active_get']
         state = limit_dict['state']
@@ -282,9 +293,10 @@ class LimitData:
                               offset_get, active_get, now_time, state, user_id))
         else:
             # 判断是否存在，不存在则INSERT
-            sql = f"""INSERT INTO user_limit (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up, offset_get, active_get, last_time, state)
-                VALUES (?,?,?,?,?,?,?,?,?,?)"""
-            cur.execute(sql, (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up,
+            sql = (f"INSERT INTO user_limit "
+                   f"(user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up, rift_protect, "
+                   f"offset_get, active_get, last_time, state) VALUES (?,?,?,?,?,?,?,?,?,?,?)")
+            cur.execute(sql, (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up, rift_protect,
                               offset_get, active_get, now_time, state))
         self.conn.commit()
 
@@ -314,6 +326,7 @@ class LimitData:
             receive_stone = limit_dict['receive_stone']
             impart_pk = limit_dict['impart_pk']
             two_exp_up = limit_dict['two_exp_up']
+            rift_protect = limit_dict['rift_protect']
             offset_get = limit_dict['offset_get']
             active_get = limit_dict['active_get']
             state = limit_dict['state']
@@ -321,8 +334,8 @@ class LimitData:
             active_get = pickle.dumps(active_get)
             state = pickle.dumps(state)
             sql = f"""INSERT INTO user_limit (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up, 
-            offset_get, active_get, last_time, state)VALUES (?,?,?,?,?,?,?,?,?,?)"""
-            cur.execute(sql, (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up,
+            rift_protect, offset_get, active_get, last_time, state)VALUES (?,?,?,?,?,?,?,?,?,?,?)"""
+            cur.execute(sql, (user_id, stone_exp_up, send_stone, receive_stone, impart_pk, two_exp_up, rift_protect,
                               offset_get, active_get, now_time, state))
         self.conn.commit()
 
@@ -345,7 +358,7 @@ class LimitHandle:
         self.msg_list = ['name', 'desc']
         self.sql_limit = LimitData().sql_limit
         self.keymap = {1: "stone_exp_up", 2: "send_stone", 3: "receive_stone", 4: "impart_pk",
-                       5: "two_exp_up", 6: "offset_get", 7: "active_get"}
+                       5: "two_exp_up", 6: "offset_get", 7: "active_get", 8: "rift_protect"}
         pass
 
     def get_active_msg(self):
@@ -380,15 +393,15 @@ class LimitHandle:
             offset_id = offset_info.get("offset_id")
             name = offset_info.get("offset_name")
             desc = offset_info.get("offset_desc")
-            items = offset_info.get("offset_items")
+            offset_items = offset_info.get("offset_items")
             last_time = offset_info.get("last_time")
             state = offset_info.get("state")  # 思恋结晶，灵石等补偿数据存放，开发中
             daily_update = offset_info.get("daily_update")
             msg = f"补偿ID：{offset_id}\n补偿名称：{name}\n补偿介绍：{desc}\n"
-            if items:
+            if offset_items:
                 msg += "包含物品：\n"
-                for item_id in items:
-                    msg += f"物品id：{item_id}  物品数量：{items[item_id]}\n"
+                for item_id in offset_items:
+                    msg += f"物品：{items.items.get(str(item_id), {}).get('name', '不存在的物品')}  物品数量：{offset_items[item_id]}\n"
             msg += f"补偿领取截止时间：{last_time}\n"
             if daily_update:
                 msg += "每日刷新领取\n"
@@ -421,7 +434,7 @@ class LimitHandle:
             if is_get_offset:
                 offset_msg += "可领取\n"
             else:
-                offset_msg += "已领取\n"
+                offset_msg += "无法领取\n"
             offset_list.append(offset_msg)
         return offset_list
 
@@ -430,7 +443,7 @@ class LimitHandle:
         更新用户限制数据
         :param user_id: 用户ID
         :param limit_num: 更新目标值
-        支持的值：1:"stone_exp_up"|2:"send_stone"|3:"receive_stone"|4:"impart_pk"|5:"two_exp_up"
+        支持的值：1:"stone_exp_up"|2:"send_stone"|3:"receive_stone"|4:"impart_pk"|5:"two_exp_up"|8:"rift_protect"
         :param update_data: 更新的数据
         :param update_type: 更新类型 0为增加 1为减少
         :return: 是否成功
@@ -476,14 +489,19 @@ class LimitHandle:
         offset_info = LimitData().get_offset_by_id(offset_id)
         daily = offset_info['daily_update']  # 是否日刷新
         start_time_str = offset_info['start_time']  # 开始日期
-        start_time = datetime.strptime(start_time_str, "%Y-%m-%d")  # 格式化至time对象
+        start_time = datetime.strptime(start_time_str, "%Y-%m-%d") \
+            if start_time_str else datetime.now()  # 格式化至time对象
         start_time = start_time.date()
         last_time_str = offset_info['last_time']  # 结束日期
         last_time = datetime.strptime(last_time_str, "%Y-%m-%d")  # 格式化至time对象
         last_time = last_time.date()
-        if start_time > now_date or last_time < now_date:
-            msg = "该补偿当前时间无法领取！！！"
+        if start_time > now_date:
+            msg = "该补偿未开放领取！！！"
             return False, msg
+        elif last_time < now_date:
+            msg = "该补偿已过期！！！"
+            return False, msg
+
         limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
         offset_get = limit_dict[object_key]
         try:
@@ -508,7 +526,7 @@ class LimitHandle:
                     offset_get[offset_id] = offset_state
                     limit_dict[object_key] = offset_get
                     LimitData().update_limit_data_with_key(limit_dict, object_key)
-                    return True  # 返回检查成功
+                    return True, ''  # 返回检查成功
             else:
                 # 非日更检查是否为新补偿
                 if start_time > last_act_time:
@@ -516,7 +534,7 @@ class LimitHandle:
                     offset_get[offset_id] = [1, now_date_str]  # 数据为列表形式，格式为，[次数，日期]
                     limit_dict[object_key] = offset_get
                     LimitData().update_limit_data_with_key(limit_dict, object_key)
-                    return True  # 返回检查成功
+                    return True, ''  # 返回检查成功
                     pass
                 msg = "道友已经领取过该补偿啦！！！！"
                 pass
@@ -525,7 +543,7 @@ class LimitHandle:
             offset_get[offset_id] = [1, now_date_str]  # 数据为列表形式，格式为，[次数，日期]
             limit_dict[object_key] = offset_get
             LimitData().update_limit_data_with_key(limit_dict, object_key)
-            return True  # 返回检查成功
+            return True, ''  # 返回检查成功
         return False, msg  # 流程均检查失败 返回检查失败
 
     def check_user_offset(self, user_id, offset_id: int) -> bool:
@@ -540,7 +558,8 @@ class LimitHandle:
         offset_info = LimitData().get_offset_by_id(offset_id)
         daily = offset_info['daily_update']  # 是否日刷新
         start_time_str = offset_info['start_time']  # 开始日期
-        start_time = datetime.strptime(start_time_str, "%Y-%m-%d")  # 格式化至time对象
+        start_time = datetime.strptime(start_time_str, "%Y-%m-%d") \
+            if start_time_str else datetime.now()  # 格式化至time对象
         start_time = start_time.date()
         last_time_str = offset_info['last_time']  # 结束日期
         last_time = datetime.strptime(last_time_str, "%Y-%m-%d")  # 格式化至time对象
@@ -730,6 +749,11 @@ class LimitHandle:
             return int(logs)
         else:
             return 0
+
+    def get_user_rift_protect(self, user_id):
+        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        rift_protect = limit_dict['rift_protect']
+        return rift_protect
 
 
 limit_handle = LimitHandle()

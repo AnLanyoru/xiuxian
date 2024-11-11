@@ -176,6 +176,7 @@ def get_paged_msg(msg_list: list, page: int | Message,
     item_num_end = item_num + per_page_item
     msg_head = [msg_head] if msg_head else []
     page_info = [f"第{page}/{page_all}页\n——tips——\n可以发送 {cmd}+页数 来查看更多页！\n"]  # 页面尾
+    print(msg_list)
     msg_list = msg_head + msg_list[item_num:item_num_end] + page_info
     return msg_list
 

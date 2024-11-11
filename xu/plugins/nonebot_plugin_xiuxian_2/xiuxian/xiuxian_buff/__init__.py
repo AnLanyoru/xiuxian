@@ -270,7 +270,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 
         result, victor = Player_fight(player1, player2, 1, bot.self_id)
         fight_len = len(result)
-        result = result[-9:]
+        result = result
         await send_msg_handler(bot, event, result)
         msg = f"获胜的是{victor}"
         await bot.send(event=event, message=msg)
@@ -347,7 +347,10 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 max_exp = XiuConfig().two_exp  # 双修上限罪魁祸首
                 # 玩家1修为增加
                 if exp >= max_exp:
-                    exp_limit_1 = max_exp
+                    if user_1['root_type'] not in ['源宇道根', '道之本源']:
+                        exp_limit_1 = max_exp
+                    else:
+                        exp_limit_1 = max_exp * 10
                 else:
                     exp_limit_1 = exp
                 if exp_limit_1 >= user_get_exp_max_1:
@@ -359,7 +362,10 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 sql_message.update_power2(user_1_id)
                 # 玩家2修为增加
                 if exp >= max_exp:
-                    exp_limit_2 = max_exp
+                    if user_2['root_type'] not in ['源宇道根', '道之本源']:
+                        exp_limit_2 = max_exp
+                    else:
+                        exp_limit_2 = max_exp * 10
                 else:
                     exp_limit_2 = exp
                 if exp_limit_2 >= user_get_exp_max_2:
@@ -481,7 +487,8 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
 
     now_time = datetime.now()
     is_type, msg = check_user_type(user_id, 1)
-    if is_type:
+    is_xu_world_type, msg = check_user_type(user_id, 5)
+    if is_type or is_xu_world_type:
         # 进入闭关的时间
         user_cd_message = sql_message.get_user_cd(user_id)
         in_closing_time = get_datetime_from_str(user_cd_message['create_time'])
@@ -489,21 +496,22 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         # 闭关时长计算(分钟) = second // 60
         time_diff = date_sub(now_time, in_closing_time)
         exp_time = time_diff // 60
-        # 用户状态检测，是否在闭关中
-        is_type, msg = check_user_type(user_id, 5)
-        if is_type:
+        close_time = exp_time
+        # 用户状态检测，是否在虚神界闭关中
+        if is_xu_world_type:
             # 虚神界闭关时长计算
             impart_data_draw = await impart_pk_check(user_id)
             impart_exp_time = int(impart_data_draw['exp_day'])
             # 余剩时间
             last_time = max(impart_exp_time - exp_time, 0)
-            xiuxian_impart.use_impart_exp_day(last_time, user_id)
             is_xu_world = '虚神界'
             # 余剩时间检测
             if last_time:
+                xiuxian_impart.use_impart_exp_day(exp_time, user_id)
                 exp_time = exp_time * 6
                 time_tipe = ''
             else:
+                xiuxian_impart.use_impart_exp_day(impart_exp_time, user_id)
                 exp_time = exp_time + impart_exp_time * 5
                 time_tipe = '耗尽'
             time_msg = f"{time_tipe}余剩虚神界内闭关时间：{last_time}分钟，"
@@ -516,7 +524,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         # 根据时间发送修为
         is_full, exp, result_msg = exp_up_by_time(user_info, exp_time)
         # 拼接提示
-        msg = (f"{is_xu_world}闭关修炼结束，{is_full}共闭关{exp_time}分钟，{time_msg}"
+        msg = (f"{is_xu_world}闭关修炼结束，{is_full}共闭关{close_time}分钟，{time_msg}"
                f"本次闭关共增加修为：{number_to(exp)}|{exp}{result_msg[0]}{result_msg[1]}")
     await bot.send(event=event, message=msg)
     await out_closing.finish()

@@ -12,17 +12,17 @@ from nonebot.adapters.onebot.v11 import (
 )
 from ..xiuxian_limit import limit_handle
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
-from ..xiuxian_utils.clean_utils import get_args_num, get_num_from_str, get_strs_from_str
+from ..xiuxian_utils.clean_utils import get_args_num, get_num_from_str, get_strs_from_str, get_paged_msg
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
 from nonebot.log import logger
-from nonebot.params import CommandArg
+from nonebot.params import CommandArg, RawCommand
 from nonebot.permission import SUPERUSER
 from .back_util import (
     get_user_main_back_msg, check_equipment_can_use,
     get_use_equipment_sql, get_shop_data, save_shop,
     get_item_msg, get_item_msg_rank, check_use_elixir,
-    get_use_jlq_msg, get_no_use_equipment_sql, get_use_tool_msg
+    get_use_jlq_msg, get_no_use_equipment_sql, get_use_tool_msg, get_user_main_back_msg_easy
 )
 from .backconfig import get_auction_config, savef_auction, remove_auction_item
 from ..xiuxian_utils.item_json import items
@@ -86,8 +86,8 @@ __back_help__ = f"""
 卸载目标装备
 4、坊市购买+物品编号:
 购买坊市内的物品，可批量购买
-5、坊市查看:
-查询坊市在售物品
+5、坊市查看(详情):
+查询坊市在售物品(详情)
 6、坊市上架:
 坊市上架 物品 金额，上架背包内的物品,最低金额50w，可批量上架
 7、坊市下架+物品编号：
@@ -224,9 +224,14 @@ async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()
         await bot.send(event=event, message=msg)
         await shop.finish()
     page = get_num_from_str(args.extract_plain_text())
+    arg = get_strs_from_str(args.extract_plain_text())
+    desc_on = True if "详情" in arg else False
     for k, v in shop_data[place_id].items():
         msg = f"编号：{k}\n"
-        msg += f"{v['desc']}"
+        if desc_on:
+            msg += f"{v['desc']}"
+        else:
+            msg += f"{v['goods_name']}"
         msg += f"\n价格：{number_to(v['price'])}|{v['price']}枚灵石\n"
         if v['user_id'] != 0:
             msg += f"拥有人：{v['user_name']}道友\n"
@@ -273,7 +278,7 @@ async def shop_added_by_admin_(bot: Bot, event: GroupMessageEvent, args: Message
         else:
             continue
     if goods_id == -1:
-        msg = "不存在物品：{goods_name}的信息，请检查名字是否输入正确！"
+        msg = f"不存在该物品的信息，请检查名字是否输入正确！"
         await bot.send(event=event, message=msg)
         await shop_added_by_admin.finish()
     price = None
@@ -641,42 +646,32 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
 
 
 @main_back.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
-async def main_back_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+async def main_back_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(), cmd: str = RawCommand()):
     """我的背包
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
-    is_user, user_info, msg = check_user(event)
+    _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
-    msg = get_user_main_back_msg(user_id)
 
-    args = args.extract_plain_text().strip()
-    page = re.findall(r"\d+", args)  # 背包页数
-
-    page_all = (len(msg) // 12) + 1 if len(msg) % 12 != 0 else len(msg) // 12  # 背包总页数
-
-    if page:
-        pass
+    args = args.extract_plain_text()
+    arg = get_strs_from_str(args)
+    desc_on = True if "详情" in arg else False
+    page = get_args_num(args, 1)  # 背包页数
+    page = page if page else 1
+    if desc_on:
+        msg = get_user_main_back_msg(user_id)
+        page_all = 12
     else:
-        page = ["1"]
-    page = int(page[0])
-    if page_all < page != 1:
-        msg = "道友的背包没有那么广阔！！！"
-        await bot.send(event=event, message=msg)
-        await main_back.finish()
-    if len(msg) != 0:
-        # 获取页数物品数量
-        item_num = page * 12 - 12
-        item_num_end = item_num + 12
-        msg = [f"\n{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"] + msg[item_num:item_num_end]
-        msg += [f"\n第 {page}/{page_all} 页\n☆————tips————☆\n可以发送背包+页数来查看更多页数的物品哦"]
+        msg = get_user_main_back_msg_easy(user_id)
+        page_all = 30
+
+    if msg:
+        msg_head = f"\n{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"
+        msg = get_paged_msg(msg_list=msg, page=page, cmd=cmd, per_page_item=page_all, msg_head=msg_head)
     else:
         msg = ["道友的背包空空如也！"]
-    try:
-        await send_msg_handler(bot, event, '背包', bot.self_id, msg)
-    except ActionFailed:
-        await main_back.finish("查看背包失败!", reply_message=True)
-
+    await send_msg_handler(bot, event, '背包', bot.self_id, msg)
     await main_back.finish()
 
 
@@ -958,7 +953,7 @@ async def check_items_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         except KeyError:
             msg = "请输入正确的物品id！！！"
     elif items_name:
-        items_id = items.items_map.get(items_name)
+        items_id = items.items_map.get(items_name[0])
         if items_id:
             msg = get_item_msg(items_id)
         else:

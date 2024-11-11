@@ -1,13 +1,9 @@
-import pickle
-from pathlib import Path
-import os
+from typing import Tuple, Any
 
 from ..xiuxian_limit import LimitData
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from ..xiuxian_config import convert_rank
-from ..xiuxian_utils.utils import (
-    number_to, MyEncoder
-)
+from ..xiuxian_utils.utils import number_to
 
 sql_message = XiuxianDateManage()  # sql类
 
@@ -24,7 +20,7 @@ sql_message = XiuxianDateManage()  # sql类
 # 检查限制对象方法迁入数据库
 class CheckLimit:
     def __init__(self):
-        self.per_rank_give_stone = 2500000  # 每个小境界增加收送灵石上限
+        self.per_rank_give_stone = 1000000000  # 每个小境界增加收送灵石上限
         self.per_rank_value = 600000  # 每级物品价值增加
         self.max_stone_exp_up = 10000000000  # 灵石修炼上限
 
@@ -98,7 +94,7 @@ class CheckLimit:
         LimitData().update_limit_data(limit_dict)
         return max_send_stone_num - new_date
 
-    def send_stone_check(self, send_user_id, receive_user_id, num) -> tuple[str, bool]:
+    def send_stone_check(self, send_user_id, receive_user_id, num) -> tuple[str, str, bool]:
         """
         检查并操作送灵石数量，成功则修改数值，失败则无事发生
         :param send_user_id: 送灵石用户ID
@@ -115,16 +111,17 @@ class CheckLimit:
             send_left = self.update_send_stone_limit(send_user_id, result_send)
             receive_name = receive_user_info["user_name"]
             send_name = send_user_info["user_name"]
-            msg = (
-                f"{send_name}道友成功赠送{receive_name}道友{number_to(num)}|{num}枚灵石"
-                f"\n{send_name}道友今日还可送{number_to(send_left)}|{send_left}枚灵石"
-                f"\n{receive_name}道友今日还可收取{number_to(receive_left)}|{receive_left}枚灵石")
-            return msg, True
+            send_msg = f"{send_name}道友成功赠送{receive_name}道友{number_to(num)}|{num}枚灵石"
+            limit_msg = (f"\n{send_name}道友今日还可送{number_to(send_left)}|{send_left}枚灵石"
+                         f"\n{receive_name}道友今日还可收取{number_to(receive_left)}|{receive_left}枚灵石"
+                         f"\n当前为100倍送灵石上限\n"
+                         f"送灵石上限将于11.15日恢复至正常")
+            return send_msg, limit_msg, True
         else:
             receive_msg = result_receive if not is_receive_pass else ""
             send_msg = result_send if not is_send_pass else ""
-            msg = send_msg + receive_msg
-            return msg, False
+            limit_msg = send_msg + receive_msg
+            return '', limit_msg, False
 
     def stone_exp_up_check(self, user_id, num):
         limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
@@ -156,5 +153,4 @@ def reset_stone_exp_up():
 def reset_send_stone():
     LimitData().redata_limit_by_key("send_stone")
     LimitData().redata_limit_by_key("receive_stone")
-    return  True
-
+    return True

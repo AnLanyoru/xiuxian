@@ -1,6 +1,5 @@
 import random
 from nonebot.log import logger
-from nonebot.rule import Rule
 from nonebot import get_bots, get_bot, require
 from enum import IntEnum, auto
 from collections import defaultdict

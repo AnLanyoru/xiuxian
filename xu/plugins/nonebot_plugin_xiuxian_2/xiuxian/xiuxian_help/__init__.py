@@ -1,34 +1,17 @@
-import re
-import random
-
 from ..xiuxian_sect import get_config
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, BuffJsonDate,
-    get_main_info_msg, UserBuffDate, get_sec_msg
+    XiuxianDateManage
 )
-from ..xiuxian_utils.other_set import OtherSet
-from nonebot import on_command, on_fullmatch, require
-from nonebot.log import logger
+from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
-    Message,
-    GroupMessageEvent,
-    MessageSegment,
-    ActionFailed
+    GroupMessageEvent
 )
 from ..xiuxian_utils.lay_out import Cooldown
-from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
-from datetime import datetime, timedelta
-from ..xiuxian_config import XiuConfig, convert_rank, JsonConfig
-from ..xiuxian_utils.utils import (
-    check_user, number_to,
-    get_msg_pic, send_msg_handler, CommandObjectID,
-    Txt2Img
-)
-from ..xiuxian_utils.clean_utils import get_num_from_str, get_strs_from_str
-from ..xiuxian_utils.item_json import items
+from ..xiuxian_config import XiuConfig
+from ..xiuxian_utils.utils import CommandObjectID
 
 sql_message = XiuxianDateManage()  # sql类
 config = get_config()
@@ -45,6 +28,7 @@ sect_help_owner = on_command("宗主必看", aliases={"宗主"}, priority=20, pe
 sect_help_member = on_command("成员必看", aliases={"宗门指令"}, priority=20, permission=GROUP, block=True)
 buff_help = on_command("功法帮助", aliases={"功法", "技能", "神通"}, priority=2, permission=GROUP, block=True)
 buff_home = on_command("洞天福地帮助", aliases={"灵田帮助", "灵田", "洞天福地"}, priority=20, permission=GROUP, block=True)
+store_help = on_command("灵宝楼帮助", aliases={"灵宝楼", "个人摊位", "个人摊位帮助"}, priority=20, permission=GROUP, block=True)
 
 __xiuxian_notes__ = f"""
 ————修仙菜单————
@@ -149,6 +133,22 @@ __home_help__ = f"""
 >收取灵田内生长的药材
 ——tips——
 灵田基础成长时间为47小时
+""".strip()
+
+
+__store_help__ = f"""
+——灵宝楼帮助——
+|灵宝楼求购 物品 价格 数量
+向本位面灵宝楼提交求购物品申请
+|灵宝楼出售 物品 道号
+向有求购的玩家出售对应物品
+|灵宝楼求购查看 物品
+查看对应物品的最高求购价
+|我的灵宝楼求购
+查看自身灵宝楼求购
+——tips——
+测试中
+暂不支持灵宝楼取出灵石
 """.strip()
 
 
@@ -266,7 +266,7 @@ async def sect_help_member_(bot: Bot, event: GroupMessageEvent):
 
 
 @buff_help.handle(parameterless=[Cooldown(at_sender=False)])
-async def buff_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
+async def buff_help_(bot: Bot, event: GroupMessageEvent):
     """功法帮助"""
     msg = __buff_help__
     await bot.send(event=event, message=msg)
@@ -279,3 +279,11 @@ async def buff_home_(bot: Bot, event: GroupMessageEvent):
     msg = __home_help__
     await bot.send(event=event, message=msg)
     await buff_home.finish()
+
+
+@store_help.handle(parameterless=[Cooldown(at_sender=False)])
+async def store_help_(bot: Bot, event: GroupMessageEvent):
+    """灵田帮助"""
+    msg = __store_help__
+    await bot.send(event=event, message=msg)
+    await store_help.finish()

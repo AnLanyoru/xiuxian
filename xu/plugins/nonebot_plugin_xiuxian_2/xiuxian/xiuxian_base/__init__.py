@@ -58,6 +58,7 @@ gm_command = on_command("生成灵石", permission=SUPERUSER, priority=10, block
 gm_command_miss = on_command("思恋结晶", permission=SUPERUSER, priority=10, block=True)
 gmm_command = on_command("灵根更换", permission=SUPERUSER, priority=10, block=True)
 cz = on_command('创造', permission=SUPERUSER, priority=15, block=True)
+cz_ts = on_command('调试创造', permission=SUPERUSER, priority=15, block=True)
 rob_stone = on_command("抢灵石", priority=5, permission=GROUP, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
 user_stamina = on_command('我的体力', aliases={'体力'}, priority=5, permission=GROUP, block=True)
@@ -692,26 +693,26 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                     await give_stone.finish()
                 if place.is_the_same_place(give_qq, user_id):
                     num = int(give_stone_num)
-                    msg, is_pass = CheckLimit().send_stone_check(user_id, give_qq, num)
+                    send_msg, msg, is_pass = CheckLimit().send_stone_check(user_id, give_qq, num)
                     if is_pass:
                         sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
                         sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
-                        msg = f"\n{user_name}道友与好友在同一位置，当面赠送：\n" + msg
-                        limit_handle.update_user_log_data(user_id, msg)
-                        limit_handle.update_user_log_data(give_qq, msg)
+                        msg = f"\n{user_name}道友与好友在同一位置，当面赠送：\n" + send_msg + msg
+                        limit_handle.update_user_log_data(user_id, send_msg)
+                        limit_handle.update_user_log_data(give_qq, send_msg)
                     await bot.send(event=event, message=msg)
                     await give_stone.finish()
 
                 give_stone_num2 = int(give_stone_num) * 0.1
                 num = int(give_stone_num) - int(give_stone_num2)
-                msg, is_pass = CheckLimit().send_stone_check(user_id, give_qq, num)
+                send_msg, msg, is_pass = CheckLimit().send_stone_check(user_id, give_qq, num)
                 if is_pass:
                     sql_message.update_ls(user_id, give_stone_num, 2)  # 减少用户灵石
                     sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
-                    msg = (f"\n{user_name}道友与好友不在一地，通过远程邮寄赠送：\n" + msg +
+                    msg = (f"\n{user_name}道友与好友不在一地，通过远程邮寄赠送：\n" + send_msg + msg +
                            f"\n收取远程邮寄手续费{(number_to(give_stone_num2))}|{int(give_stone_num2)}枚！")
-                    limit_handle.update_user_log_data(user_id, msg)
-                    limit_handle.update_user_log_data(give_qq, msg)
+                    limit_handle.update_user_log_data(user_id, send_msg)
+                    limit_handle.update_user_log_data(give_qq, send_msg)
                 await bot.send(event=event, message=msg)
                 await give_stone.finish()
             else:
@@ -902,6 +903,65 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         msg = "请输入正确指令！例如：创造 物品 道号 数量 (道号为all赠送所有用户)"
     await bot.send(event=event, message=msg)
     await cz.finish()
+
+
+@cz_ts.handle(parameterless=[Cooldown(at_sender=False)])
+async def cz_ts_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    """创造物品"""
+    # 这里曾经是风控模块，但是已经不再需要了
+    msg = args.extract_plain_text()
+    strs = get_strs_from_str(msg)
+    nums = get_num_from_str(msg)
+    if strs:
+        goods_name = strs[0]
+        if len(strs) > 1:
+            send_name = strs[1]
+        else:
+            send_name = None
+    else:
+        goods_name = None
+        send_name = None
+        msg = f"请输入正确指令！例如：创造 物品 道号 数量 (道号为all赠送所有用户)"
+        await bot.send(event=event, message=msg)
+        await cz_ts.finish()
+    if nums:
+        goods_num = int(nums[0])
+    else:
+        goods_num = 1
+    goods_id = -1
+    goods_type = None
+    is_item = False
+    for k, v in items.items.items():
+        if goods_name == v['name']:
+            goods_id = k
+            goods_type = v['type']
+            is_item = True
+            break
+        else:
+            continue
+    if is_item:
+        pass
+    else:
+        msg = f"物品不存在！！！"
+        await bot.send(event=event, message=msg)
+        await cz_ts.finish()
+    give_qq = sql_message.get_user_id(send_name)  # 使用道号获取用户id，代替原at
+    if give_qq:
+        give_user = sql_message.get_user_info_with_id(give_qq)
+        if give_user:
+            sql_message.send_back(give_qq, goods_id, goods_name, goods_type, goods_num, 0)
+            msg = f"{give_user['user_name']}道友获得了系统赠送的{goods_num}个{goods_name}！"
+        else:
+            msg = f"对方未踏入修仙界，不可赠送！"
+    elif send_name == "all":
+        all_users = sql_message.get_all_user_id()
+        for user_id in all_users:
+            sql_message.send_back(user_id, goods_id, goods_name, goods_type, goods_num, 0)  # 给每个用户发送物品
+        msg = f"赠送所有用户{goods_name}{goods_num}个,请注意查收！"
+    else:
+        msg = "请输入正确指令！例如：创造 物品 道号 数量 (道号为all赠送所有用户)"
+    await bot.send(event=event, message=msg)
+    await cz_ts.finish()
 
 
 # GM改灵根

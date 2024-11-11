@@ -50,7 +50,7 @@ TREASUREMSG_5 = [
 
 STORY = {
     "宝物": {
-        "type_rate": 400,
+        "type_rate": 445,
         "功法": {
             "type_rate": 50,
         },
@@ -61,10 +61,10 @@ STORY = {
             "type_rate": 50,
         },
         "法器": {
-            "type_rate": 5,
+            "type_rate": 15,
         },
         "防具": {
-            "type_rate": 8,
+            "type_rate": 20,
         },
         "灵石": {
             "type_rate": 100,
@@ -72,9 +72,8 @@ STORY = {
         }
     },
     "战斗": {
-        "type_rate": 50,
+        "type_rate": 40,
         "Boss战斗": {
-            "type_rate": 200,
             "Boss数据": {
                 "name": ["墨蛟", "婴鲤兽", "千目妖", "鸡冠蛟", "妖冠蛇", "铁火蚁", "天晶蚁", "银光鼠", "紫云鹰",
                          "狗青"],
@@ -99,30 +98,30 @@ STORY = {
                 "desc": "道友大战一番不敌{}，仓皇逃窜！",
             }
         },
-        "掉血事件": {
-            "type_rate": 25,
-            "desc": [
-                "秘境内竟然散布着浓烈的毒气，道友贸然闯入！{}!",
-                "秘境内竟然藏着一群未知势力，道友被打劫了！{}!"
-            ],
-            "cost": {
-                "exp": {
-                    "type_rate": 25,
-                    "value": [0.003, 0.004, 0.005]
-                },
-                "hp": {
-                    "type_rate": 30,
-                    "value": [0.3, 0.5, 0.7]
-                },
-                "stone": {
-                    "type_rate": 25,
-                    "value": [5000000, 10000000, 15000000]
-                },
-            }
-        },
     },
     "无事": {
         "type_rate": 50,
+    },
+    "掉血事件": {
+        "type_rate": 3,
+        "desc": [
+            "秘境内竟然散布着浓烈的毒气，道友贸然闯入！{}!",
+            "秘境内竟然藏着一群未知势力，道友被打劫了！{}!"
+        ],
+        "cost": {
+            "exp": {
+                "type_rate": 25,
+                "value": [0.003, 0.004, 0.005, 0.01]
+            },
+            "hp": {
+                "type_rate": 30,
+                "value": [0.3, 0.5, 0.7]
+            },
+            "stone": {
+                "type_rate": 25,
+                "value": [5000000, 10000000, 15000000]
+            },
+        }
     }
 }
 
@@ -199,9 +198,8 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
 def get_dxsj_info(rift_type, user_info):
     """获取掉血事件的内容"""
     msg = None
-    battle_data = STORY['战斗']
-    cost_type = get_dict_type_rate(battle_data[rift_type]['cost'])
-    value = random.choice(battle_data[rift_type]['cost'][cost_type]['value'])
+    cost_type = get_dict_type_rate(STORY[rift_type]['cost'])
+    value = random.choice(STORY[rift_type]['cost'][cost_type]['value'])
     if cost_type == "exp":
         exp = int(user_info['exp'] * value)
         user_id = user_info['user_id']
@@ -217,18 +215,18 @@ def get_dxsj_info(rift_type, user_info):
         nowmp = user_info['mp'] - exp if (user_info['mp'] - exp) > 0 else 1
         sql_message.update_user_hp_mp(user_info['user_id'], nowhp, nowmp)  # 修为掉了，血量、真元也要掉
 
-        msg = random.choice(battle_data[rift_type]['desc']).format(f"修为减少了：{number_to(exp)}|{exp}点！")
+        msg = random.choice(STORY[rift_type]['desc']).format(f"修为减少了：{number_to(exp)}|{exp}点！")
     elif cost_type == "hp":
         cost_hp = int((user_info['exp'] / 2) * value)
         now_hp = user_info['hp'] - cost_hp
         if now_hp < 0:
             now_hp = 1
         sql_message.update_user_hp_mp(user_info['user_id'], now_hp, user_info['mp'])
-        msg = random.choice(battle_data[rift_type]['desc']).format(f"气血减少了：{number_to(cost_hp)}|{cost_hp}点！")
+        msg = random.choice(STORY[rift_type]['desc']).format(f"气血减少了：{number_to(cost_hp)}|{cost_hp}点！")
     elif cost_type == "stone":
         cost_stone = value
         sql_message.update_ls(user_info['user_id'], cost_stone, 2)  # 负数也挺正常
-        msg = random.choice(battle_data[rift_type]['desc']).format(
+        msg = random.choice(STORY[rift_type]['desc']).format(
             f"灵石减少了：{number_to(cost_stone)}|{cost_stone}枚！")
     return msg
 
@@ -286,7 +284,6 @@ def get_treasure_info(user_info, rift_rank):
         else:
             msg = '道友在秘境中获得一本书籍，翻开一看居然是四库全书...'
 
-
     elif rift_type == "灵石":
         stone_base = STORY['宝物']['灵石']['stone']
         user_rank = random.randint(1, 10)  # 随机等级
@@ -316,7 +313,7 @@ def get_rift_type():
     return get_dict_type_rate(data_dict)
 
 
-def get_story_type():
+def get_story_type(rift_protect):
     """根据概率返回事件类型"""
     data_dict = STORY
     return get_dict_type_rate(data_dict)

@@ -223,7 +223,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """根据USER_ID获取用户信息,不获取功法加成"""
         cur = self.conn.cursor()
         sql = f"select * from user_xiuxian WHERE user_id=?"
-        cur.execute(sql, (user_id,))
+        cur.execute(sql, (str(user_id),))
         result = cur.fetchone()
         if result:
             columns = [column[0] for column in cur.description]
@@ -388,7 +388,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         data = jsondata.level_data()
         return data[name]['HP']
 
-    def get_level_cost(self, name):
+    def get_level_cost(self, name):  # 笑死根本没用
         """获取炼体境界倍率"""
         data = jsondata.exercises_level_data()
         return data[name]['cost_exp'], data[name]['cost_stone']
@@ -1031,7 +1031,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """更新用户HP,MP,ATK信息"""
         sql = f"UPDATE user_xiuxian SET hp=?,mp=?,atk=? WHERE user_id=?"
         cur = self.conn.cursor()
-        print(f"收到血量更改请求: {hp}")
         cur.execute(sql, (str(hp), str(mp), str(atk), user_id))
         self.conn.commit()
 
@@ -1403,7 +1402,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
     def get_item_by_good_id_and_user_id(self, user_id, goods_id):
         """根据物品id、用户id获取物品信息"""
-        sql = f"select * from back WHERE user_id=? and goods_id=? and goods_num > 0"
+        sql = f"select * from back WHERE user_id=? and goods_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id, goods_id))
         result = cur.fetchone()

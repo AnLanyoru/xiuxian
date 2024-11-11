@@ -2,7 +2,7 @@ import random
 import asyncio
 import re
 from nonebot import on_command, on_fullmatch
-from nonebot.params import EventPlainText, CommandArg
+from nonebot.params import EventPlainText, CommandArg, RawCommand
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
@@ -10,6 +10,8 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed, Message
 )
+
+from ..xiuxian_utils.clean_utils import get_strs_from_str, get_args_num, get_paged_msg
 from ..xiuxian_utils.lay_out import Cooldown
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, get_player_info, save_player_info,
@@ -24,7 +26,7 @@ from .mixelixirutil import get_mix_elixir_msg, tiaohe, check_mix, make_dict
 from ..xiuxian_config import convert_rank, XiuConfig
 from datetime import datetime
 from .mix_elixir_config import MIXELIXIRCONFIG
-from ..xiuxian_back.back_util import get_user_elixir_back_msg, get_user_yaocai_back_msg
+from ..xiuxian_back.back_util import get_user_elixir_back_msg, get_user_yaocai_back_msg, get_user_yaocai_back_msg_easy
 
 sql_message = XiuxianDateManage()  # sql类
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
@@ -354,8 +356,8 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
             await bot.send(event=event, message=msg)
             await mix_make.finish()
         # 检测通过
-        zhuyao_info = Items().get_data_by_item_id(zhuyao_goods_id)
-        yaoyin_info = Items().get_data_by_item_id(yaoyin_goods_id)
+        zhuyao_info = items.get_data_by_item_id(zhuyao_goods_id)
+        yaoyin_info = items.get_data_by_item_id(yaoyin_goods_id)
         if await tiaohe(zhuyao_info, zhuyao_num, yaoyin_info, yaoyin_num):  # 调和失败
             msg = f"冷热调和失败！小心炸炉哦~"
             await bot.send(event=event, message=msg)
@@ -364,12 +366,12 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
             elixir_config = {
                 str(zhuyao_info['主药']['type']): zhuyao_info['主药']['power'] * zhuyao_num
             }
-            fuyao_info = Items().get_data_by_item_id(fuyao_goods_id)
+            fuyao_info = items.get_data_by_item_id(fuyao_goods_id)
             elixir_config[str(fuyao_info['辅药']['type'])] = fuyao_info['辅药']['power'] * fuyao_num
             is_mix, id = await check_mix(elixir_config)
             if is_mix:
                 mix_elixir_info = get_player_info(user_id, 'mix_elixir_info')
-                goods_info = Items().get_data_by_item_id(id)
+                goods_info = items.get_data_by_item_id(id)
                 # 加入传承
                 impart_data = xiuxian_impart.get_user_info_with_id(user_id)
                 impart_mix_per = impart_data['impart_mix_per'] if impart_data is not None else 0
@@ -466,44 +468,33 @@ async def elixir_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 
 
 @yaocai_back.handle(parameterless=[Cooldown(at_sender=False)])
-async def yaocai_back_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+async def yaocai_back_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(), cmd: str = RawCommand()):
     """药材背包
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
     """
 
     _, user_info, _ = check_user(event)
-
     user_id = user_info['user_id']
-    msg = get_user_yaocai_back_msg(user_id)
 
-    args = args.extract_plain_text().strip()
-    page = re.findall(r"\d+", args)  # 背包页数
-
-    page_all = (len(msg) // 12) + 1 if len(msg) % 12 != 0 else len(msg) // 12  # 背包总页数
-
-    if page:
-        pass
+    args = args.extract_plain_text()
+    arg = get_strs_from_str(args)
+    desc_on = True if "详情" in arg else False
+    page = get_args_num(args, 1)  # 背包页数
+    page = page if page else 1
+    if desc_on:
+        msg = get_user_yaocai_back_msg(user_id)
+        page_all = 12
     else:
-        page = ["1"]
-    page = int(page[0])
-    if page_all < page != 1:
-        msg = "道友的药材背包没有那么广阔！！！"
-        await bot.send(event=event, message=msg)
-        await yaocai_back.finish()
-    if len(msg) != 0:
-        # 获取页数物品数量
-        item_num = page * 12 - 12
-        item_num_end = item_num + 12
-        msg = [f"\n{user_info['user_name']}的药材背包"] + msg[item_num:item_num_end]
-        msg += [f"\n第 {page}/{page_all} 页\n☆————tips————☆\n可以发送药材背包+页数来查看更多页数的物品哦"]
+        msg = get_user_yaocai_back_msg_easy(user_id)
+        page_all = 30
+
+    if msg:
+        msg_head = f"\n{user_info['user_name']}的药材背包"
+        msg = get_paged_msg(msg_list=msg, page=page, cmd=cmd, per_page_item=page_all, msg_head=msg_head)
     else:
         msg = ["道友的药材背包空空如也！"]
-    try:
-        await send_msg_handler(bot, event, '药材背包', bot.self_id, msg)
-    except ActionFailed:
-        await yaocai_back.finish("查看背包失败!", reply_message=True)
-
+    await send_msg_handler(bot, event, '背包', bot.self_id, msg)
     await yaocai_back.finish()
 
 
@@ -513,7 +504,7 @@ async def check_yaocai_name_in_back(user_id, yaocai_name, yaocai_num):
     user_back = sql_message.get_back_msg(user_id)
     for back in user_back:
         if back['goods_type'] == '药材':
-            if Items().get_data_by_item_id(back['goods_id'])['name'] == yaocai_name:
+            if items.get_data_by_item_id(back['goods_id'])['name'] == yaocai_name:
                 if int(back['goods_num']) >= int(yaocai_num):
                     flag = True
                     goods_id = back['goods_id']
@@ -533,7 +524,7 @@ async def check_ldl_name_in_back(user_id, ldl_name):
         if back['goods_type'] == '炼丹炉':
             if back['goods_name'] == ldl_name:
                 flag = True
-                goods_info = Items().get_data_by_item_id(back['goods_id'])
+                goods_info = items.get_data_by_item_id(back['goods_id'])
                 break
             else:
                 continue
