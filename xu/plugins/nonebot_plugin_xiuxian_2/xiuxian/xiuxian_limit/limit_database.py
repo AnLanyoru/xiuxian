@@ -32,17 +32,7 @@ def get_num_from_str(msg) -> list:
     return num
 
 
-class Date:
-    def __init__(self):
-        self.base_date = datetime.now()
-        self.base_date_change = self.base_date.date()
-
-    def today(self):
-        return self.base_date_change
-
-
-date = Date()
-
+date = datetime.now().date()
 
 
 class LimitData:

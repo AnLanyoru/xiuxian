@@ -1,41 +1,27 @@
 import psycopg2
-
+from nonebot import logger
 from database_config import database_config  # 这是上面的config()代码块，已经保存在config.py文件中
 
 
-def connect():
-    """ Connect to the PostgreSQL database server """
-    conn = None
-    try:
-        # read connection parameters
+class DataBase:
+    def __init__(self):
         params = database_config()
+        logger.opt(colors=True).success(f"<green>尝试登录到数据库</green>")
+        self.conn = psycopg2.connect(
+            database=params['database'],
+            user=params['user'],
+            password=params['password'],
+            host=params['host'],
+            port=params['post'])
+        self.cur = self.conn.cursor()
+        self.cur.execute('SELECT version()')
+        db_version = self.cur.fetchone()
+        logger.opt(colors=True).success(f"<green>登录数据库成功，数据库版本：{db_version}</green>")
 
-        # connect to the PostgreSQL server
-        print('Connecting to the PostgreSQL database...')
-        conn = psycopg2.connect(database=params['database'], user=params['user'],
-                                password=params['password'], host=params['host'],
-                                port=params['post'])
-
-        # create a cursor
-        cur = conn.cursor()
-
-        # execute a statement
-        print('PostgreSQL database version:')
-        cur.execute('SELECT version()')
-
-        # display the PostgreSQL database server version
-        db_version = cur.fetchone()
-        print(db_version)
-
-        # close the communication with the PostgreSQL
-        cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if conn is not None:
-            conn.close()
-            print('Database connection closed.')
+    def close_db(self):
+        self.cur.close()
+        self.conn.close()
 
 
-if __name__ == '__main__':
-    connect()
+database = DataBase()
+
