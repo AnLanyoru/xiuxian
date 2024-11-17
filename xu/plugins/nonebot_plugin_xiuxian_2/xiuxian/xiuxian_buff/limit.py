@@ -20,7 +20,7 @@ sql_message = XiuxianDateManage()  # sql类
 # 检查限制对象方法迁入数据库
 class CheckLimit:
     def __init__(self):
-        self.per_rank_give_stone = 1000000000  # 每个小境界增加收送灵石上限
+        self.per_rank_give_stone = 7000000  # 每个小境界增加收送灵石上限
         self.per_rank_value = 600000  # 每级物品价值增加
         self.max_stone_exp_up = 10000000000  # 灵石修炼上限
 
@@ -57,7 +57,7 @@ class CheckLimit:
         limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
         had_receive_stone_num = limit_dict.get("receive_stone")
         left_receive_stone_num = max_receive_stone_num - had_receive_stone_num
-        if stone_prepare_receive >= left_receive_stone_num:
+        if stone_prepare_receive > left_receive_stone_num:
             msg = f"\n道友欲送灵石数量超出对方今日收灵石上限\n对方今日还可收{number_to(left_receive_stone_num)}|{left_receive_stone_num}灵石"
             return msg, False
         else:
@@ -113,9 +113,7 @@ class CheckLimit:
             send_name = send_user_info["user_name"]
             send_msg = f"{send_name}道友成功赠送{receive_name}道友{number_to(num)}|{num}枚灵石"
             limit_msg = (f"\n{send_name}道友今日还可送{number_to(send_left)}|{send_left}枚灵石"
-                         f"\n{receive_name}道友今日还可收取{number_to(receive_left)}|{receive_left}枚灵石"
-                         f"\n当前为100倍送灵石上限\n"
-                         f"送灵石上限将于11.15日恢复至正常")
+                         f"\n{receive_name}道友今日还可收取{number_to(receive_left)}|{receive_left}枚灵石")
             return send_msg, limit_msg, True
         else:
             receive_msg = result_receive if not is_receive_pass else ""

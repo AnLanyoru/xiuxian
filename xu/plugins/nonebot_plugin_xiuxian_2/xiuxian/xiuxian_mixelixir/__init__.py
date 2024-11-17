@@ -138,7 +138,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
     mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
     GETCONFIG = {
         "time_cost": 47,  # 单位小时
-        "加速基数": 0.15
+        "加速基数": 0.10
     }
     last_time = mix_elixir_info['收取时间']
     if last_time != 0:

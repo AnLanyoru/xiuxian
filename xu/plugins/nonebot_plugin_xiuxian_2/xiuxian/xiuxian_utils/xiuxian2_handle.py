@@ -1104,6 +1104,22 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             results.append(back_dict)
         return results
 
+    def get_back_msg_all(self, user_id):
+        """获取用户背包信息"""
+        sql = f"SELECT * FROM back WHERE user_id=?"
+        cur = self.conn.cursor()
+        cur.execute(sql, (user_id,))
+        result = cur.fetchall()
+        if not result:
+            return None
+
+        columns = [column[0] for column in cur.description]
+        results = []
+        for row in result:
+            back_dict = dict(zip(columns, row))
+            results.append(back_dict)
+        return results
+
     def get_back_skill_msg(self, user_id, goods_type):
         """
         获取用户背包内技能信息
@@ -1424,7 +1440,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """
         使用物品
         :num 减少数量  默认1
-        :use_key 是否使用，丹药使用才传 默认0
+        :use_key 是否使用，丹药使用传1 优先使用非绑定物品0  优先使用绑定物品2
         """
         back = self.get_item_by_good_id_and_user_id(user_id, goods_id)
         goods_num = back['goods_num'] - num
@@ -1432,14 +1448,28 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             day_num = back['day_num'] + num
             all_num = back['all_num'] + num
             bind_num = max(back['bind_num'] - num, 0)
+        elif use_key == 2:
+            day_num = back['day_num']
+            all_num = back['all_num']
+            bind_num = max(back['bind_num'] - num, 0)
         else:
             day_num = back['day_num']
             all_num = back['all_num']
-            bind_num = min(back['bind_num'], goods_num)
+            bind_num = back['bind_num']
+        bind_num = min(bind_num, goods_num)
         now_time = datetime.now()
         sql_str = (f"UPDATE back set update_time='{now_time}',action_time='{now_time}',goods_num={goods_num},"
                    f"day_num={day_num},all_num={all_num},bind_num={bind_num} "
                    f"WHERE user_id={user_id} and goods_id={goods_id}")
+        cur = self.conn.cursor()
+        cur.execute(sql_str)
+        self.conn.commit()
+
+    def del_back_item(self, user_id, goods_id):
+        """
+        删除物品
+        """
+        sql_str = f"DELETE FROM back WHERE user_id={user_id} and goods_id={goods_id}"
         cur = self.conn.cursor()
         cur.execute(sql_str)
         self.conn.commit()

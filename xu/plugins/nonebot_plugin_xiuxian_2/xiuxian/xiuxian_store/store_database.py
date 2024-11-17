@@ -192,24 +192,40 @@ class UserStoreData:
         return item_dict
         pass
 
-    def get_highest_want_item(self, item_id):
+    def get_highest_want_item(self, user_id, item_id, sell_item_num):
         """
         获取指定物品的最高求购者
+        :param user_id:
+        :param sell_item_num: 出售数量
         :param item_id: 物品id
         :return:
         """
         sql = (f"select * from {self.sql_items_table_name} WHERE need_items_id=? and need_items_price is NOT NULL "
-               f"and need_items_num > 0 ORDER BY need_items_price DESC LIMIT 1")
+               f"and user_id !={user_id} ORDER BY need_items_price DESC")
         cur = self.conn.cursor()
         cur.execute(sql, (item_id,))
-        result = cur.fetchone()
+        result = cur.fetchall()
         if not result:
             return None
 
         columns = [column[0] for column in cur.description]
-        item_dict = dict(zip(columns, result))
-        return item_dict
-        pass
+        for row in result:
+            want_item = dict(zip(columns, row))
+
+            want_user_id = want_item['user_id']
+            want_item_num = want_item['need_items_num']
+            want_item_price = want_item['need_items_price']
+            get_stone = want_item_price * sell_item_num
+            if want_item_num:  # 有数量限制
+                if want_item_num < sell_item_num:
+                    continue
+                return want_item
+            else:  # 无数量限制，检查资金是否充足
+                want_item_funds = user_store.get_user_funds(want_user_id)  # 获取玩家摊位资金
+                if get_stone > want_item_funds:  # 资金不足
+                    continue
+                return want_item
+        return None
 
     def user_item_want_make(
             self,
@@ -415,14 +431,15 @@ class UserStoreHandle:
                 f"需求数量：{need_items_num}\n")
         return msg
 
-    def check_highest_want_item(self, item_id, get_info: str = 0) -> str | dict | None:
+    def check_highest_want_item(self, user_id, item_id, sell_item_num, get_info: str = 0) -> str | dict | None:
         """
         获取指定物品的最高求有限购价格
         :param item_id: 物品id
         :param get_info: 是否仅获取物品信息
+        :param sell_item_num: 物品数量
         :return: 消息
         """
-        want_item = self.store_data.get_highest_want_item(item_id)
+        want_item = self.store_data.get_highest_want_item(user_id, item_id, sell_item_num)
 
         if not want_item:
             if get_info:

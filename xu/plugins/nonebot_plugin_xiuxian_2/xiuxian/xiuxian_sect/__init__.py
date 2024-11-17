@@ -798,16 +798,17 @@ async def sect_users_donate_check_(bot: Bot, event: GroupMessageEvent, args: Mes
         user_num_end = user_num + 12
         userlist = userlist[user_num:user_num_end]
         i = user_num + 1
+        unpassable_user = []
         for user in userlist:
             week_donate = limit_handle.get_user_donate_log_data(user['user_id'])
             msg = (f"编号{i}:{user['user_name']},{user['level']}\n"
                    f"宗门职位：{jsondata.sect_config_data()[str(user['sect_position'])]['title']}\n"
                    f"宗门贡献度：{number_to(user['sect_contribution'])}|{user['sect_contribution']}\n"
                    f"本周宗门贡献度：{number_to(week_donate)}|{week_donate}\n")
-
+            unpassable_user.append(user)
             msg_list.append(msg)
             i += 1
-        msg = f"\n第{page}/{page_all}页\n—————tips—————\n可以增加页码参数在目标贡献参数后来查看更多周贡不达标宗门成员哦"
+        msg = f"\n第{page}/{page_all}页\n"
         msg_list.append(msg)
     else:
         msg_list.append(f"一介散修，莫要再问。")

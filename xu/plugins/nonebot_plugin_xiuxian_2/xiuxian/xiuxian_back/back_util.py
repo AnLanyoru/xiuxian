@@ -239,27 +239,36 @@ def get_user_main_back_msg_easy(user_id):
         if user_back['goods_type'] == "装备":
             item_info = items.get_data_by_item_id(user_back['goods_id'])
             level = f"{item_info.get('level')} - " if item_info.get('level') else ''
-            l_equipment_msg.append(f"{level}{user_back['goods_name']} - 数量：{user_back['goods_num']}")
+            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
+            l_equipment_msg.append(f"{level}{user_back['goods_name']} - "
+                                   f"数量：{user_back['goods_num']}{bind_msg}")
 
         elif user_back['goods_type'] == "技能":
             item_info = items.get_data_by_item_id(user_back['goods_id'])
             level = f"{item_info.get('level')} - " if item_info.get('level') else ''
-            l_skill_msg.append(f"{level}{user_back['goods_name']} - 数量：{user_back['goods_num']}")
+            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
+            l_skill_msg.append(f"{level}{user_back['goods_name']} - "
+                               f"数量：{user_back['goods_num']}{bind_msg}")
 
         elif user_back['goods_type'] == "神物":
-            l_shenwu_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}")
+            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
+            l_shenwu_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
 
         elif user_back['goods_type'] == "聚灵旗":
-            l_xiulianitem_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}")
+            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
+            l_xiulianitem_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
 
         elif user_back['goods_type'] == "礼包":
-            l_libao_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}")
+            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
+            l_libao_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
 
         elif user_back['goods_type'] == "天地奇物":
-            l_tdqw_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}")
+            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
+            l_tdqw_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
 
         elif user_back['goods_type'] == "道具":
-            l_tools_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}")
+            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
+            l_tools_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
 
     if l_equipment_msg:
         top_msg = "☆------我的装备------☆\n" + l_equipment_msg[0]
@@ -422,15 +431,17 @@ def get_user_yaocai_back_msg_easy(user_id):
     user_backs = sql_message.get_back_msg(user_id)  # list(back)
     level_dict = {"一品药材": 1, "二品药材": 2, "三品药材": 3, "四品药材": 4,
                   "五品药材": 5, "六品药材": 6, "七品药材": 7, "八品药材": 8, "九品药材": 9}
-    user_backs.sort(key=lambda k: level_dict.get(items.items.get(str(k.get('goods_id'))).get('level')
-                                                 , 0) + 0.01 * len(k.get('goods_name')))
+    user_backs.sort(key=lambda k: level_dict.get(
+        items.items.get(str(k.get('goods_id'))).get('level'), 0) + 0.01 * len(k.get('goods_name')))
     if user_backs is None:
         return l_msg
     for user_back in user_backs:
         if user_back['goods_type'] == "药材":
             item_info = items.get_data_by_item_id(user_back['goods_id'])
             level = f"{item_info.get('level', '未知品级')[:-2]} - " if item_info.get('level') else ''
-            l_yaocai_msg.append(f"{level}{user_back['goods_name']} - 数量：{user_back['goods_num']}")
+            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
+            l_yaocai_msg.append(f"{level}{user_back['goods_name']} "
+                                f"- 数量：{user_back['goods_num']}{bind_msg}")
 
     if l_yaocai_msg:
         l_msg.append("☆------拥有药材------☆")

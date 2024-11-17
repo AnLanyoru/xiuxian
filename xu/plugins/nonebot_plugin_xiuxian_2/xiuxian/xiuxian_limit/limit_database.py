@@ -32,9 +32,6 @@ def get_num_from_str(msg) -> list:
     return num
 
 
-date = datetime.now().date()
-
-
 class LimitData:
     global xiuxian_num
     _instance = {}
@@ -142,6 +139,7 @@ class LimitData:
         :param user_id: 用户id
         :return:
         """
+        date = datetime.now().date()
         now_time = date.today()
         sql = f"select * from user_limit WHERE user_id=?"
         cur = self.conn.cursor()
@@ -227,6 +225,8 @@ class LimitData:
 
     def active_make(self, active_id: int, active_name: str, active_desc: str,
                     last_time: str, daily_update: int, state=''):
+
+        date = datetime.now().date()
         start_time = str(date.today())  # 标记创建日期
         cur = self.conn.cursor()
         sql = f"""INSERT INTO active (active_id, active_name, active_desc, start_time, last_time, daily_update, state)
@@ -236,12 +236,14 @@ class LimitData:
 
     def offset_make(self, offset_id: int, offset_name: str, offset_desc: str, offset_items: dict,
                     last_time: str, daily_update: int, state=''):
+        date = datetime.now().date()
         start_time = str(date.today())  # 标记创建日期
         offset_items = pickle.dumps(offset_items)  # 结构化数据
         cur = self.conn.cursor()
         sql = f"""INSERT INTO offset (offset_id, offset_name, offset_desc, offset_items, start_time, last_time, daily_update, state)
                 VALUES (?,?,?,?,?,?,?,?)"""
-        cur.execute(sql, (offset_id, offset_name, offset_desc, offset_items, start_time, last_time, daily_update, state))
+        cur.execute(sql,
+                    (offset_id, offset_name, offset_desc, offset_items, start_time, last_time, daily_update, state))
         self.conn.commit()
 
     def offset_del(self, offset_id: int):
@@ -257,6 +259,7 @@ class LimitData:
         :param limit_dict: 限制列表
         :return: result
         """
+        date = datetime.now().date()
         now_time = date.today()
         cur = self.conn.cursor()
         user_id = limit_dict['user_id']
@@ -298,6 +301,7 @@ class LimitData:
         :return: result
         """
         blob_data = self.blob_data
+        date = datetime.now().date()
         now_time = date.today()
         cur = self.conn.cursor()
         user_id = limit_dict['user_id']
@@ -330,6 +334,7 @@ class LimitData:
         self.conn.commit()
 
     def redata_limit_by_key(self, reset_key):
+        date = datetime.now().date()
         now_time = date.today()
         cur = self.conn.cursor()
         sql = f"UPDATE user_limit set {reset_key}=? "
@@ -454,6 +459,7 @@ class LimitHandle:
         :param user_id:
         :return:
         """
+        date = datetime.now().date()
         now_time = date.today()
 
         limit_dict = {}
@@ -473,6 +479,7 @@ class LimitHandle:
         :param offset_id: 补偿ID
         :return: bool
         """
+        date = datetime.now().date()
         now_date = date.today()
         now_date_str = str(now_date)
         object_key = 'offset_get'  # 可变参数，记得修改方法
@@ -543,6 +550,7 @@ class LimitHandle:
         :param offset_id: 补偿ID
         :return: bool
         """
+        date = datetime.now().date()
         now_date = date.today()
         object_key = 'offset_get'  # 可变参数，记得修改方法
         offset_info = LimitData().get_offset_by_id(offset_id)

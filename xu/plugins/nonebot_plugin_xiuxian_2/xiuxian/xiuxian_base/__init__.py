@@ -241,11 +241,8 @@ async def handle_user_choice(bot: Bot, event: GroupMessageEvent, state: T_State)
             msg = "输入有误，帮你自动选择最佳灵根了嗷！\n"
 
         msg += sql_message.ramaker(selected_name, selected_root_type, user_id)
-        try:
-            await bot.send(event=event, message=msg)
-        except ActionFailed:
-            await bot.send(event=event, message="修仙界网络堵塞，发送失败!")
-            await restart.finish()
+        await bot.send(event=event, message=msg)
+        await restart.finish()
     else:
         if user_choice == "确认更换灵根":
             await bot.send(event=event, message=choice_msg_pass)

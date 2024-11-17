@@ -62,7 +62,7 @@ shop_off = on_command("坊市下架", priority=5, permission=GROUP, block=True)
 shop_off_all = on_fullmatch("清空坊市", priority=3, permission=SUPERUSER, block=True)
 main_back = on_command('我的背包', aliases={'我的物品', '背包'}, priority=2, permission=GROUP, block=True)
 use = on_command("使用", priority=15, permission=GROUP, block=True)
-no_use_zb = on_command("换装", priority=5, permission=GROUP, block=True)
+no_use_zb = on_command("换装", aliases={"卸载"}, priority=5, permission=GROUP, block=True)
 buy = on_command("坊市购买", priority=5, block=True)
 auction_added = on_command("提交拍卖品", aliases={"拍卖品提交"}, priority=3, permission=GROUP, block=True)
 auction_withdraw = on_command("撤回拍卖品", aliases={"拍卖品撤回"}, priority=3, permission=GROUP, block=True)
@@ -75,30 +75,61 @@ xiuxian_sone = on_fullmatch("灵石", priority=4, permission=GROUP, block=True)
 chakan_wupin = on_command("查看修仙界物品", priority=2, permission=SUPERUSER, block=True)
 master_rename = on_command("超管改名", priority=2, permission=SUPERUSER, block=True)
 check_items = on_command("查看", aliases={"查", "查看物品", "查看效果", "详情"}, priority=25, permission=GROUP, block=True)
+back_fix = on_fullmatch("背包修复", priority=1, permission=GROUP, block=True)
 
 __back_help__ = f"""
 指令：
-1、我的背包:
-查看自身背包内的物品信息
-2、使用+物品名字：
-使用物品,可批量使用
-3、换装+装备名字：
-卸载目标装备
-4、坊市购买+物品编号:
-购买坊市内的物品，可批量购买
-5、坊市查看(详情):
-查询坊市在售物品(详情)
-6、坊市上架:
-坊市上架 物品 金额，上架背包内的物品,最低金额50w，可批量上架
-7、坊市下架+物品编号：
-下架坊市内的物品
-8、炼金+物品名字：
-将物品炼化为灵石,支持批量炼金
-9、快速炼金+目标物品品阶
-将指定品阶的物品全部炼金。
-10、坊市日志
-查看最近10条与自己有关的坊市操作消息
+1：我的背包:
+ - 查看自身背包内的物品信息
+2：使用+物品名字
+ - 使用物品,可批量使用
+3：换装+装备名字
+ - 卸载目标装备
+4注释：交易请上灵宝楼
+ - 发送 灵宝楼帮助
+5：炼金+物品名字
+ - 将物品炼化为灵石,支持批量炼金
+6：快速炼金+目标物品品阶
+ - 将指定品阶的物品全部炼金  例（快速炼金 先天品级）
+——tips——
+官方群914556251
 """.strip()
+
+
+@back_fix.handle(parameterless=[Cooldown(at_sender=False)])
+async def back_help_(bot: Bot, event: GroupMessageEvent):
+    """背包修复"""
+    _, user_info, _ = check_user(event)
+    user_id = user_info["user_id"]
+    user_backs = sql_message.get_back_msg_all(user_id)  # list(back)
+    item_check = {}
+    msg = "尝试进行背包修复："
+    for item in user_backs:
+        item_id = item["goods_id"]
+        if item_check.get(item_id):
+            old_item_info = sql_message.get_item_by_good_id_and_user_id(user_id, item_id)
+            old_name = old_item_info['goods_name']
+            old_type = old_item_info['goods_type']
+            old_num = max(old_item_info['goods_num'], 1)
+            old_bind_num = min(old_item_info['bind_num'], old_num)
+            if item_id == 640001:
+                old_num += 5
+                old_bind_num += 6
+                old_bind_num = min(old_bind_num, old_num)
+            elif item_id == 610004:
+                old_num += 11
+                old_bind_num += 12
+                old_bind_num = min(old_bind_num, old_num)
+            if old_type == '丹药':
+                old_bind_num = old_num
+            sql_message.del_back_item(user_id, item_id)
+            sql_message.send_back(user_id, item_id, old_name, old_type, max((old_num-old_bind_num), 0))
+            sql_message.send_back(user_id, item_id, old_name, old_type, old_bind_num, 1)
+            msg += f"\n检测到 {old_name} 重复，遗失数据：{old_num}个，绑定数量{old_bind_num}个"
+        else:
+            item_check[item_id] = 1
+    await bot.send(event=event, message=msg)
+    await back_fix.finish()
 
 
 # 重置丹药每日使用次数
@@ -109,7 +140,7 @@ async def reset_day_num_scheduler_():
 
 
 @back_help.handle(parameterless=[Cooldown(at_sender=False)])
-async def back_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
+async def back_help_(bot: Bot, event: GroupMessageEvent):
     """背包帮助"""
     msg = __back_help__
     await bot.send(event=event, message=msg)
@@ -525,7 +556,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await bot.send(event=event, message=msg)
         await goods_re_root.finish()
 
-    sql_message.update_back_j(user_id, goods_id, num=num)
+    sql_message.update_back_j(user_id, goods_id, num=num, use_key=2)
     sql_message.update_ls(user_id, price, 1)
     msg = f"物品：{goods_name} 数量：{num} 炼金成功，凝聚{number_to(price)}|{price}枚灵石！"
     await bot.send(event=event, message=msg)
@@ -539,7 +570,6 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     user_id = user_info['user_id']
     strs = args.extract_plain_text()
     args = get_strs_from_str(strs)
-    real_args = []
     if args:
         the_same = XiuConfig().elixir_def
         real_args = [the_same[i] if i in the_same else i for i in args]
@@ -547,6 +577,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         msg = "请输入要炼化的物品等阶！"
         await bot.send(event=event, message=msg)
         await goods_re_root_fast.finish()
+        real_args = []
     msg = "快速炼金以下品阶物品：\n" + "|".join(args)
     price_sum = 0
     for goal_level, goal_level_name in zip(real_args, args):
@@ -572,7 +603,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                     price_pass = 1
                 elif item_rank != 520:
                     price = int(1000000 + abs(item_rank - 55) * 100000) * num
-                    sql_message.update_back_j(user_id, goods_id, num=num)
+                    sql_message.update_back_j(user_id, goods_id, num=num, use_key=2)
                     sql_message.update_ls(user_id, price, 1)
                     price_sum += price
                     msg += f"\n物品：{goods_name} 数量：{num} 炼金成功，凝聚{number_to(price)}|{price}枚灵石！"
@@ -797,28 +828,28 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                         power -= 2048
                         use_power = f"\n消耗天地精华2048点，余剩{power}点！！"
                         limit_handle.update_user_world_power_data(user_id, power)
-                        sql_message.update_back_j(user_id, goods_id)
+                        sql_message.update_back_j(user_id, goods_id, use_key=2)
                         sql_message.updata_user_sec_buff(user_id, goods_id)
                         msg = f"恭喜道友学会神通：{skill_info['name']}！" + use_power
                         pass
                     else:
                         msg = f"需要拥有天地精华2048点，才可练就神通：{skill_info['name']}！"
                 else:
-                    sql_message.update_back_j(user_id, goods_id)
+                    sql_message.update_back_j(user_id, goods_id, use_key=2)
                     sql_message.updata_user_sec_buff(user_id, goods_id)
                     msg = f"恭喜道友学会神通：{skill_info['name']}！"
         elif skill_type == "功法":
             if int(user_buff_info['main_buff']) == int(goods_id):
                 msg = f"道友已学会该功法：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
-                sql_message.update_back_j(user_id, goods_id)
+                sql_message.update_back_j(user_id, goods_id, use_key=2)
                 sql_message.updata_user_main_buff(user_id, goods_id)
                 msg = f"恭喜道友学会功法：{skill_info['name']}！"
         elif skill_type == "辅修功法":  # 辅修功法1
             if int(user_buff_info['sub_buff']) == int(goods_id):
                 msg = f"道友已学会该辅修功法：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
-                sql_message.update_back_j(user_id, goods_id)
+                sql_message.update_back_j(user_id, goods_id, use_key=2)
                 sql_message.updata_user_sub_buff(user_id, goods_id)
                 msg = f"恭喜道友学会辅修功法：{skill_info['name']}！"
         else:
@@ -853,17 +884,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 goods_level = goods_info["level"]
             except:
                 goods_level = None
-            if goods_level == "掉落物":
-                sql_message.update_back_j(user_id, goods_id, num)
-                goods_info = items.get_data_by_item_id(goods_id)
-                goods_id = goods_info["id"]
-                goods_info = items.get_data_by_item_id(goods_id)
-                user_info = sql_message.get_user_info_with_id(user_id)
-                user_rank = convert_rank(user_info['level'])[0]
-                goods_rank = goods_info['rank']
-                goods_name = goods_info['name']
-            else:
-                sql_message.update_back_j(user_id, goods_id, num)
+            sql_message.update_back_j(user_id, goods_id, num, 2)
             goods_buff = goods_info["buff"]
             exp = goods_buff * num
             user_hp = int(user_info['hp'] + (exp / 2) * jsondata.level_data()[user_info["level"]]["HP"])
@@ -920,7 +941,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         msg = f"道友使用天地奇物{goods_info['name']}{num}个，将{goods_info['buff']*num}点天地精华纳入丹田。\n请尽快利用！！否则天地精华将会消散于天地间！！"
         power += goods_info['buff']*num
         limit_handle.update_user_world_power_data(user_id, power)
-        sql_message.update_back_j(user_id, goods_id, num, 0)
+        sql_message.update_back_j(user_id, goods_id, num, 2)
         await bot.send(event=event, message=msg)
         await use.finish()
     elif goods_type == "道具":
@@ -931,7 +952,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
 
         msg, is_pass = get_use_tool_msg(user_id, goods_id, num)
         if is_pass:
-            sql_message.update_back_j(user_id, goods_id, num, 0)
+            sql_message.update_back_j(user_id, goods_id, num, 2)
         await bot.send(event=event, message=msg)
         await use.finish()
     else:
