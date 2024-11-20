@@ -70,11 +70,11 @@ async def fast_sell_items_(
             for back in back_msg:
                 goods_name = back['goods_name']
                 goods_id = back['goods_id']
-                goods_num = back['goods_num']
+                goods_num = back['goods_num'] - back['bind_num']
                 item_info = items.get_data_by_item_id(goods_id)
                 buff_type = item_info.get('buff_type')
                 item_level = item_info.get('level') if item_info else None
-                item_type = item_info.get('type')
+                item_type = back.get('goods_type')
                 if (item_level == goal_level
                         or goods_name == goal_level
                         or buff_type == goal_level
@@ -89,6 +89,8 @@ async def fast_sell_items_(
         await fast_sell_items.finish()
     sell_msg = []
     price_sum = 0
+    want_pass = False
+    funds_pass = True
     for item_in_back in sell_list:
         item_id = item_in_back['goods_id']
         item_name = item_in_back['goods_name']
@@ -99,12 +101,14 @@ async def fast_sell_items_(
         want_item = user_store.check_user_want_item(want_user_id, item_id, 1)
         if not want_item:
             continue
+        want_pass = True
         want_item_num = want_item['need_items_num']
         want_item_price = want_item['need_items_price']
         get_stone = want_item_price * sell_item_num
         if want_item_num:  # 有数量限制
             # 卖的太多啦！！！！人家收不下！
             if want_item_num < sell_item_num:
+                msg += f"\n尝试出售【{item_name}】！！"
                 continue
             if want_item_num == sell_item_num:
                 # 卖完了
@@ -114,6 +118,7 @@ async def fast_sell_items_(
         else:  # 无数量限制，检查资金是否充足
             want_item_funds = user_store.get_user_funds(want_user_id)  # 获取玩家摊位资金
             if get_stone > want_item_funds:  # 资金不足
+                funds_pass = False
                 continue
             user_store.update_user_funds(want_user_id, get_stone, 1)  # 减少资金
         # 检查通过，减少出售者物品，增加买家物品，减少买家资金储备，增加卖家灵石
@@ -125,8 +130,13 @@ async def fast_sell_items_(
         sell_msg.append(f"【{item_name}】{sell_item_num}个 获取了{get_stone}灵石")
     if sell_msg:
         msg += f"\n成功向{want_user_name}道友出售了：\n" + '\n'.join(sell_msg)
-    else:
+    elif not want_pass:
         msg += f"\n对方对道友的物品没有需求！"
+    elif not funds_pass:
+        msg += f"\n对方的资金不足！！！"
+    else:
+        msg += f"\n对方无法收下道友的全部物品！！"
+
     await bot.send(event, msg)
     await fast_sell_items.finish()
 

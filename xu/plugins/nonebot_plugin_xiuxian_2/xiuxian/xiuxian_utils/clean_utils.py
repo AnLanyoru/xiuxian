@@ -1,12 +1,54 @@
 import re
 from datetime import datetime
-
+import math
+import operator
 from nonebot.adapters.onebot.v11 import Message
 
 """
 纯函数工具
 无多余依赖项
 """
+
+
+def num_len(num):
+    """
+    获取数字长度
+    :param num:
+    :return:
+    """
+    num = int(num)
+    if num:
+        if operator.gt(num, 0):
+            pass
+        else:
+            operator.neg(num)
+        return operator.add(math.floor(math.log10(num)), 1)
+    else:
+        return 1
+
+
+def num_to(num):
+    if operator.gt(0, num):
+        fh = "-"
+    else:
+        fh = ''
+    digits = num_len(num)
+    level = operator.floordiv(digits, 4)
+    units = ['', '万', '亿', '万亿', '兆', '万兆', '亿兆', '万亿兆', '京', '万京', '亿京', '万亿京', '兆京', '万兆京', '亿兆京',
+             '万亿兆京', '垓', '万垓', '亿垓', '万亿垓', '兆垓', '万兆垓', '亿兆垓', '万亿兆垓', '京垓', '万京垓', '亿京垓',
+             '万亿京垓', '兆京垓', '万兆京垓', '亿兆京垓', '万亿兆京垓', '秭', '万秭', '亿秭', '万亿秭', '兆秭', '万兆秭', '亿兆秭',
+             '万亿兆秭', '京秭', '万京秭', '亿京秭', '万亿京秭', '兆京秭', '万兆京秭', '亿兆京秭', '万亿兆京秭', '垓秭', '万垓秭',
+             '亿垓秭', '万亿垓秭', '兆垓秭', '万兆垓秭', '亿兆垓秭', '万亿兆垓秭', '京垓秭', '万京垓秭', '亿京垓秭', '万亿京垓秭',
+             '兆京垓秭', '万兆京垓秭', '亿兆京垓秭', '万亿兆京垓秭', '壤', '万壤', '亿壤', '万亿壤', '兆壤', '万兆壤', '亿兆壤',
+             '万亿兆壤', '京壤', '万京壤', '亿京壤', '万亿京壤', '兆京壤', '万兆京壤', '亿兆京壤', '万亿兆京壤', '垓壤', '万垓壤',
+             '亿垓壤', '万亿垓壤', '兆垓壤', '万兆垓壤', '亿兆垓壤', '万亿兆垓壤', '京垓壤', '万京垓壤', '亿京垓壤', '万亿京垓壤',
+             '兆京垓壤', '万兆京垓壤', '亿兆京垓壤', '万亿兆京垓壤', '秭壤', '万秭壤', '亿秭壤', '万亿秭壤', '兆秭壤', '万兆秭壤',
+             '亿兆秭壤', '万亿兆秭壤', '京秭壤', '万京秭壤', '亿京秭壤', '万亿京秭壤', '兆京秭壤', '万兆京秭壤', '亿兆京秭壤',
+             '万亿兆京秭壤', '垓秭壤', '万垓秭壤', '亿垓秭壤', '万亿垓秭壤', '兆垓秭壤', '万兆垓秭壤', '亿兆垓秭壤', '万亿兆垓秭壤',
+             '京垓秭壤', '万京垓秭壤', '亿京垓秭壤', '万亿京垓秭壤', '兆京垓秭壤', '万兆京垓秭壤', '亿兆京垓秭壤', '万亿兆京垓秭壤', ]
+    cost = math.pow(10, operator.sub(operator.mul(4, level), 1))
+    last_num = str(operator.floordiv(num, cost))
+    return f"{fh}{operator.getitem(last_num, slice(0, -1))}.{operator.getitem(last_num, slice(-1))}{units[level]}"
 
 
 def number_to(num):

@@ -111,7 +111,7 @@ async def back_help_(bot: Bot, event: GroupMessageEvent):
             old_name = old_item_info['goods_name']
             old_type = old_item_info['goods_type']
             old_num = max(old_item_info['goods_num'], 1)
-            old_bind_num = min(old_item_info['bind_num'], old_num)
+            old_bind_num = min(max(old_item_info['bind_num'], 0), old_num)
             if item_id == 640001:
                 old_num += 5
                 old_bind_num += 6
@@ -447,17 +447,13 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         await bot.send(event=event, message=msg)
         await shop_added.finish()
 
-    if int(goods_num) <= int(goods_bind_num):
-        msg = "该物品是绑定物品，无法上架！"
+    item_num = goods_num - goods_bind_num
+    if item_num < quantity:
+        msg = (f"道友的包内没有那么多可交易{goods_name}！！！\n"
+               f"当前拥有：{goods_num}个\n"
+               f"绑定数量：{goods_bind_num}个")
         await bot.send(event=event, message=msg)
         await shop_added.finish()
-    if goods_type == "聚灵旗" or goods_type == "炼丹炉":
-        if user_info['root'] == "器师":
-            pass
-        else:
-            msg = "道友职业无法上架！"
-            await bot.send(event=event, message=msg)
-            await shop_added.finish()
 
     place_id = str(place.get_now_place_id(user_id))
     place_name = place.get_place_name(place_id)
@@ -620,6 +616,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
     """下架商品"""
     isUser, user_info, msg = check_user(event)
     user_id = user_info['user_id']
+    user_name = user_info['user_name']
     group_id = str(place.get_now_place_id(user_id))
     shop_data = get_shop_data(group_id)
     if shop_data[group_id] == {}:
@@ -642,11 +639,15 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await bot.send(event=event, message=msg)
         await shop_off.finish()
 
-    if shop_data[group_id][str(arg)]['user_id'] == user_id:
-        sql_message.send_back(user_id, shop_data[group_id][str(arg)]['goods_id'],
+    if del_user_id := shop_data[group_id][str(arg)]['user_id']:
+        sql_message.send_back(del_user_id, shop_data[group_id][str(arg)]['goods_id'],
                               shop_data[group_id][str(arg)]['goods_name'], shop_data[group_id][str(arg)]['goods_type'],
-                              shop_data[group_id][str(arg)]['stock'])
-        msg = f"成功下架物品：{shop_data[group_id][str(arg)]['goods_name']}！"
+                              shop_data[group_id][str(arg)]['stock'], bind_flag=1)
+        del_user_info = sql_message.get_user_info_with_id(del_user_id)
+        del_user_name = del_user_info['user_name']
+        msg = f"{user_name}道友成功下架{del_user_name}道友的物品：{shop_data[group_id][str(arg)]['goods_name']}！"
+        limit_handle.update_user_shop_log_data(user_id, msg)
+        limit_handle.update_user_shop_log_data(del_user_id, msg)
         del shop_data[group_id][str(arg)]
         shop_data[group_id] = reset_dict_num(shop_data[group_id])
         save_shop(shop_data)

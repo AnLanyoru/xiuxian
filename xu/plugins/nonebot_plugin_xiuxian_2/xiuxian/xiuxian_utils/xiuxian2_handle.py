@@ -409,11 +409,11 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
         if key == 1:
             sql = f"UPDATE user_xiuxian SET stone=stone+? WHERE user_id=?"
-            cur.execute(sql, (price, user_id))
+            cur.execute(sql, (str(price), user_id))
             self.conn.commit()
         elif key == 2:
             sql = f"UPDATE user_xiuxian SET stone=stone-? WHERE user_id=?"
-            cur.execute(sql, (price, user_id))
+            cur.execute(sql, (str(price), user_id))
             self.conn.commit()
 
     def update_root(self, user_id, key):
@@ -474,7 +474,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """所有用户增加灵石"""
         cur = self.conn.cursor()
         sql = f"UPDATE user_xiuxian SET stone=stone+?"
-        cur.execute(sql, (price,))
+        cur.execute(sql, (str(price),))
         self.conn.commit()
 
     def get_exp_rank(self, user_id):
@@ -936,7 +936,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """宗门捐献更新建设度及可用灵石"""
         sql = f"UPDATE sects SET sect_used_stone=sect_used_stone+?,sect_scale=sect_scale+? WHERE sect_id=?"
         cur = self.conn.cursor()
-        cur.execute(sql, (stone_num, stone_num * 1, sect_id))
+        cur.execute(sql, (str(stone_num), str(stone_num * 1), sect_id))
         self.conn.commit()
 
     def update_sect_used_stone(self, sect_id, sect_used_stone, key):
@@ -945,11 +945,11 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
         if key == 1:
             sql = f"UPDATE sects SET sect_used_stone=sect_used_stone+? WHERE sect_id=?"
-            cur.execute(sql, (sect_used_stone, sect_id))
+            cur.execute(sql, (str(sect_used_stone), sect_id))
             self.conn.commit()
         elif key == 2:
             sql = f"UPDATE sects SET sect_used_stone=sect_used_stone-? WHERE sect_id=?"
-            cur.execute(sql, (sect_used_stone, sect_id))
+            cur.execute(sql, (str(sect_used_stone), sect_id))
             self.conn.commit()
 
     def update_sect_materials(self, sect_id, sect_materials, key):
@@ -1190,7 +1190,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """更新宗门灵石、建设度"""
         sql = f"UPDATE sects SET sect_used_stone=?,sect_scale=? WHERE sect_id=?"
         cur = self.conn.cursor()
-        cur.execute(sql, (sect_used_stone, sect_scale, sect_id))
+        cur.execute(sql, (str(sect_used_stone), str(sect_scale), sect_id))
         self.conn.commit()
 
     def update_sect_elixir_room_level(self, sect_id, level):

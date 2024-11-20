@@ -229,12 +229,12 @@ def get_user_main_back_msg_easy(user_id):
     l_tools_msg = []
     l_msg = []
     user_backs = sql_message.get_back_msg(user_id)  # list(back)
+    if user_backs is None:
+        return l_msg
     level_dict = {"后天品级": 1, "先天品级": 2, "神丹品级": 3, "虚劫品级": 4, "生死品级": 5,
                   "神海品级": 6, "神劫品级": 7, "神极品级": 8, "神变品级": 9, "界主品级": 10,
                   "天尊品级": 11, "真神品级": 12, "荒神品级": 13}
     user_backs.sort(key=lambda k: level_dict.get(items.items.get(str(k.get('goods_id'))).get('level'), 0))
-    if user_backs is None:
-        return l_msg
     for user_back in user_backs:
         if user_back['goods_type'] == "装备":
             item_info = items.get_data_by_item_id(user_back['goods_id'])
@@ -406,11 +406,11 @@ def get_user_yaocai_back_msg(user_id):
     l_yaocai_msg = []
     l_msg = []
     user_backs = sql_message.get_back_msg(user_id)  # list(back)
+    if user_backs is None:
+        return l_msg
     level_dict = {"一品药材": 1, "二品药材": 2, "三品药材": 3, "四品药材": 4,
                   "五品药材": 5, "六品药材": 6, "七品药材": 7, "八品药材": 8, "九品药材": 9}
     user_backs.sort(key=lambda k: level_dict.get(items.items.get(str(k.get('goods_id'))).get('level'), 0))
-    if user_backs is None:
-        return l_msg
     for user_back in user_backs:
         if user_back['goods_type'] == "药材":
             l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_back['goods_id'], user_back['goods_num'])

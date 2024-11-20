@@ -753,6 +753,19 @@ class LimitHandle:
         rift_protect = limit_dict['rift_protect']
         return rift_protect
 
+    def get_back_fix_data(self, user_id):
+        object_key = 'state'  # 可变参数，记得修改方法
+        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        state_dict = limit_dict[object_key]
+        try:
+            logs = state_dict.get('back_fix')
+        except:
+            logs = None
+        if logs:
+            return int(logs)
+        else:
+            return 0
+
 
 limit_handle = LimitHandle()
 
