@@ -632,10 +632,7 @@ def get_id_from_str(msg: str):
     :return: 如果有该用户，返回用户ID，若无，返回None
     """
     user_name = re.findall(r"[\u4e00-\u9fa5_a-zA-Z]+", msg)
-    if user_name:
-        user_id = sql_message.get_user_id(user_name[0])
-    else:
-        user_id = None
+    user_id = sql_message.get_user_id(user_name[0]) if user_name else None
     return user_id
 
 

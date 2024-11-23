@@ -15,7 +15,7 @@ from .limit import CheckLimit, reset_send_stone, reset_stone_exp_up
 from ..xiuxian_exp_up.exp_up_def import exp_up_by_time
 from ..xiuxian_impart_pk import impart_pk_check
 from ..xiuxian_limit.limit_database import limit_handle
-from ..xiuxian_limit.limit_util import LimitCheck
+from ..xiuxian_limit.limit_util import limit_check
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
 from ..xiuxian_utils.clean_utils import get_datetime_from_str, date_sub
 from ..xiuxian_utils.xiuxian2_handle import (
@@ -269,7 +269,6 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         player2['level'] = user2['level']
 
         result, victor = Player_fight(player1, player2, 1, bot.self_id)
-        fight_len = len(result)
         result = result
         await send_msg_handler(bot, event, result)
         msg = f"获胜的是{victor}"
@@ -323,7 +322,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                     msg = "对方" + msg[2:]
                     await bot.send(event=event, message=msg)
                     await two_exp.finish()
-                is_pass, msg = LimitCheck().two_exp_limit_check(user_id_1=user_1_id, user_id_2=user_2_id)
+                is_pass, msg = limit_check.two_exp_limit_check(user_id_1=user_1_id, user_id_2=user_2_id)
                 if not is_pass:
                     await bot.send(event=event, message=msg)
                     await two_exp.finish()

@@ -1,6 +1,6 @@
 from .limit_database import LimitData
-from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian import XiuConfig
-from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_utils.xiuxian2_handle import UserBuffDate, XIUXIAN_IMPART_BUFF
+from .. import XiuConfig
+from ..xiuxian_utils.xiuxian2_handle import UserBuffDate, XIUXIAN_IMPART_BUFF
 
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
@@ -10,7 +10,6 @@ xiuxian_impart = XIUXIAN_IMPART_BUFF()
 class LimitCheck:
     def __init__(self):
         self.two_exp_limit = XiuConfig().two_exp_limit
-        pass
 
     def two_exp_limit_check(self, user_id_1, user_id_2) -> tuple[bool, str]:
         user_limit_1, is_pass_1 = LimitData().get_limit_by_user_id(user_id_1)
@@ -42,3 +41,6 @@ class LimitCheck:
         msg = "pass"
         return True, msg
         pass
+
+
+limit_check = LimitCheck()

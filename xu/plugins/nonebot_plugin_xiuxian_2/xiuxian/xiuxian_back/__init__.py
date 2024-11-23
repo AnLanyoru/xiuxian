@@ -567,7 +567,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     strs = args.extract_plain_text()
     args = get_strs_from_str(strs)
     if args:
-        the_same = XiuConfig().elixir_def
+        the_same = XiuConfig().elixir_def  # 若无配置自行替换为 {}
         real_args = [the_same[i] if i in the_same else i for i in args]
     else:
         msg = "请输入要炼化的物品等阶！"
@@ -584,21 +584,22 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             break
         price_pass = 0
         for back in back_msg:
-            goods_name = back['goods_name']
             goods_id = back['goods_id']
-            goods_type = back['goods_type']
             goods_state = back['state']
             num = back['goods_num']
+            goods_type = back['goods_type']
+            goods_name = back['goods_name']
             item_info = items.get_data_by_item_id(goods_id)
             buff_type = item_info.get('buff_type')
-            item_level = item_info.get('level') if item_info else None
-            item_rank = get_item_msg_rank(goods_id)
-            if item_level == goal_level or goods_name == goal_level or buff_type == goal_level:
+            if ((item_level := item_info.get('level') if item_info else None) == goal_level
+                    or goods_name == goal_level
+                    or buff_type == goal_level
+                    or goods_type == goal_level):
                 if goods_type == "装备" and int(goods_state) == 1:
                     msg += f"\n装备：{goods_name}已经被道友装备在身，无法炼金！"
                     price_pass = 1
-                elif item_rank != 520:
-                    price = int(1000000 + abs(item_rank - 55) * 100000) * num
+                elif (item_rank := get_item_msg_rank(goods_id)) != 520:
+                    price = int(1000000 + abs(item_rank - 55) * 100000) * num  # 复制炼金价格逻辑
                     sql_message.update_back_j(user_id, goods_id, num=num, use_key=2)
                     sql_message.update_ls(user_id, price, 1)
                     price_sum += price
