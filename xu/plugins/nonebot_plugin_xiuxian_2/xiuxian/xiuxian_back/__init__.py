@@ -1,5 +1,4 @@
 import asyncio
-import re
 from nonebot import on_command, require, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -27,7 +26,7 @@ from .back_util import (
 from .backconfig import get_auction_config, savef_auction, remove_auction_item
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.utils import (
-    check_user, send_msg_handler, CommandObjectID,
+    check_user, send_msg_handler,
     number_to
 )
 from ..xiuxian_utils.xiuxian2_handle import (
@@ -71,8 +70,7 @@ set_auction = on_command("群拍卖会", priority=4, permission=GROUP and (SUPER
 creat_auction = on_fullmatch("举行拍卖会", priority=5, permission=GROUP and SUPERUSER, block=True)
 offer_auction = on_command("拍卖", priority=5, permission=GROUP, block=True)
 back_help = on_command("背包帮助", aliases={"坊市帮助"}, priority=8, permission=GROUP, block=True)
-xiuxian_sone = on_fullmatch("灵石", priority=4, permission=GROUP, block=True)
-chakan_wupin = on_command("查看修仙界物品", priority=2, permission=SUPERUSER, block=True)
+xiuxian_stone = on_fullmatch("灵石", priority=4, permission=GROUP, block=True)
 master_rename = on_command("超管改名", priority=2, permission=SUPERUSER, block=True)
 check_items = on_command("查看", aliases={"查", "查看物品", "查看效果", "详情"}, priority=25, permission=GROUP, block=True)
 back_fix = on_fullmatch("背包修复", priority=1, permission=GROUP, block=True)
@@ -147,13 +145,13 @@ async def back_help_(bot: Bot, event: GroupMessageEvent):
     await back_help.finish()
 
 
-@xiuxian_sone.handle(parameterless=[Cooldown(at_sender=False)])
-async def xiuxian_sone_(bot: Bot, event: GroupMessageEvent):
+@xiuxian_stone.handle(parameterless=[Cooldown(at_sender=False)])
+async def xiuxian_stone_(bot: Bot, event: GroupMessageEvent):
     """我的灵石信息"""
-    isUser, user_info, msg = check_user(event)
+    _, user_info, _ = check_user(event)
     msg = f"当前灵石：{number_to(user_info['stone'])} | {user_info['stone']}"
     await bot.send(event=event, message=msg)
-    await xiuxian_sone.finish()
+    await xiuxian_stone.finish()
 
 
 buy_lock = asyncio.Lock()

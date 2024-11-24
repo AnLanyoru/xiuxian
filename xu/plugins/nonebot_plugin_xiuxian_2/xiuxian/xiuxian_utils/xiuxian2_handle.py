@@ -794,12 +794,14 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur.execute(sql, (str(int(exp)), user_id))
         self.conn.commit()
 
-    def realm_top(self):
+    def realm_top(self, world_id):
         """境界排行榜前50"""
+        place_max = world_id * 12 + 13
+        place_min = world_id * 12
         rank_mapping = {rank: idx for idx, rank in enumerate(convert_rank('求道者')[1])}
 
-        sql = """SELECT user_name, level, exp FROM user_xiuxian 
-            WHERE user_name IS NOT NULL
+        sql = f"""SELECT user_name, level, exp FROM user_xiuxian 
+            WHERE user_name IS NOT NULL and place_id > {place_min} and place_id < {place_max}
             ORDER BY exp DESC, (CASE level """
 
         for level, value in sorted(rank_mapping.items(), key=lambda x: x[1], reverse=True):
@@ -848,17 +850,23 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             name += "_"
             return self.no_same_name(name)
 
-    def stone_top(self):
+    def stone_top(self, world_id):
         """这也是灵石排行榜"""
-        sql = f"SELECT user_name,level,stone FROM user_xiuxian WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 60"
+        place_max = world_id * 12 + 13
+        place_min = world_id * 12
+        sql = (f"SELECT user_name,level,stone FROM user_xiuxian WHERE user_name is NOT NULL "
+               f"and place_id > {place_min} and place_id < {place_max} ORDER BY stone DESC LIMIT 60")
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
         return result
 
-    def power_top(self):
+    def power_top(self, world_id):
         """战力排行榜"""
-        sql = f"SELECT user_name,level,power FROM user_xiuxian WHERE user_name is NOT NULL ORDER BY power DESC LIMIT 60"
+        place_max = world_id * 12 + 13
+        place_min = world_id * 12
+        sql = (f"SELECT user_name,level,power FROM user_xiuxian WHERE user_name is NOT NULL "
+               f"and place_id > {place_min} and place_id < {place_max} ORDER BY power DESC LIMIT 60")
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()

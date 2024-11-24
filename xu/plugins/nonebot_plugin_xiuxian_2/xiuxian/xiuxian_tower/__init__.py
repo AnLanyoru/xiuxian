@@ -63,11 +63,22 @@ async def tower_fight_(bot: Bot, event: GroupMessageEvent):
     world_id = place.get_world_id(place_id)
     next_floor = floor + 1
     tower_floor_info = tower_handle.get_tower_floor_info(next_floor, place_id)
+    if not tower_floor_info:
+        best_floor = user_tower_info['now_floor']
+        user_tower_info['now_floor'] = 0
+        user_tower_info['best_floor'] = best_floor
+        tower_handle.update_user_tower_info(user_info, user_tower_info)
+        sql_message.do_work(user_id, 0)
+        msg = (f"道友已抵达【{tower_handle.tower_data[world_id].name}】之底！！！"
+               f"本次成绩已记录！！")
+        await bot.send(event=event, message=msg)
+        await tower_fight.finish()
     result, victor = await get_tower_battle_info(user_info, tower_floor_info, bot.self_id)
     if victor == "群友赢了":  # 获胜
         user_tower_info['now_floor'] += 1
         tower_handle.update_user_tower_info(user_info, user_tower_info)
-        msg = f"道友成功战胜 {tower_floor_info['name']} 到达【{tower_handle.tower_data[world_id].name}】第{user_tower_info['now_floor']}区域！！！"
+        msg = (f"道友成功战胜 {tower_floor_info['name']} "
+               f"到达【{tower_handle.tower_data[world_id].name}】第{user_tower_info['now_floor']}区域！！！")
     else:  # 输了
         best_floor = user_tower_info['now_floor']
         user_tower_info['now_floor'] = 0

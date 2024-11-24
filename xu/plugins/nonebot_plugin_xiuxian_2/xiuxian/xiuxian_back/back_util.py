@@ -220,98 +220,32 @@ def get_user_main_back_msg_easy(user_id):
     """
     获取背包内的所有物品信息
     """
-    l_equipment_msg = []
-    l_skill_msg = []
-    l_shenwu_msg = []
-    l_xiulianitem_msg = []
-    l_libao_msg = []
-    l_tdqw_msg = []
-    l_tools_msg = []
     l_msg = []
+    item_types = ["装备", "技能", "神物", "聚灵旗", "礼包", "天地奇物", "道具"]
     user_backs = sql_message.get_back_msg(user_id)  # list(back)
     if user_backs is None:
         return l_msg
-    level_dict = {"后天品级": 1, "先天品级": 2, "神丹品级": 3, "虚劫品级": 4, "生死品级": 5,
-                  "神海品级": 6, "神劫品级": 7, "神极品级": 8, "神变品级": 9, "界主品级": 10,
-                  "天尊品级": 11, "真神品级": 12, "荒神品级": 13}
-    user_backs.sort(key=lambda k: level_dict.get(items.items.get(str(k.get('goods_id'))).get('level'), 0))
-    for user_back in user_backs:
-        if user_back['goods_type'] == "装备":
-            item_info = items.get_data_by_item_id(user_back['goods_id'])
-            level = f"{item_info.get('level')} - " if item_info.get('level') else ''
-            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
-            l_equipment_msg.append(f"{level}{user_back['goods_name']} - "
-                                   f"数量：{user_back['goods_num']}{bind_msg}")
+    user_backs.sort(key=lambda k: items.items.get(str(k.get('goods_id')), {}).get('rank'))
+    l_types_dict = {}
+    for item_type in item_types:
+        l_types_dict[item_type] = []
+        index = 0
+        for user_back in user_backs:
+            if user_back['goods_type'] == item_type:
+                item_info = items.get_data_by_item_id(user_back['goods_id'])
+                level = f"{item_info.get('level')} - " if item_info.get('level') else ''
+                bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
+                l_types_dict[item_type].append(f"{level}{user_back['goods_name']} - "
+                                               f"数量：{user_back['goods_num']}{bind_msg}")
+                del user_backs[index]
+            else:
+                index += 1
 
-        elif user_back['goods_type'] == "技能":
-            item_info = items.get_data_by_item_id(user_back['goods_id'])
-            level = f"{item_info.get('level')} - " if item_info.get('level') else ''
-            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
-            l_skill_msg.append(f"{level}{user_back['goods_name']} - "
-                               f"数量：{user_back['goods_num']}{bind_msg}")
-
-        elif user_back['goods_type'] == "神物":
-            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
-            l_shenwu_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
-
-        elif user_back['goods_type'] == "聚灵旗":
-            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
-            l_xiulianitem_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
-
-        elif user_back['goods_type'] == "礼包":
-            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
-            l_libao_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
-
-        elif user_back['goods_type'] == "天地奇物":
-            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
-            l_tdqw_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
-
-        elif user_back['goods_type'] == "道具":
-            bind_msg = f"(绑定:{user_back['bind_num']})" if user_back['bind_num'] else ""
-            l_tools_msg.append(f"{user_back['goods_name']} - 数量：{user_back['goods_num']}{bind_msg}")
-
-    if l_equipment_msg:
-        top_msg = "☆------我的装备------☆\n" + l_equipment_msg[0]
-        l_msg.append(top_msg)
-        for msg in l_equipment_msg[1:]:
-            l_msg.append(msg)
-
-    if l_skill_msg:
-        top_msg = "☆------拥有技能书------☆\n" + l_skill_msg[0]
-        l_msg.append(top_msg)
-        for msg in l_skill_msg[1:]:
-            l_msg.append(msg)
-
-    if l_shenwu_msg:
-        top_msg = "☆------神物------☆\n" + l_shenwu_msg[0]
-        l_msg.append(top_msg)
-        for msg in l_shenwu_msg[1:]:
-            l_msg.append(msg)
-
-    if l_xiulianitem_msg:
-        top_msg = "☆------修炼物品------☆\n" + l_xiulianitem_msg[0]
-        l_msg.append(top_msg)
-        for msg in l_xiulianitem_msg[1:]:
-            l_msg.append(msg)
-
-    if l_libao_msg:
-        top_msg = "☆------礼包------☆\n" + l_libao_msg[0]
-        l_msg.append(top_msg)
-        for msg in l_libao_msg[1:]:
-            l_msg.append(msg)
-
-    if l_tdqw_msg:
-        top_msg = "☆------天地奇物------☆\n" + l_tdqw_msg[0]
-        l_msg.append(top_msg)
-        for msg in l_tdqw_msg[1:]:
-            l_msg.append(msg)
-
-    if l_tools_msg:
-        top_msg = "☆------持有道具------☆\n" + l_tools_msg[0]
-        l_msg.append(top_msg)
-        for msg in l_tools_msg[1:]:
-            l_msg.append(msg)
-
+        if l_types_dict[item_type]:
+            top_msg = f"☆------{item_type}------☆\n" + l_types_dict[item_type][0]
+            l_msg.append(top_msg)
+            for msg in l_types_dict[item_type][1:]:
+                l_msg.append(msg)
     return l_msg
 
 

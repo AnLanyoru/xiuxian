@@ -254,6 +254,10 @@ async def handle_user_choice(bot: Bot, event: GroupMessageEvent, state: T_State)
 async def rank_(bot: Bot, event: GroupMessageEvent):
     """排行榜"""
     # 这里曾经是风控模块，但是已经不再需要了
+    _, user_info, _ = check_user(event)
+    user_place = user_info['place_id']
+    world_name = place.get_world_name(user_place)
+    world_id = place.get_world_id(user_place)
     messages = str(event.message)
     rank_msg = r'[\u4e00-\u9fa5]+'
     message = re.findall(rank_msg, messages)
@@ -267,13 +271,13 @@ async def rank_(bot: Bot, event: GroupMessageEvent):
     first_msg = ""
     scened_msg = ""
     if message in ["排行榜", "修仙排行榜", "境界排行榜", "修为排行榜"]:
-        lt_rank = sql_message.realm_top()
+        lt_rank = sql_message.realm_top(world_id)
         scened_msg = "修为"
     elif message == "灵石排行榜":
-        lt_rank = sql_message.stone_top()
+        lt_rank = sql_message.stone_top(world_id)
         scened_msg = "灵石"
     elif message == "战力排行榜":
-        lt_rank = sql_message.power_top()
+        lt_rank = sql_message.power_top(world_id)
         scened_msg = "战力"
     elif message in ["宗门排行榜", "宗门建设度排行榜"]:
         lt_rank = sql_message.scale_top()
@@ -292,7 +296,7 @@ async def rank_(bot: Bot, event: GroupMessageEvent):
         item_num = page * 20 - 20
         item_num_end = item_num + 20
         lt_rank = lt_rank[item_num:item_num_end]
-        msg = f"✨诸天万界{message}TOP{item_num_end}✨\n"
+        msg = f"✨{world_name}{message}TOP{item_num_end}✨\n"
         num = item_num
         for i in lt_rank:
             num += 1
