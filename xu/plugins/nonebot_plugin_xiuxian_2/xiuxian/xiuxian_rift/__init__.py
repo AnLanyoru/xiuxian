@@ -5,8 +5,6 @@ from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
     GroupMessageEvent,
-    GROUP_ADMIN,
-    GROUP_OWNER,
     MessageSegment, Message
 )
 from nonebot.params import CommandArg

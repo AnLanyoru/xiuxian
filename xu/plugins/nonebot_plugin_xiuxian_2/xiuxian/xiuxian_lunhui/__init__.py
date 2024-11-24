@@ -8,7 +8,7 @@ from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
 from ..xiuxian_buff import two_exp_cd
-from ..xiuxian_impart_pk import impart_pk, xu_world
+from ..xiuxian_impart_pk import impart_pk
 from ..xiuxian_utils.lay_out import Cooldown
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
@@ -283,7 +283,6 @@ async def time_set_now_(bot: Bot, event: GroupMessageEvent):
     two_exp_cd.re_data()
     sql_message.beg_remake()
     impart_pk.re_data()
-    xu_world.re_data()
     sql_message.sect_task_reset()
     sql_message.sect_elixir_get_num_reset()
     msg = f"逆转时空，让一切重置次数！！！"

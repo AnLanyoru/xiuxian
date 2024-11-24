@@ -11,7 +11,6 @@ from nonebot.adapters.onebot.v11 import (
 from ..xiuxian_utils.lay_out import Cooldown
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_config import XiuConfig
-from ..xiuxian_utils.utils import CommandObjectID
 
 sql_message = XiuxianDateManage()  # sql类
 config = get_config()
@@ -29,6 +28,7 @@ sect_help_member = on_command("成员必看", aliases={"宗门指令"}, priority
 buff_help = on_command("功法帮助", aliases={"功法", "技能", "神通"}, priority=2, permission=GROUP, block=True)
 buff_home = on_command("洞天福地帮助", aliases={"灵田帮助", "灵田", "洞天福地"}, priority=20, permission=GROUP, block=True)
 store_help = on_command("灵宝楼帮助", aliases={"灵宝楼", "个人摊位", "个人摊位帮助"}, priority=20, permission=GROUP, block=True)
+tower_help = on_command("位面挑战帮助", aliases={'挑战'}, priority=21, permission=GROUP, block=True)
 
 __xiuxian_notes__ = f"""
 ————修仙帮助————
@@ -167,6 +167,28 @@ __store_help__ = f"""
 """.strip()
 
 
+__tower_help__ = f"""
+——位面挑战指令帮助——
+1：进入挑战之地
+ - 在存在挑战副本的位置使用
+   可以进入挑战之地开始挑战
+   凡界：灵虚古境(前往3)
+   灵界：紫霄神渊(前往19)
+2：查看挑战
+ - 查看当前挑战信息
+3：开始挑战
+ - 进行本层次挑战
+4：离开挑战之地
+ - 停止对挑战之地的探索
+5：挑战商店
+ - 消耗挑战积分兑换物品
+6：挑战之地规则详情
+ - 获取位面挑战的详情规则
+——tips——
+官方群914556251
+""".strip()
+
+
 @help_in.handle(parameterless=[Cooldown(at_sender=False)])
 async def help_in_(bot: Bot, event: GroupMessageEvent):
     """修仙帮助"""
@@ -300,7 +322,15 @@ async def buff_home_(bot: Bot, event: GroupMessageEvent):
 
 @store_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def store_help_(bot: Bot, event: GroupMessageEvent):
-    """灵田帮助"""
+    """帮助"""
     msg = __store_help__
     await bot.send(event=event, message=msg)
     await store_help.finish()
+
+
+@tower_help.handle(parameterless=[Cooldown(at_sender=False)])
+async def tower_help_(bot: Bot, event: GroupMessageEvent):
+    """帮助"""
+    msg = __tower_help__
+    await bot.send(event=event, message=msg)
+    await tower_help.finish()

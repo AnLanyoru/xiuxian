@@ -85,6 +85,9 @@ def check_user_type(user_id, need_type):
         elif user_type == 5:
             msg = "道友正在虚神界修炼中，请抱元守一，聚气凝神，勿要分心！"
 
+        elif user_type == 6:
+            msg = "道友正在进行位面挑战中，请全力以赴！！"
+
         elif user_type == 0:
             msg = "道友现在什么都没干呢~"
 

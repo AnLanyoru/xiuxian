@@ -17,6 +17,12 @@ impart_number = "123451234"
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
+class Tower:
+    def __init__(self, name, place_id):
+        self.name = name
+        self.place = place_id
+
+
 class WorldTowerData:
     global xiuxian_num
     _instance = {}
@@ -29,11 +35,14 @@ class WorldTowerData:
         return cls._instance[xiuxian_num]
 
     def __init__(self):
+        fj_tower = Tower("灵虚古境", 3)
+        lj_tower = Tower("紫霄神渊", 19)
+        self.tower_data = {0: fj_tower, 1: lj_tower}
         self.sql_user_table_name = "user_tower_info"
         self.sql_tower_info_table_name = "world_tower"
         self.sql_col = ["user_id", "now_floor", "best_floor", "tower_point", "tower_place",
                         "fight_log"]
-        self.blob_data_list = ["sell_user"]
+        self.blob_data_list = ["fight_log"]
         if not self._has_init.get(xiuxian_num):
             self._has_init[xiuxian_num] = True
             self.database_path = DATABASE
@@ -170,7 +179,7 @@ class WorldTowerData:
             best_floor: int,
             tower_point: int,
             tower_place: int,
-            fight_log: dict):
+            fight_log: bytes):
         """
 
         :param user_id:
@@ -222,6 +231,13 @@ class WorldTowerData:
 
 class TowerHandle(WorldTowerData):
     def create_enemy(self):
+        place_id = None
+        floor = None
+        name = None
+        hp = None
+        mp = None
+        atk = None
+        defence = None
         input_pass = False
         while not input_pass:
             try:
@@ -236,9 +252,129 @@ class TowerHandle(WorldTowerData):
                 input_pass = True
             except ValueError:
                 print("请输入正确的楼层数字")
+        input_pass = False
+        while not input_pass:
+            try:
+                name = str(input("请输入boss名称"))
+                input_pass = True
+            except ValueError:
+                print("请输入正确的数值")
+        input_pass = False
+        while not input_pass:
+            try:
+                hp = int(input("请输入boss血量"))
+                input_pass = True
+            except ValueError:
+                print("请输入正确的数值")
+        input_pass = False
+        while not input_pass:
+            try:
+                mp = int(input("请输入boss真元"))
+                input_pass = True
+            except ValueError:
+                print("请输入正确的数值")
+        input_pass = False
+        while not input_pass:
+            try:
+                atk = int(input("请输入boss攻击力"))
+                input_pass = True
+            except ValueError:
+                print("请输入正确的数值")
+        input_pass = False
+        while not input_pass:
+            try:
+                defence = int(input("请输入boss减伤率（%）"))
+                input_pass = True
+            except ValueError:
+                print("请输入正确的数值")
+        self.tower_floor_make(floor, place_id, name, hp, mp, atk, defence)
+
+    def get_user_floor(self, user_info: dict):
+        """
+        获取用户目前通天塔楼层
+        :param user_info: 获取的用户信息
+        :return:
+        """
+        user_id = user_info.get('user_id')
+        user_tower_info = self.get_user_tower_info(user_id)
+        if user_tower_info:
+            floor = user_tower_info.get('now_floor')
+            place_id = user_tower_info.get('tower_place')
+            world_id = place.get_world_id(place_id)
+            tower = self.tower_data.get(world_id)
+        else:
+            # 初始化
+            floor = 0
+            place_id = user_info.get('tower_place')
+            world_id = place.get_world_id(place_id)
+            tower = self.tower_data.get(world_id)
+        return floor, tower
+
+    def get_user_tower_msg(self, user_info: dict):
+        floor, tower = self.get_user_floor(user_info)
+        msg = (f"当前处于{tower.name}\n"
+               f"第{floor}区域\n")
+        next_floor = floor + 1
+        enemy_info = self.get_tower_floor_info(next_floor, tower.place)
+        msg += (f"下区域道友将会遭遇\n"
+                f"【{enemy_info.get('name')}】\n"
+                f"气血：{enemy_info.get('hp')}\n"
+                f"真元：{enemy_info.get('mp')}\n"
+                f"攻击：{enemy_info.get('atk')}\n"
+                )
+        return msg
+
+    def update_user_tower_info(self, user_info: dict, user_tower_info: dict):
+        for blob_data in self.blob_data_list:
+            user_tower_info[blob_data] = pickle.dumps(user_tower_info[blob_data])
+        user_id = user_info.get('user_id')
+        now_floor = user_tower_info.get('now_floor')
+        best_floor = user_tower_info.get('best_floor')
+        tower_point = user_tower_info.get('tower_point')
+        tower_place = user_tower_info.get('tower_place')
+        fight_log = user_tower_info.get('fight_log')
+        self.user_tower_info_make(user_id, now_floor, best_floor, tower_point, tower_place, fight_log)
+
+    def check_user_tower_info(self, user_id):
+        user_tower_info = self.get_user_tower_info(user_id)
+        if user_tower_info:
+            # 若有则返回
+            for blob_data in self.blob_data_list:
+                user_tower_info[blob_data] = pickle.loads(user_tower_info[blob_data])
+            return user_tower_info
+        else:
+            # 若无则初始化
+            user_tower_info = {'user_id': user_id,
+                               'now_floor': 0,
+                               'best_floor': 0,
+                               'tower_point': 0,
+                               'tower_place': 0,
+                               'fight_log': []}
+            return user_tower_info
+
+    def update_user_tower_point(self, user_id, change_value, update_key: int = 0):
+        """
+        更新用户积分
+        :param user_id:
+        :param change_value:
+        :param update_key: 更新类型 0增 1减
+        :return:
+        """
+        change = '-' if update_key else '+'
+        cur = self.conn.cursor()
+        sql = (
+            f"UPDATE {self.sql_user_table_name} set "
+            f"tower_point=tower_point{change}? where "
+            f"user_id=?")
+        cur.execute(sql, (
+            change_value,
+            user_id)
+                    )
+        self.conn.commit()
 
 
 tower_handle = TowerHandle()
+
 
 if __name__ == '__main__':
     tower_handle.create_enemy()
