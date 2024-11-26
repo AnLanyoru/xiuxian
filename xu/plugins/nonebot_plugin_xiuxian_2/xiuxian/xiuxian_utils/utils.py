@@ -471,7 +471,8 @@ async def send_msg_handler(bot, event, *args):
     elif XiuConfig().merge_forward_send == 2:  # 合并作为文本发送
         if len(args) == 3:
             name, uin, msgs = args
-            messages = '\n'.join(msgs)
+            messages = '\r'.join(msgs)
+
             if isinstance(event, GroupMessageEvent):
                 await bot.send(event=event, message=messages)
             else:
@@ -479,9 +480,9 @@ async def send_msg_handler(bot, event, *args):
         elif len(args) == 1 and isinstance(args[0], list):
             messages = args[0]
             try:
-                messages = '\n'.join([str(msg['data']['content']) for msg in messages])
+                messages = '\r'.join([str(msg['data']['content']) for msg in messages])
             except TypeError:
-                messages = '\n'.join([str(msg) for msg in messages])
+                messages = '\r'.join([str(msg) for msg in messages])
             if isinstance(event, GroupMessageEvent):
                 await bot.send(event=event, message=messages)
             else:

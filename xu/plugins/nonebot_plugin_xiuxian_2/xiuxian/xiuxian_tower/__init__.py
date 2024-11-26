@@ -5,6 +5,7 @@ from .tower_database import tower_handle
 from .tower_fight import get_tower_battle_info
 from ..xiuxian_place import place
 from ..xiuxian_sect import get_config
+from ..xiuxian_utils.clean_utils import msg_handler, main_md
 from ..xiuxian_utils.utils import check_user, check_user_type, send_msg_handler
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, sql_message
@@ -14,12 +15,13 @@ from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
     GroupMessageEvent,
-    Message
+    Message,
+    PRIVATE
 )
 from ..xiuxian_utils.lay_out import Cooldown
 
 
-tower_rule = on_command("挑战之地规则详情", aliases={"挑战之地规则"}, priority=2, permission=GROUP, block=True)
+tower_rule = on_command("挑战之地规则详情", aliases={"挑战之地规则"}, priority=2, permission=GROUP | PRIVATE, block=True)
 tower_start = on_command("进入挑战之地", aliases={"进入挑战"}, priority=2, permission=GROUP, block=True)
 tower_end = on_command("离开挑战之地", aliases={"离开挑战"}, priority=2, permission=GROUP, block=True)
 tower_info = on_command("查看挑战", aliases={"查看挑战信息"}, priority=1, permission=GROUP, block=True)
@@ -87,6 +89,8 @@ async def tower_fight_(bot: Bot, event: GroupMessageEvent):
         sql_message.do_work(user_id, 0)
         msg = (f"道友不敌 {tower_floor_info['name']} 退出位面挑战【{tower_handle.tower_data[world_id].name}】！"
                f"本次抵达第{best_floor}区域，已记录！！")
+    # text = msg_handler(result)
+    # msg = main_md(msg, text, '继续挑战', '开始挑战', '查看下层', '查看挑战', '终止挑战', '离开挑战', '挑战帮助', '挑战帮助')
     await send_msg_handler(bot, event, result)
     await bot.send(event=event, message=msg)
     await tower_fight.finish()
