@@ -1,3 +1,4 @@
+import operator
 import os
 from base64 import b64encode
 from io import BytesIO
@@ -21,8 +22,8 @@ from ..xiuxian_utils.utils import (
     get_msg_pic, send_msg_handler,
     CommandObjectID
 )
-from ..xiuxian_utils.clean_utils import get_num_from_str
-from .impart_uitls import impart_check, get_rank, re_impart_data
+from ..xiuxian_utils.clean_utils import get_num_from_str, main_md
+from .impart_uitls import impart_check, get_rank, re_impart_data, get_rank_plus
 from .impart_data import impart_data_json
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.xiuxian2_handle import XIUXIAN_IMPART_BUFF
@@ -47,8 +48,7 @@ def img2b64(out_img) -> str:
     return base64_str
 
 
-impart_draw = on_command("传承抽卡", priority=16, permission=GROUP, block=True)
-impart_draw_fast = on_command("连续抽卡", priority=16, permission=GROUP, block=True)
+impart_draw_fast = on_command("连续抽卡", aliases={"传承抽卡"}, priority=16, permission=GROUP, block=True)
 impart_back = on_command("传承背包", aliases={"我的传承背包"}, priority=15, permission=GROUP, block=True)
 impart_info = on_command("传承信息", aliases={"我的传承信息", "我的传承"}, priority=10, permission=GROUP, block=True)
 impart_help = on_command("传承帮助", aliases={"虚神界帮助"}, priority=8, permission=GROUP, block=True)
@@ -102,7 +102,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         msg = f"没有找到此卡图！"
         await bot.send(event=event, message=msg)
         await impart_img.finish()
-    msg = f"\n传承卡图：{img_name}\n效果：\n"
+    msg = f"\r传承卡图：{img_name}\r效果：\r"
     if all_data[x]["type"] == "impart_two_exp":
         msg += "每日双修次数提升：" + str(all_data[x]["vale"])
     elif all_data[x]["type"] == "impart_exp_up":
@@ -129,158 +129,55 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     await impart_img.finish()
 
 
-@impart_draw_fast.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
+@impart_draw_fast.handle(parameterless=[Cooldown(cd_time=5, at_sender=False)])
 async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """传承抽卡多次"""
 
     _, user_info, _ = check_user(event)
-
     user_id = user_info['user_id']
     arg = args.extract_plain_text()
     num = get_num_from_str(arg)
-    if num:
-        num = int(num[0])
-    else:
-        num = 1
+    num = int(num[0]) if num else 1
     impart_data_draw = await impart_check(user_id)
-    if impart_data_draw is None:
-        msg = f"发生未知错误，多次尝试无果请找晓楠！"
-        await bot.send(event=event, message=msg)
+    fail_msg = [f"道友思恋结晶不足{num}个！！无法进行{num}次抽卡!"] if impart_data_draw.get('stone_num', 0) < num else ''
+    fail_msg += f"{num}次抽卡也太多拉！！100次100次慢慢来吧！！" if 100 < num else fail_msg
+    if fail_msg:
+        await bot.send(event=event, message='\r'.join(fail_msg))
         await impart_draw_fast.finish()
-    if impart_data_draw['stone_num'] < num:
-        msg = f"道友思恋结晶不足{num}个！！无法进行{num}次抽卡!"
-        await bot.send(event=event, message=msg)
-        await impart_draw_fast.finish()
-
-    if 100 < num:
-        msg = f"{num}次抽卡也太多拉！！100次100次慢慢来吧！！"
-        await bot.send(event=event, message=msg)
-        await impart_draw_fast.finish()
-    else:
-        time_count = 0
-        more_time = 0
-        had_card = ""
-        new_card = ""
-        card_all = ""
-        msg = f""
-        msg += f"\n道友{user_info['user_name']}的传承抽卡\n"
-        await xiuxian_impart.update_stone_num(num, user_id, 2)
-        for i in range(num):
-            if get_rank(user_id):
-                img_list = impart_data_json.data_all_keys()
-                reap_img = random.choice(img_list)
-                if impart_data_json.data_person_add(user_id, reap_img):
-                    more_time += 45
-                    time_count += 45
-                    had_card += reap_img + "、"
-                    card_all += reap_img + "\n"
-                    xiuxian_impart.add_impart_exp_day(90, user_id)
-                    xiuxian_impart.update_impart_wish(0, user_id)
-                    # 更新传承数据
-                else:
-                    new_card += reap_img + "、"
-                    card_all += reap_img + "\n"
-                    time_count += 45
-                    xiuxian_impart.add_impart_exp_day(45, user_id)
-                    xiuxian_impart.update_impart_wish(0, user_id)
-                    # 更新传承数据
-            else:
-                time_count += 50
-                xiuxian_impart.add_impart_exp_day(50, user_id)
-                xiuxian_impart.add_impart_wish(10, user_id)
-
-        none_count = int(time_count/5)
-        all_time = time_count + more_time
-        if had_card:
-            msg += f"获取重复传承卡片{had_card}\n"
-            msg += f"已转化为{more_time}分钟余剩虚神界内闭关时间\n"
-        if new_card:
-            msg += f"获取新传承卡片{new_card}\n"
-        msg += f"累计共获得{all_time}分钟余剩虚神界内闭关时间!\n"
-        msg += f"抽卡{10 * num}次结果如下：\n{card_all}5分钟虚神界闭关时间 X{none_count}\n"
-        await re_impart_data(user_id)
-        await bot.send(event=event, message=msg)
-        await impart_draw_fast.finish()
-
-
-@impart_draw.handle(parameterless=[Cooldown(at_sender=False)])
-async def impart_draw_(bot: Bot, event: GroupMessageEvent):
-    """传承抽卡"""
-
-    _, user_info, _ = check_user(event)
-
-    user_id = user_info['user_id']
-    impart_data_draw = await impart_check(user_id)
-    if impart_data_draw is None:
-        msg = f"发生未知错误，多次尝试无果请找晓楠！"
-        await bot.send(event=event, message=msg)
-        await impart_draw.finish()
-    if impart_data_draw['stone_num'] < 1:
-        msg = f"道友没有思恋结晶,无法抽卡!"
-        await bot.send(event=event, message=msg)
-        await impart_draw.finish()
-    else:
-        if get_rank(user_id):
-            img_list = impart_data_json.data_all_keys()
-            reap_img = None
-            try:
-                reap_img = random.choice(img_list)
-            except:
-                msg = f"请检查卡图数据完整！"
-                await bot.send(event=event, message=msg)
-                await impart_draw.finish()
-            list_tp = []
-            if impart_data_json.data_person_add(user_id, reap_img):
-                msg = f""
-                msg += f"道友{user_info['user_name']}的传承抽卡\n"
-                msg += f"检测到传承背包已经存在卡片{reap_img}\n"
-                msg += f"已转化为45分钟余剩虚神界内闭关时间\n"
-                msg += f"累计共获得90分钟余剩虚神界内闭关时间!\n"
-                msg += f"抽卡10次结果如下:\n{reap_img}\n5分钟虚神界闭关时间*9\n"
-                try:
-                    await bot.send(event=event, message=msg)
-                except ActionFailed:
-                    msg = f"未知原因，抽卡失败!"
-                    await bot.send(event=event, message=msg)
-                    await impart_draw.finish()
-                xiuxian_impart.add_impart_exp_day(90, user_id)
-                await xiuxian_impart.update_stone_num(1, user_id, 2)
-                xiuxian_impart.update_impart_wish(0, user_id)
-                # 更新传承数据
-                await re_impart_data(user_id)
-                await impart_draw.finish()
-            else:
-                msg = f""
-                msg += f"道友{user_info['user_name']}的传承抽卡\n"
-                msg += f"累计共获得45分钟余剩虚神界内闭关时间!\n"
-                msg += f"抽卡10次结果如下：\n新的传承卡片{reap_img}\n5分钟虚神界闭关时间*9\n"
-                try:
-                    await bot.send(event=event, message=msg)
-                except ActionFailed:
-                    msg = f"消息发送失败，抽卡失败!"
-                    await bot.send(event=event, message=msg)
-                    await impart_draw.finish()
-                xiuxian_impart.add_impart_exp_day(45, user_id)
-                await xiuxian_impart.update_stone_num(1, user_id, 2)
-                xiuxian_impart.update_impart_wish(0, user_id)
-                # 更新传承数据
-                await re_impart_data(user_id)
-                await impart_draw.finish()
+    card = 0
+    img_list = impart_data_json.data_all_keys()
+    user_impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+    wish_count = user_impart_data.get('wish')
+    msg = f"道友{user_info['user_name']}的传承抽卡"
+    await xiuxian_impart.update_stone_num(num, user_id, 2)
+    for i in range(num):
+        # 抽 num * 10 次
+        if get_rank_plus(wish_count):
+            card += 1
+            wish_count = 0
         else:
-            msg = f""
-            msg += f"道友{user_info['user_name']}的传承抽卡\n"
-            msg += f"累计共获得50分钟余剩虚神界内闭关时间!\n"
-            msg += f"抽卡10次结果如下!\n5分钟虚神界闭关时间*10\n——tips——\n如果思恋结晶太多的话，可以连续抽卡！！\n"
-            try:
-                await bot.send(event=event, message=msg)
-            except ActionFailed:
-                msg = f"未知原因，抽卡失败!"
-                await bot.send(event=event, message=msg)
-                await impart_draw.finish()
-            xiuxian_impart.add_impart_exp_day(50, user_id)
-            await xiuxian_impart.update_stone_num(1, user_id, 2)
-            xiuxian_impart.add_impart_wish(10, user_id)
-            await impart_draw.finish()
+            wish_count += 10
+    card_dict = {'had': [], 'new': []}
+    for _ in range(card):
+        reap_img = random.choice(img_list)
+        card_status = 'had' if impart_data_json.data_person_add(user_id, reap_img) else 'new'
+        card_dict[card_status].append(reap_img)
+    text = ''
+    if had_card := card_dict['had']:
+        text += f"获取重复传承卡片{'、'.join(had_card)}\r"
+        text += f"已转化为{len(had_card)*45}分钟余剩虚神界内闭关时间\r"
+    if new_card := card_dict['new']:
+        text += f"获取新传承卡片{'、'.join(new_card)}\r"
+    all_time = (num * 50) - (card * 5) + (len(had_card) * 45)
+    all_card = '\r'.join(operator.add(operator.add(new_card, had_card), [f"累计共获得{all_time}分钟余剩虚神界内闭关时间!\r"]))
+    text += f"抽卡{10 * num}次结果如下：\r"
+    text += f"{all_card}5分钟虚神界闭关时间 X{((num * 10) - card)}"
+    xiuxian_impart.add_impart_exp_day(all_time, user_id)
+    xiuxian_impart.update_impart_wish(wish_count, user_id)
+    msg = main_md(msg, text, '传承背包', '传承背包', '继续抽卡', '传承抽卡', '虚神界对决', '虚神界对决', '传承帮助', '传承帮助')
+    await re_impart_data(user_id)
+    await bot.send(event=event, message=msg)
+    await impart_draw_fast.finish()
 
 
 @impart_back.handle(parameterless=[Cooldown(at_sender=False)])
@@ -299,35 +196,28 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     msg = ""
 
     img_tp = impart_data_json.data_person_list(user_id)
-    msg += f"""--道友{user_info['user_name']}的传承物资--
-思恋结晶：{impart_data_draw['stone_num']}颗
-抽卡次数：{impart_data_draw['wish']}/90次
-传承卡图数量：{len(img_tp)}/106
-余剩虚神界内闭关时间：{impart_data_draw['exp_day']}分钟
-"""
-    msg += f"""--道友{user_info['user_name']}的传承总属性--
-攻击提升:{int(impart_data_draw['impart_atk_per'] * 100)}%
-气血提升:{int(impart_data_draw['impart_hp_per'] * 100)}%
-真元提升:{int(impart_data_draw['impart_mp_per'] * 100)}%
-会心提升：{int(impart_data_draw['impart_know_per'] * 100)}%
-会心伤害提升：{int(impart_data_draw['impart_burst_per'] * 100)}%
-闭关经验提升：{int(impart_data_draw['impart_exp_up'] * 100)}%
-炼丹收获数量提升：{impart_data_draw['impart_mix_per']}颗
-灵田收取数量提升：{impart_data_draw['impart_reap_per']}颗
-每日双修次数提升：{impart_data_draw['impart_two_exp']}次
-boss战攻击提升:{int(impart_data_draw['boss_atk'] * 100)}%
-道友拥有的传承卡片如下:
-"""
+    msg += (f"--道友{user_info['user_name']}的传承物资--\r"
+            f"思恋结晶：{impart_data_draw['stone_num']}颗\r"
+            f"抽卡次数：{impart_data_draw['wish']}/90次\r"
+            f"传承卡图数量：{len(img_tp)}/106\r"
+            f"余剩虚神界内闭关时间：{impart_data_draw['exp_day']}分钟\r")
+    text = (f"--道友{user_info['user_name']}的传承总属性--\r"
+            f"攻击提升:{int(impart_data_draw['impart_atk_per'] * 100)}%\r"
+            f"气血提升:{int(impart_data_draw['impart_hp_per'] * 100)}%\r"
+            f"真元提升:{int(impart_data_draw['impart_mp_per'] * 100)}%\r"
+            f"会心提升：{int(impart_data_draw['impart_know_per'] * 100)}%\r"
+            f"会心伤害提升：{int(impart_data_draw['impart_burst_per'] * 100)}%\r"
+            f"闭关经验提升：{int(impart_data_draw['impart_exp_up'] * 100)}%\r"
+            f"炼丹收获数量提升：{impart_data_draw['impart_mix_per']}颗\r"
+            f"灵田收取数量提升：{impart_data_draw['impart_reap_per']}颗\r"
+            f"每日双修次数提升：{impart_data_draw['impart_two_exp']}次\r"
+            f"boss战攻击提升:{int(impart_data_draw['boss_atk'] * 100)}%\r"
+            f"道友拥有的传承卡片如下:")
     img_tp = impart_data_json.data_person_list(user_id)
 
-    for x in range(len(img_tp)):
-        msg += str(img_tp[x]) + "\n"
-    try:
-        await bot.send(event=event, message=msg)
-    except ActionFailed:
-        msg = f"获取传承背包数据失败！"
-        await bot.send(event=event, message=msg)
-        await impart_back.finish()
+    text += "\r".join(img_tp)
+    msg = main_md(msg, text, '传承卡图 【卡图名称】', '传承卡图', '传承抽卡', '传承抽卡', '虚神界对决', '虚神界对决', '传承帮助', '传承帮助')
+    await bot.send(event=event, message=msg)
     await impart_back.finish()
 
 

@@ -62,7 +62,7 @@ class MixtureData:
             try:
                 c.execute(f"select {i} from mixture_table")
             except sqlite3.OperationalError:
-                print("<yellow>mixture_table有字段不存在，开始创建\n</yellow>")
+                print("<yellow>mixture_table有字段不存在，开始创建\r</yellow>")
                 sql = f"ALTER TABLE user_xiuxian ADD COLUMN {i} INTEGER DEFAULT 0;"
                 print(f"<green>{sql}</green>")
                 c.execute(sql)
@@ -145,8 +145,8 @@ class MixtureData:
 
 def fast_create():
     print("欢迎~~")
-    print("当前已有合成表：\n", MixtureData().get_all_table())
-    act = int(input("请决定您要进行的操作：\n1.创建合成表\n2.删除合成表\n"))
+    print("当前已有合成表：\r", MixtureData().get_all_table())
+    act = int(input("请决定您要进行的操作：\r1.创建合成表\r2.删除合成表\r"))
     if act == 1:
         item_id = int(input("合成目标物品id："))
 

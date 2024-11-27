@@ -67,7 +67,7 @@ class MixtureData:
             try:
                 c.execute(f"select {i} from mixture_table")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>mixture_table有字段不存在，开始创建\n</yellow>")
+                logger.opt(colors=True).info("<yellow>mixture_table有字段不存在，开始创建\r</yellow>")
                 sql = f"ALTER TABLE user_xiuxian ADD COLUMN {i} INTEGER DEFAULT 0;"
                 logger.opt(colors=True).info(f"<green>{sql}</green>")
                 c.execute(sql)

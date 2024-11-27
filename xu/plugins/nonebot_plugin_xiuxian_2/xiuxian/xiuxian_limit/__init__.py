@@ -41,17 +41,17 @@ async def offset_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         page_all = ((items_all // per_item) + 1) if (items_all % per_item != 0) else (items_all // per_item)  # 总页数
         page = int(page_msg[0]) if page_msg else 1
         if page_all < page:
-            msg = "\n补偿没有那么多页！！！"
+            msg = "\r补偿没有那么多页！！！"
             await bot.send(event=event, message=msg)
             await offset.finish()
         item_num = page * per_item - per_item
         item_num_end = item_num + per_item
         msg_hand = ["当前可领补偿如下："]  # 页面头
-        page_info = [f"第{page}/{page_all}页\n——tips——\n可以发送 补偿 页数 来查看更多页\n领取补偿 补偿id 来领取补偿哦"]  # 页面尾
+        page_info = [f"第{page}/{page_all}页\r——tips——\r可以发送 补偿 页数 来查看更多页\r领取补偿 补偿id 来领取补偿哦"]  # 页面尾
         msg_list = msg_hand + msg_list[item_num:item_num_end] + page_info
         pass
     else:
-        msg = "\n补偿列表当前空空如也！！！"
+        msg = "\r补偿列表当前空空如也！！！"
         await bot.send(event=event, message=msg)
         await offset.finish()
     await send_msg_handler(bot, event, '补偿列表', bot.self_id, msg_list)
@@ -77,7 +77,7 @@ async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         await offset.finish()
     # 检查通过，发放奖励
     items_info = offset_info.get("offset_items")
-    msg = "领取补偿成功：\n获取了：\n"
+    msg = "领取补偿成功：\r获取了：\r"
     for item_id in items_info:
         item_id = str(item_id)
         item_info = items.items.get(item_id)
@@ -86,11 +86,11 @@ async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
             item_type = item_info['type']
             item_num = items_info[int(item_id)]
             sql_message.send_back(user_id, item_id, item_name, item_type, item_num, 1)
-            msg += f"\n{item_name} {item_num}个！"
+            msg += f"\r{item_name} {item_num}个！"
         else:
-            msg += f"\n不存在的物品 0个"
+            msg += f"\r不存在的物品 0个"
     if offset_info['daily_update']:
-        msg += "\n明天还可继续领取哦！！"
+        msg += "\r明天还可继续领取哦！！"
     await bot.send(event=event, message=msg)
     await offset.finish()
 

@@ -95,7 +95,7 @@ class WorldTowerData:
             try:
                 c.execute(f"select {i} from {self.sql_user_table_name}")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info(f"<yellow>{self.sql_user_table_name}，开始创建\n</yellow>")
+                logger.opt(colors=True).info(f"<yellow>{self.sql_user_table_name}，开始创建\r</yellow>")
                 sql = f"ALTER TABLE {self.sql_user_table_name} ADD COLUMN {i} INTEGER DEFAULT 0;"
                 logger.opt(colors=True).info(f"<green>{sql}</green>")
                 c.execute(sql)
@@ -314,15 +314,15 @@ class TowerHandle(WorldTowerData):
 
     def get_user_tower_msg(self, user_info: dict):
         floor, tower = self.get_user_floor(user_info)
-        msg = (f"当前处于{tower.name}\n"
-               f"第{floor}区域\n")
+        msg = (f"当前处于{tower.name}\r"
+               f"第{floor}区域\r")
         next_floor = floor + 1
         enemy_info = self.get_tower_floor_info(next_floor, tower.place)
-        msg += (f"下区域道友将会遭遇\n"
-                f"【{enemy_info.get('name')}】\n"
-                f"气血：{number_to_msg(enemy_info.get('hp'))}\n"
-                f"真元：{number_to_msg(enemy_info.get('mp'))}\n"
-                f"攻击：{number_to_msg(enemy_info.get('atk'))}\n"
+        msg += (f"下区域道友将会遭遇\r"
+                f"【{enemy_info.get('name')}】\r"
+                f"气血：{number_to_msg(enemy_info.get('hp'))}\r"
+                f"真元：{number_to_msg(enemy_info.get('mp'))}\r"
+                f"攻击：{number_to_msg(enemy_info.get('atk'))}\r"
                 )
         return msg
 

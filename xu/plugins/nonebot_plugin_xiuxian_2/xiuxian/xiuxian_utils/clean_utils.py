@@ -239,12 +239,12 @@ def get_paged_msg(msg_list: list, page: int | Message,
     # 总页数
     page_all = ((items_all // per_page_item) + 1) if (items_all % per_page_item != 0) else (items_all // per_page_item)
     if page_all < page:
-        msg = [f"\n{cmd}没有那么多页！！！"]
+        msg = [f"\r{cmd}没有那么多页！！！"]
         return msg
     item_num = page * per_page_item - per_page_item
     item_num_end = item_num + per_page_item
     msg_head = [msg_head] if msg_head else []
-    page_info = [f"第{page}/{page_all}页\n——tips——\n可以发送 {cmd}+页数 来查看更多页！\n"]  # 页面尾
+    page_info = [f"第{page}/{page_all}页\r——tips——\r可以发送 {cmd}+页数 来查看更多页！\r"]  # 页面尾
     msg_list = msg_head + msg_list[item_num:item_num_end] + page_info
     return msg_list
 
@@ -332,7 +332,7 @@ def main_md(title, text,
             "values": [f"{quote(cmd_4)}"]
         }
     ]
-    msg = MessageSegmentPlus.markdown_template("102361815_1732201995", param)
+    msg = MessageSegmentPlus.markdown_template("102368631_1732506401", param)
     return msg
 
 

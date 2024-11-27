@@ -45,7 +45,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent):
     impart_pk.update_impart_pk_num(user_id)
     stones = 8
     await xiuxian_impart.update_stone_num(stones, user_id, 1)
-    combined_msg = f"\n进入虚神界与{NICKNAME}对决，将{NICKNAME}击败，获得思恋结晶{stones}颗"
+    combined_msg = f"\r进入虚神界与{NICKNAME}对决，将{NICKNAME}击败，获得思恋结晶{stones}颗"
     await bot.send(event=event, message=combined_msg)
     await impart_pk_now.finish()
 

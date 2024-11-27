@@ -91,7 +91,7 @@ async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
         mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
         mix_elixir_info['收取时间'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
-        msg = f"恭喜道友拥有了自己的洞天福地，请收集聚灵旗来提升洞天福地的等级吧~\n"
+        msg = f"恭喜道友拥有了自己的洞天福地，请收集聚灵旗来提升洞天福地的等级吧~\r"
         msg += f"默认名称为：{user_info['user_name']}道友的家"
         sql_message.update_user_blessed_spot_name(user_id, f"{user_info['user_name']}道友的家")
         await bot.send(event=event, message=msg)
@@ -108,15 +108,15 @@ async def blessed_spot_info_(bot: Bot, event: GroupMessageEvent):
         msg = f"道友还没有洞天福地呢，请发送洞天福地购买来购买吧~"
         await bot.send(event=event, message=msg)
         await blessed_spot_info.finish()
-    msg = f"\n道友的洞天福地:\n"
+    msg = f"\r道友的洞天福地:\r"
     user_buff_data = UserBuffDate(user_id).BuffInfo
     if user_info['blessed_spot_name'] == 0:
         blessed_spot_name = "尚未命名"
     else:
         blessed_spot_name = user_info['blessed_spot_name']
     mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
-    msg += f"名字：{blessed_spot_name}\n"
-    msg += f"修炼速度：增加{int(user_buff_data['blessed_spot']) * 100}%\n"
+    msg += f"名字：{blessed_spot_name}\r"
+    msg += f"修炼速度：增加{int(user_buff_data['blessed_spot']) * 100}%\r"
     msg += f"灵田数量：{mix_elixir_info['灵田数量']}"
     await bot.send(event=event, message=msg)
     await blessed_spot_info.finish()

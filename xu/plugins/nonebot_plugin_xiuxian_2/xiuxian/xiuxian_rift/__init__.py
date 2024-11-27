@@ -47,7 +47,7 @@ rift_protect_msg = on_command("查看秘境战斗事件保底", priority=5, perm
 
 # 秘境类改动，将原group分隔的群秘境形式更改为位置（依旧套用group），位置实现方式为位置与状态压成元组，原状态访问[0]数据，位置访问[1]数据
 __rift_help__ = f"""
-\n———秘境帮助———
+\r———秘境帮助———
 1、探索秘境:
 >消耗240点体力探索秘境获取随机奖励
 2、秘境结算:
@@ -95,7 +95,7 @@ async def set_rift_(place_cls=place):
             world_rift[world_id] = rift
             world_name = place_cls.get_world_name(place_id)
             place_name = place_cls.get_place_name(place_id)
-            msg = (f"秘境：【{rift.name}】已在【{world_name}】的【{place_name}】开启！\n"
+            msg = (f"秘境：【{rift.name}】已在【{world_name}】的【{place_name}】开启！\r"
                    f"请诸位身在{world_name}的道友前往{place_name}(ID:{place_id})发送 探索秘境 来加入吧！")
 
 
@@ -138,7 +138,7 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
             world_rift[world_id] = rift
             world_name = place.get_world_name(place_id)
             place_name = place.get_place_name(place_id)
-            msg = (f"秘境：【{rift.name}】已在【{world_name}】的【{place_name}】开启！\n"
+            msg = (f"秘境：【{rift.name}】已在【{world_name}】的【{place_name}】开启！\r"
                    f"请诸位身在{world_name}的道友前往{place_name}(ID:{place_id})发送 探索秘境 来加入吧！")
             await bot.send(event=event, message=msg)
     await create_rift.finish()
@@ -183,8 +183,8 @@ async def explore_rift_(bot: Bot, event: GroupMessageEvent):
         else:
             far, start_place, to_place = place.get_distance(place_id, world_rift[world_id].place)
             sql_message.update_user_stamina(user_id, 240, 1)
-            msg = (f"\n道友所在位置没有秘境出世!!\n"
-                   f"当前位面【{world_name}】的秘境【{world_rift[world_id].name}】在距你{far:.1f}万里的：【{to_place}】\n"
+            msg = (f"\r道友所在位置没有秘境出世!!\r"
+                   f"当前位面【{world_name}】的秘境【{world_rift[world_id].name}】在距你{far:.1f}万里的：【{to_place}】\r"
                    f"可以发送【前往 {to_place}】来前去秘境所在位置探索哦！")
             await bot.send(event=event, message=msg)
             await explore_rift.finish()
@@ -200,7 +200,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
 
     is_type, msg = check_user_type(user_id, 3)  # 需要在秘境的用户
     if not is_type:
-        msg += "\n道友现在没在探索秘境呢"
+        msg += "\r道友现在没在探索秘境呢"
         await bot.send(event=event, message=msg)
         await complete_rift.finish()
     else:

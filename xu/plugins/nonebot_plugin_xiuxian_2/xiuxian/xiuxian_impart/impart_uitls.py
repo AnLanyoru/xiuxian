@@ -33,6 +33,18 @@ def get_rank(user_id):
     return False
 
 
+def get_rank_plus(wish_count):
+    value = random_int()
+    num = int(wish_count)
+    for x in range(num, num + 10):
+        index_5 = character_probability(x)
+        if value <= index_5:
+            return True
+        if x >= 89:
+            return True
+    return False
+
+
 async def impart_check(user_id):
     impart_data_json.find_user_impart(user_id)
     if xiuxian_impart.get_user_info_with_id(user_id) is None:

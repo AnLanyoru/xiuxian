@@ -38,7 +38,7 @@ class CheckLimit:
         had_send_stone_num = limit_dict.get("send_stone")
         left_send_stone_num = max_send_stone_num - had_send_stone_num
         if stone_prepare_send > left_send_stone_num:
-            msg = f"\n道友欲送灵石数量超出今日送灵石上限\n道友今日还可送{number_to(left_send_stone_num)}|{left_send_stone_num}灵石"
+            msg = f"\r道友欲送灵石数量超出今日送灵石上限\r道友今日还可送{number_to(left_send_stone_num)}|{left_send_stone_num}灵石"
             return msg, False
         else:
             had_send_stone_num += stone_prepare_send
@@ -58,7 +58,7 @@ class CheckLimit:
         had_receive_stone_num = limit_dict.get("receive_stone")
         left_receive_stone_num = max_receive_stone_num - had_receive_stone_num
         if stone_prepare_receive > left_receive_stone_num:
-            msg = f"\n道友欲送灵石数量超出对方今日收灵石上限\n对方今日还可收{number_to(left_receive_stone_num)}|{left_receive_stone_num}灵石"
+            msg = f"\r道友欲送灵石数量超出对方今日收灵石上限\r对方今日还可收{number_to(left_receive_stone_num)}|{left_receive_stone_num}灵石"
             return msg, False
         else:
             had_receive_stone_num += stone_prepare_receive
@@ -112,8 +112,8 @@ class CheckLimit:
             receive_name = receive_user_info["user_name"]
             send_name = send_user_info["user_name"]
             send_msg = f"{send_name}道友成功赠送{receive_name}道友{number_to(num)}|{num}枚灵石"
-            limit_msg = (f"\n{send_name}道友今日还可送{number_to(send_left)}|{send_left}枚灵石"
-                         f"\n{receive_name}道友今日还可收取{number_to(receive_left)}|{receive_left}枚灵石")
+            limit_msg = (f"\r{send_name}道友今日还可送{number_to(send_left)}|{send_left}枚灵石"
+                         f"\r{receive_name}道友今日还可收取{number_to(receive_left)}|{receive_left}枚灵石")
             return send_msg, limit_msg, True
         else:
             receive_msg = result_receive if not is_receive_pass else ""
@@ -127,7 +127,7 @@ class CheckLimit:
         left_stone_exp_up = self.max_stone_exp_up - had_stone_exp_up
         if num <= left_stone_exp_up:
             left_stone_exp_up = self.max_stone_exp_up - had_stone_exp_up - num
-            msg = (f"\n余剩灵石修炼限额{number_to(left_stone_exp_up)}/{number_to(self.max_stone_exp_up)}"
+            msg = (f"\r余剩灵石修炼限额{number_to(left_stone_exp_up)}/{number_to(self.max_stone_exp_up)}"
                    f"|{left_stone_exp_up}/{self.max_stone_exp_up}")
             had_stone_exp_up += num
             limit_dict["stone_exp_up"] = had_stone_exp_up
@@ -135,9 +135,9 @@ class CheckLimit:
             return had_stone_exp_up, msg, True
         else:
             msg = (f"无法使用这么多的灵石修炼啦！！"
-                   f"\n道友今天已经消耗了{number_to(had_stone_exp_up)}|{had_stone_exp_up}枚灵石进行快速修炼了！"
-                   f"\n切莫急于求成，小心道基不稳！！"
-                   f"\n余剩灵石修炼限额{number_to(left_stone_exp_up)}/{number_to(self.max_stone_exp_up)}"
+                   f"\r道友今天已经消耗了{number_to(had_stone_exp_up)}|{had_stone_exp_up}枚灵石进行快速修炼了！"
+                   f"\r切莫急于求成，小心道基不稳！！"
+                   f"\r余剩灵石修炼限额{number_to(left_stone_exp_up)}/{number_to(self.max_stone_exp_up)}"
                    f"|{left_stone_exp_up}/{self.max_stone_exp_up}")
             return had_stone_exp_up, msg, False
         pass

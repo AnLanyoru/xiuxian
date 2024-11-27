@@ -38,12 +38,12 @@ async def tower_rule_(
         bot: Bot,                     # 机器人实例
         event: GroupMessageEvent,     # 消息主体
 ):
-    msg = ("- 挑战之地规则详情 -\n"
-           "进入挑战之地后，无法进行修炼。\n"
-           "挑战之地积分在进入新的挑战之地后，如变更挑战之地，将会清空原有积分。\n"
-           "如：灵虚古境挑战者飞升后进入紫霄神渊，将清空积分\n"
-           "挑战层层连续进行，中途退出将直接结算本次挑战，记录最高抵达层数\n"
-           "重新开始挑战将自最高层数记录的一半开始挑战\n"
+    msg = ("- 挑战之地规则详情 -\r"
+           "进入挑战之地后，无法进行修炼。\r"
+           "挑战之地积分在进入新的挑战之地后，如变更挑战之地，将会清空原有积分。\r"
+           "如：灵虚古境挑战者飞升后进入紫霄神渊，将清空积分\r"
+           "挑战层层连续进行，中途退出将直接结算本次挑战，记录最高抵达层数\r"
+           "重新开始挑战将自最高层数记录的一半开始挑战\r"
            "每周天八点重置结算挑战积分次数")
     await bot.send(event, msg)
     await tower_rule.finish()
@@ -110,9 +110,8 @@ async def tower_fight_(bot: Bot, event: GroupMessageEvent):
         sql_message.do_work(user_id, 0)
         msg = (f"道友不敌 {tower_floor_info['name']} 退出位面挑战【{tower_handle.tower_data[world_id].name}】！"
                f"本次抵达第{best_floor}区域，已记录！！")
-    # text = msg_handler(result)
-    # msg = main_md(msg, text, '继续挑战', '开始挑战', '查看下层', '查看挑战', '终止挑战', '离开挑战', '挑战帮助', '挑战帮助')
-    await send_msg_handler(bot, event, result)
+    text = msg_handler(result)
+    msg = main_md(msg, text, '继续挑战', '开始挑战', '查看下层', '查看挑战', '终止挑战', '离开挑战', '挑战帮助', '挑战帮助')
     await bot.send(event=event, message=msg)
     await tower_fight.finish()
 
@@ -153,8 +152,8 @@ async def tower_start_(bot: Bot, event: GroupMessageEvent):
             await tower_start.finish()
         else:
             far, start_place, to_place = place.get_distance(place_id, tower_handle.tower_data[world_id].place)
-            msg = (f"\n道友所在位置没有位面挑战!!\n"
-                   f"当前位面【{world_name}】的位面挑战【{tower_handle.tower_data[world_id].name}】在距你{far:.1f}万里的：【{to_place}】\n"
+            msg = (f"\r道友所在位置没有位面挑战!!\r"
+                   f"当前位面【{world_name}】的位面挑战【{tower_handle.tower_data[world_id].name}】在距你{far:.1f}万里的：【{to_place}】\r"
                    f"可以发送【前往 {to_place}】来前去位面挑战所在位置挑战！")
             await bot.send(event=event, message=msg)
             await tower_start.finish()

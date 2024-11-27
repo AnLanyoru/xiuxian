@@ -187,7 +187,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     if mode is None:  # 接取逻辑
         if (user_cd_info['scheduled_time'] is None) or (user_cd_info['type'] == 0):
             try:
-                msg = work[user_id].msg + "\n——————————————\n使用 悬赏令接取【序号】 接取对应悬赏令！"
+                msg = work[user_id].msg + "\r——————————————\r使用 悬赏令接取【序号】 接取对应悬赏令！"
             except KeyError:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
         elif user_cd_info['type'] == 2:
@@ -250,20 +250,20 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         work_msg = workhandle().do_work(0, level=user_level, exp=user_info['exp'], user_id=user_id)
         n = 1
         work_list = []
-        work_msg_f = f"☆------道友的个人悬赏令------☆\n"
+        work_msg_f = f"☆------道友的个人悬赏令------☆\r"
         for i in work_msg:
             work_list.append([i[0], i[3]])
             work_msg_f += f"{n}、{get_work_msg(i)}"
             n += 1
         work_msg_f += f"(悬赏令每日次数：{count}, 今日余剩新次数：{freenum}次)"
         if item_use:
-            work_msg_f += f"\n道友消耗悬赏衙牌一枚，成功刷新悬赏令，余剩衙牌{goods_num - 1}枚。"
+            work_msg_f += f"\r道友消耗悬赏衙牌一枚，成功刷新悬赏令，余剩衙牌{goods_num - 1}枚。"
         else:
             sql_message.update_work_num(user_id, usernums + 1)
         work[user_id] = do_is_work(user_id)
         work[user_id].msg = work_msg_f
         work[user_id].world = work_list
-        msg = work[user_id].msg + "\n——————————————\n在10秒内直接回复我需要接取的悬赏令序号快速接取对应悬赏令！"
+        msg = work[user_id].msg + "\r——————————————\r在10秒内直接回复我需要接取的悬赏令序号快速接取对应悬赏令！"
         await bot.send(event=event, message=msg)
 
     elif mode == "终止":
@@ -406,5 +406,5 @@ async def get_work_num(bot: Bot, event: GroupMessageEvent):
 
 
 def get_work_msg(work_):
-    msg = f"{work_[0]},完成机率{work_[1]},基础报酬{work_[2]}修为,预计需{work_[3]}分钟{work_[4]}\n"
+    msg = f"{work_[0]},完成机率{work_[1]},基础报酬{work_[2]}修为,预计需{work_[3]}分钟{work_[4]}\r"
     return msg

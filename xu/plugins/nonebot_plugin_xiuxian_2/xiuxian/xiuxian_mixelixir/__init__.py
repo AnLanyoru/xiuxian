@@ -162,7 +162,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
             msg = ''
             if not yaocai_id_list:
                 sql_message.send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
-                msg += f"道友成功收获药材：恒心草 {num} 个！\n"
+                msg += f"道友成功收获药材：恒心草 {num} 个！\r"
             else:
                 i = 1
                 give_dict = {}
@@ -176,7 +176,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
                         i += 1
                 for k, v in give_dict.items():
                     goods_info = items.get_data_by_item_id(k)
-                    msg += f"道友成功收获药材：{goods_info['name']} {v} 个！\n"
+                    msg += f"道友成功收获药材：{goods_info['name']} {v} 个！\r"
                     sql_message.send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
             mix_elixir_info['收取时间'] = nowtime
             save_player_info(user_id, mix_elixir_info, "mix_elixir_info")
@@ -200,10 +200,10 @@ async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     mix_elixir_info = get_player_info(user_id, 'mix_elixir_info')
     l_msg = [f"☆------道友的炼丹信息------☆"]
-    msg = f"药材收取等级：{mix_elixir_info['收取等级']}\n"
-    msg += f"丹药控火等级：{mix_elixir_info['丹药控火']}\n"
-    msg += f"丹药耐药性等级：{mix_elixir_info['丹药耐药性']}\n"
-    msg += f"炼丹经验：{mix_elixir_info['炼丹经验']}\n"
+    msg = f"药材收取等级：{mix_elixir_info['收取等级']}\r"
+    msg += f"丹药控火等级：{mix_elixir_info['丹药控火']}\r"
+    msg += f"丹药耐药性等级：{mix_elixir_info['丹药耐药性']}\r"
+    msg += f"炼丹经验：{mix_elixir_info['炼丹经验']}\r"
     l_msg.append(msg)
     if mix_elixir_info['炼丹记录'] != {}:
         l_msg.append(f"☆------道友的炼丹记录------☆")
@@ -287,14 +287,14 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
         l_msg = []
         for k, v in finall_mix_elixir_msg.items():
             goods_info = items.get_data_by_item_id(v['id'])
-            msg = f"名字：{goods_info['name']}\n"
-            msg += f"效果：{goods_info['desc']}\n"
-            msg += f"配方：{v['配方']['配方简写']}丹炉{ldl_name}\n"
-            msg += f"☆------药材清单------☆\n"
-            msg += f"主药：{v['配方']['主药']},{v['配方']['主药_level']}，数量：{v['配方']['主药_num']}\n"
-            msg += f"药引：{v['配方']['药引']},{v['配方']['药引_level']}，数量：{v['配方']['药引_num']}\n"
+            msg = f"名字：{goods_info['name']}\r"
+            msg += f"效果：{goods_info['desc']}\r"
+            msg += f"配方：{v['配方']['配方简写']}丹炉{ldl_name}\r"
+            msg += f"☆------药材清单------☆\r"
+            msg += f"主药：{v['配方']['主药']},{v['配方']['主药_level']}，数量：{v['配方']['主药_num']}\r"
+            msg += f"药引：{v['配方']['药引']},{v['配方']['药引_level']}，数量：{v['配方']['药引_num']}\r"
             if v['配方']['辅药_num'] != 0:
-                msg += f"辅药：{v['配方']['辅药']},{v['配方']['辅药_level']}，数量：{v['配方']['辅药_num']}\n"
+                msg += f"辅药：{v['配方']['辅药']},{v['配方']['辅药_level']}，数量：{v['配方']['辅药_num']}\r"
             l_msg.append(msg)
         if len(l_msg) > 51:
             l_msg = l_msg[:50]
@@ -455,8 +455,8 @@ async def elixir_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         # 获取页数物品数量
         item_num = page * 12 - 12
         item_num_end = item_num + 12
-        msg = [f"\n{user_info['user_name']}的背包"] + msg[item_num:item_num_end]
-        msg += [f"\n第 {page}/{page_all} 页\n☆————tips————☆\n可以发送丹药背包+页数来查看更多页数的物品哦"]
+        msg = [f"\r{user_info['user_name']}的背包"] + msg[item_num:item_num_end]
+        msg += [f"\r第 {page}/{page_all} 页\r☆————tips————☆\r可以发送丹药背包+页数来查看更多页数的物品哦"]
     else:
         msg = ["道友的丹药背包空空如也！"]
     try:
@@ -490,7 +490,7 @@ async def yaocai_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         page_all = 30
 
     if msg:
-        msg_head = f"\n{user_info['user_name']}的药材背包"
+        msg_head = f"\r{user_info['user_name']}的药材背包"
         msg = get_paged_msg(msg_list=msg, page=page, cmd=cmd, per_page_item=page_all, msg_head=msg_head)
     else:
         msg = ["道友的药材背包空空如也！"]

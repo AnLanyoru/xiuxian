@@ -17,15 +17,15 @@ current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 def fast_handle():
     now_time = date.today()
-    print("欢迎使用快速活动&补偿&限制操作系统\n", "现在是：", now_time, '\n')
+    print("欢迎使用快速活动&补偿&限制操作系统\r", "现在是：", now_time, '\r')
     print(
-        "请选择你要进行的操作：\n1：操作活动信息\n2：操作补偿信息\n3：操作用户限制信息(making)\n4：进行模拟用户操作(测试用)")
+        "请选择你要进行的操作：\r1：操作活动信息\r2：操作补偿信息\r3：操作用户限制信息(making)\r4：进行模拟用户操作(测试用)")
     choice = None
     while choice not in [1, 2, 3, 4]:
         choice = int(input("请选择你要进行的操作:"))
     if choice == 1:
         print("当前已有活动信息：", LimitHandle().get_active_msg())
-        print("请选择你要进行的操作：\n1：添加活动\n2：删除活动(制作中)\n3：修改活动(制作中)\n")
+        print("请选择你要进行的操作：\r1：添加活动\r2：删除活动(制作中)\r3：修改活动(制作中)\r")
         choice = None
         while choice not in [1, 2, 3]:
             choice = int(input())
@@ -47,10 +47,10 @@ def fast_handle():
         pass
     elif choice == 2:
         print("当前已有补偿信息：", LimitHandle().get_offset_list())
-        print("请选择你要进行的操作：\n1：添加补偿\n2：删除补偿\n3：修改补偿(制作中)\n4：查询补偿详情信息\n")
+        print("请选择你要进行的操作：\r1：添加补偿\r2：删除补偿\r3：修改补偿(制作中)\r4：查询补偿详情信息\r")
         choice = None
         while choice not in [1, 2, 3, 4]:
-            choice = int(input("请输入需要进行的操作id：\n"))
+            choice = int(input("请输入需要进行的操作id：\r"))
         if choice == 1:
             offset_id = int(input("请输入补偿id："))
             offset_name = input("请输入补偿名称：")
@@ -86,7 +86,7 @@ def fast_handle():
             offset_id = int(input("请输入你想要查询的补偿id："))
             info = LimitData().get_offset_by_id(offset_id)
             if info:
-                print("查询到如下信息：\n" + LimitHandle().change_offset_info_to_msg(info))
+                print("查询到如下信息：\r" + LimitHandle().change_offset_info_to_msg(info))
             else:
                 print("没有相关补偿信息！！")
         pass
@@ -97,11 +97,11 @@ def fast_handle():
         choice_type = None
         project_type = 0
         while choice_type is None:
-            project_type = int(input("请输入要模拟的项目id：\n1-7观察总表\n"))
+            project_type = int(input("请输入要模拟的项目id：\r1-7观察总表\r"))
             choice_type = LimitHandle().keymap.get(project_type)
         if project_type < 6:
-            project_value = int(input("请输入要模拟的项目值：\n"))
-            project_mode = int(input("请输入要模拟的项目模式(0加1减)：\n"))
+            project_value = int(input("请输入要模拟的项目值：\r"))
+            project_mode = int(input("请输入要模拟的项目模式(0加1减)：\r"))
             LimitHandle().update_user_limit(user_id, project_type, project_value, project_mode)
         elif project_type < 7:
             print("当前已有补偿信息：", LimitHandle().get_offset_list())

@@ -80,7 +80,7 @@ def check_user_type(user_id, need_type):
             msg = "道友现在正在秘境中，分身乏术！"
 
         elif user_type == 4:
-            msg = "道友正在修炼中，请抱元守一，聚气凝神，勿要分心！\n若是调用修炼看到此消息，道友大概率需要：\n【停止修炼】！！！"
+            msg = "道友正在修炼中，请抱元守一，聚气凝神，勿要分心！\r若是调用修炼看到此消息，道友大概率需要：\r【停止修炼】！！！"
 
         elif user_type == 5:
             msg = "道友正在虚神界修炼中，请抱元守一，聚气凝神，勿要分心！"
@@ -164,14 +164,14 @@ class Txt2Img:
         for x in text:
             text_new += x
             text_len += use_font.getlength(x)
-            if x == "\n":
+            if x == "\r":
                 text_len = 0
             if text_len >= max_text_len:
                 text_len = 0
-                text_new += "\n"
-        text_new = text_new.replace("\n\n", "\n")
+                text_new += "\r"
+        text_new = text_new.replace("\r\r", "\r")
         text_new = text_new.rstrip()
-        line_num = line_num + text_new.count("\n")
+        line_num = line_num + text_new.count("\r")
         return text_new, line_num
 
     def sync_draw_to(self, text, boss_name="", scale=True):
@@ -188,9 +188,9 @@ class Txt2Img:
             if line_num < 5:
                 blank_space = int(5 - line_num)
                 line_num = 5
-                text += "\n"
+                text += "\r"
                 for k in range(blank_space):
-                    text += "(^ ᵕ ^)\n"
+                    text += "(^ ᵕ ^)\r"
             else:
                 line_num = line_num
         else:
@@ -297,8 +297,8 @@ class Txt2Img:
 
         lrc = self.wrap(lrc)
 
-        if lrc.find("\n") > -1:
-            lrc_rows = len(lrc.split("\n"))
+        if lrc.find("\r") > -1:
+            lrc_rows = len(lrc.split("\r"))
         else:
             lrc_rows = 1
 
@@ -426,11 +426,11 @@ class Txt2Img:
         for ch in string:
             result += ch
             temp_len += wcwidth(ch)
-            if ch == '\n':
+            if ch == '\r':
                 temp_len = 0
             if temp_len >= max_width:
                 temp_len = 0
-                result += '\n'
+                result += '\r'
         result = result.rstrip()
         return result
 
@@ -493,7 +493,7 @@ async def send_msg_handler(bot, event, *args):
         if len(args) == 3:
             name, uin, msgs = args
             img = Txt2Img()
-            messages = '\n'.join(msgs)
+            messages = '\r'.join(msgs)
             if XiuConfig().img_send_type == "io":
                 img_data = await img.io_draw_to(messages)
             elif XiuConfig().img_send_type == "base64":
@@ -506,7 +506,7 @@ async def send_msg_handler(bot, event, *args):
         elif len(args) == 1 and isinstance(args[0], list):
             messages = args[0]
             img = Txt2Img()
-            messages = '\n'.join([str(msg['data']['content']) for msg in messages])
+            messages = '\r'.join([str(msg['data']['content']) for msg in messages])
             if XiuConfig().img_send_type == "io":
                 img_data = await img.io_draw_to(messages)
             elif XiuConfig().img_send_type == "base64":
@@ -644,7 +644,7 @@ async def pic_msg_format(msg, event):
     user_name = (
         event.sender.card if event.sender.card else event.sender.nickname
     )
-    result = "@" + user_name + "\n" + msg
+    result = "@" + user_name + "\r" + msg
     return result
 
 

@@ -359,10 +359,10 @@ class LimitHandle:
     def get_active_msg(self):
         """活动简要信息"""
         idmap = LimitData().get_active_idmap()
-        msg = "\n"
+        msg = "\r"
         if idmap:
             for name in idmap:
-                msg += f"活动ID：{idmap[name]}  活动名称：{name}\n"
+                msg += f"活动ID：{idmap[name]}  活动名称：{name}\r"
             return msg
         else:
             return None
@@ -370,10 +370,10 @@ class LimitHandle:
     def get_offset_list(self):
         """补偿简要列表"""
         idmap = LimitData().get_offset_idmap()
-        msg = "\n"
+        msg = "\r"
         if idmap:
             for name in idmap:
-                msg += f"补偿ID：{idmap[name]}  补偿名称：{name}\n"
+                msg += f"补偿ID：{idmap[name]}  补偿名称：{name}\r"
             return msg
         else:
             return None
@@ -392,16 +392,16 @@ class LimitHandle:
             last_time = offset_info.get("last_time")
             state = offset_info.get("state")  # 思恋结晶，灵石等补偿数据存放，开发中
             daily_update = offset_info.get("daily_update")
-            msg = f"补偿ID：{offset_id}\n补偿名称：{name}\n补偿介绍：{desc}\n"
+            msg = f"补偿ID：{offset_id}\r补偿名称：{name}\r补偿介绍：{desc}\r"
             if offset_items:
-                msg += "包含物品：\n"
+                msg += "包含物品：\r"
                 for item_id in offset_items:
-                    msg += f"物品：{items.items.get(str(item_id), {}).get('name', '不存在的物品')}  物品数量：{offset_items[item_id]}\n"
-            msg += f"补偿领取截止时间：{last_time}\n"
+                    msg += f"物品：{items.items.get(str(item_id), {}).get('name', '不存在的物品')}  物品数量：{offset_items[item_id]}\r"
+            msg += f"补偿领取截止时间：{last_time}\r"
             if daily_update:
-                msg += "每日刷新领取\n"
+                msg += "每日刷新领取\r"
             else:
-                msg += "只可领取一次\n"
+                msg += "只可领取一次\r"
             return msg
 
     def get_offset_msg(self, offset_id):
@@ -427,9 +427,9 @@ class LimitHandle:
             is_get_offset = self.check_user_offset(user_id, offset_id)
             offset_msg = self.get_offset_msg(offset_id)
             if is_get_offset:
-                offset_msg += "可领取\n"
+                offset_msg += "可领取\r"
             else:
-                offset_msg += "无法领取\n"
+                offset_msg += "无法领取\r"
             offset_list.append(offset_msg)
         return offset_list
 
@@ -606,7 +606,7 @@ class LimitHandle:
             logs = state_dict.get('log')
         except:
             logs = None
-        log_data = "时间：" + str(now_date) + "\n" + msg_body
+        log_data = "时间：" + str(now_date) + "\r" + msg_body
         if logs:
             logs.append(log_data)
             if len(logs) > 10:
@@ -647,7 +647,7 @@ class LimitHandle:
             logs = state_dict.get('shop_log')
         except:
             logs = None
-        log_data = "时间：" + str(now_date) + "\n" + msg_body
+        log_data = "时间：" + str(now_date) + "\r" + msg_body
         if logs:
             logs.append(log_data)
             if len(logs) > 10:

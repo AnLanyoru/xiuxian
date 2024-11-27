@@ -83,7 +83,7 @@ class IMPART_DATA(object):
         :param user_id: qq号
         """
         user_id = str(user_id)
-        list_data_person_list = None
+        list_data_person_list = []
         try:
             list_data_person_list = self.data_person[user_id]
             return list_data_person_list

@@ -81,7 +81,7 @@ class UserStoreData:
             try:
                 c.execute(f"select {i} from {self.sql_items_table_name}")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info(f"<yellow>{self.sql_items_table_name}，开始创建\n</yellow>")
+                logger.opt(colors=True).info(f"<yellow>{self.sql_items_table_name}，开始创建\r</yellow>")
                 sql = f"ALTER TABLE {self.sql_items_table_name} ADD COLUMN {i} INTEGER DEFAULT 0;"
                 logger.opt(colors=True).info(f"<green>{sql}</green>")
                 c.execute(sql)
@@ -391,9 +391,9 @@ class UserStoreHandle:
             need_items_num = need_items_num if need_items_num else "不限"
             need_item_map[num] = need_item_id
             msg_list.append(
-                f"\n编号: {num}\n"
-                f"物品名称：{need_item_name}\n"
-                f"求购价格：{number_to_msg(need_items_price)}\n"
+                f"\r编号: {num}\r"
+                f"物品名称：{need_item_name}\r"
+                f"求购价格：{number_to_msg(need_items_price)}\r"
                 f"需求数量：{need_items_num}"
             )
             num += 1
@@ -431,9 +431,9 @@ class UserStoreHandle:
         need_items_price = want_item['need_items_price']
         need_items_num = want_item['need_items_num']
         need_items_num = need_items_num if need_items_num else "不限"
-        msg += (f"\n物品名称：{need_item_name}"
-                f"\n求购价格：{number_to_msg(need_items_price)}"
-                f"\n需求数量：{need_items_num}")
+        msg += (f"\r物品名称：{need_item_name}"
+                f"\r求购价格：{number_to_msg(need_items_price)}"
+                f"\r需求数量：{need_items_num}")
         return msg
 
     def check_highest_want_item(self, user_id, item_id, sell_item_num, get_info: str = 0) -> str | dict | None:
@@ -465,9 +465,9 @@ class UserStoreHandle:
         need_items_price = want_item['need_items_price']
         need_items_num = want_item['need_items_num']
         need_items_num = need_items_num if need_items_num else "不限"
-        msg = f"{need_item_name}的最高求购：\n"
-        msg += (f"物品名称：{need_item_name}\n"
-                f"求购价格：{number_to_msg(need_items_price)}\n"
+        msg = f"{need_item_name}的最高求购：\r"
+        msg += (f"物品名称：{need_item_name}\r"
+                f"求购价格：{number_to_msg(need_items_price)}\r"
                 f"需求数量：{need_items_num}")
         return msg
 

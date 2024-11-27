@@ -123,7 +123,7 @@ async def back_help_(bot: Bot, event: GroupMessageEvent):
             sql_message.del_back_item(user_id, item_id)
             sql_message.send_back(user_id, item_id, old_name, old_type, max((old_num-old_bind_num), 0))
             sql_message.send_back(user_id, item_id, old_name, old_type, old_bind_num, 1)
-            msg += f"\n检测到 {old_name} 重复，遗失数据：{old_num}个，绑定数量{old_bind_num}个"
+            msg += f"\r检测到 {old_name} 重复，遗失数据：{old_num}个，绑定数量{old_bind_num}个"
         else:
             item_check[item_id] = 1
     await bot.send(event=event, message=msg)
@@ -256,17 +256,17 @@ async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()
     arg = get_strs_from_str(args.extract_plain_text())
     desc_on = True if "详情" in arg else False
     for k, v in shop_data[place_id].items():
-        msg = f"编号：{k}\n"
+        msg = f"编号：{k}\r"
         if desc_on:
             msg += f"{v['desc']}"
         else:
             msg += f"{v['goods_name']}"
-        msg += f"\n价格：{number_to(v['price'])}|{v['price']}枚灵石\n"
+        msg += f"\r价格：{number_to(v['price'])}|{v['price']}枚灵石\r"
         if v['user_id'] != 0:
-            msg += f"拥有人：{v['user_name']}道友\n"
-            msg += f"数量：{v['stock']}\n"
+            msg += f"拥有人：{v['user_name']}道友\r"
+            msg += f"数量：{v['stock']}\r"
         else:
-            msg += f"百宝楼寄售\n"
+            msg += f"百宝楼寄售\r"
         data_list.append(msg)
     items_all = len(data_list)
     page_all = ((items_all // 12) + 1) if (items_all % 12 != 0) else (items_all // 12)  # 总页数
@@ -283,7 +283,7 @@ async def shop_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()
     items_start = page * 12 - 12
     items_end = items_start + 12
     data_list = data_list[items_start:items_end]
-    page_info = f"第{page}/{page_all}页\n———tips———\n可以发送 查看坊市 页数 来查看更多商品哦"
+    page_info = f"第{page}/{page_all}页\r———tips———\r可以发送 查看坊市 页数 来查看更多商品哦"
     data_list.append(page_info)
     await send_msg_handler(bot, event, '坊市', bot.self_id, data_list)
     await shop.finish()
@@ -447,8 +447,8 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
     item_num = goods_num - goods_bind_num
     if item_num < quantity:
-        msg = (f"道友的包内没有那么多可交易{goods_name}！！！\n"
-               f"当前拥有：{goods_num}个\n"
+        msg = (f"道友的包内没有那么多可交易{goods_name}！！！\r"
+               f"当前拥有：{goods_num}个\r"
                f"绑定数量：{goods_bind_num}个")
         await bot.send(event=event, message=msg)
         await shop_added.finish()
@@ -572,11 +572,11 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await bot.send(event=event, message=msg)
         await goods_re_root_fast.finish()
         real_args = []
-    msg = "快速炼金以下品阶物品：\n" + "|".join(args)
+    msg = "快速炼金以下品阶物品：\r" + "|".join(args)
     price_sum = 0
     for goal_level, goal_level_name in zip(real_args, args):
         back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,list(back)
-        msg += f"\n快速炼金【{goal_level_name}】结果如下："
+        msg += f"\r快速炼金【{goal_level_name}】结果如下："
         if back_msg is None:
             msg += "道友的背包已空！！！"
             break
@@ -594,18 +594,18 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                     or buff_type == goal_level
                     or goods_type == goal_level):
                 if goods_type == "装备" and int(goods_state) == 1:
-                    msg += f"\n装备：{goods_name}已经被道友装备在身，无法炼金！"
+                    msg += f"\r装备：{goods_name}已经被道友装备在身，无法炼金！"
                     price_pass = 1
                 elif (item_rank := get_item_msg_rank(goods_id)) != 520:
                     price = int(1000000 + abs(item_rank - 55) * 100000) * num  # 复制炼金价格逻辑
                     sql_message.update_back_j(user_id, goods_id, num=num, use_key=2)
                     sql_message.update_ls(user_id, price, 1)
                     price_sum += price
-                    msg += f"\n物品：{goods_name} 数量：{num} 炼金成功，凝聚{number_to(price)}|{price}枚灵石！"
+                    msg += f"\r物品：{goods_name} 数量：{num} 炼金成功，凝聚{number_to(price)}|{price}枚灵石！"
                     price_pass = 1
         if not price_pass:
-            msg += f"\n道友没有【{goal_level_name}】"
-    msg += f"\n总计凝聚{number_to(price_sum)}|{price_sum}枚灵石"
+            msg += f"\r道友没有【{goal_level_name}】"
+    msg += f"\r总计凝聚{number_to(price_sum)}|{price_sum}枚灵石"
     await bot.send(event=event, message=msg)
     await goods_re_root_fast.finish()
 
@@ -698,7 +698,7 @@ async def main_back_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         page_all = 30
 
     if msg:
-        msg_head = f"\n{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"
+        msg_head = f"\r{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"
         msg = get_paged_msg(msg_list=msg, page=page, cmd=cmd, per_page_item=page_all, msg_head=msg_head)
     else:
         msg = ["道友的背包空空如也！"]
@@ -826,7 +826,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 if int(skill_info['rank']) > 120:
                     if power >= 2048:
                         power -= 2048
-                        use_power = f"\n消耗天地精华2048点，余剩{power}点！！"
+                        use_power = f"\r消耗天地精华2048点，余剩{power}点！！"
                         limit_handle.update_user_world_power_data(user_id, power)
                         sql_message.update_back_j(user_id, goods_id, use_key=2)
                         sql_message.updata_user_sec_buff(user_id, goods_id)
@@ -938,7 +938,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             await use.finish()
         goods_info = items.get_data_by_item_id(goods_id)
         power = limit_handle.get_user_world_power_data(user_id)
-        msg = f"道友使用天地奇物{goods_info['name']}{num}个，将{goods_info['buff']*num}点天地精华纳入丹田。\n请尽快利用！！否则天地精华将会消散于天地间！！"
+        msg = f"道友使用天地奇物{goods_info['name']}{num}个，将{goods_info['buff']*num}点天地精华纳入丹田。\r请尽快利用！！否则天地精华将会消散于天地间！！"
         power += goods_info['buff']*num
         limit_handle.update_user_world_power_data(user_id, power)
         sql_message.update_back_j(user_id, goods_id, num, 2)
@@ -1024,14 +1024,14 @@ async def shop_off_all_(bot: Bot, event: GroupMessageEvent, args: Message = Comm
     for x in range(num):
         x = num - x
         if shop_data[group_id][str(x)]['user_id'] == 0:  # 这么写为了防止bot.send发送失败，不结算
-            msg += f"成功下架系统物品：{shop_data[group_id][str(x)]['goods_name']}!\n"
+            msg += f"成功下架系统物品：{shop_data[group_id][str(x)]['goods_name']}!\r"
             del shop_data[group_id][str(x)]
             save_shop(shop_data)
         else:
             sql_message.send_back(shop_data[group_id][str(x)]['user_id'], shop_data[group_id][str(x)]['goods_id'],
                                   shop_data[group_id][str(x)]['goods_name'],
                                   shop_data[group_id][str(x)]['goods_type'], shop_data[group_id][str(x)]['stock'])
-            msg += f"成功下架{shop_data[group_id][str(x)]['user_name']}的{shop_data[group_id][str(x)]['stock']}个{shop_data[group_id][str(x)]['goods_name']}!\n"
+            msg += f"成功下架{shop_data[group_id][str(x)]['user_name']}的{shop_data[group_id][str(x)]['stock']}个{shop_data[group_id][str(x)]['goods_name']}!\r"
             del shop_data[group_id][str(x)]
             save_shop(shop_data)
     shop_data[group_id] = reset_dict_num(shop_data[group_id])
@@ -1112,21 +1112,21 @@ def get_auction_msg(auction_id):
 
     if _type == "技能":
         if item_info['item_type'] == '神通':
-            msg = f"{item_info['level']}-{item_info['name']}:\n"
+            msg = f"{item_info['level']}-{item_info['name']}:\r"
             msg += f"效果：{get_sec_msg(item_info)}"
         if item_info['item_type'] == '功法':
-            msg = f"{item_info['level']}-{item_info['name']}\n"
+            msg = f"{item_info['level']}-{item_info['name']}\r"
             msg += f"效果：{get_main_info_msg(auction_id)[1]}"
         if item_info['item_type'] == '辅修功法':  # 辅修功法10
-            msg = f"{item_info['level']}-{item_info['name']}\n"
+            msg = f"{item_info['level']}-{item_info['name']}\r"
             msg += f"效果：{get_sub_info_msg(auction_id)[1]}"
 
     if _type == "神物":
-        msg = f"{item_info['name']}\n"
+        msg = f"{item_info['name']}\r"
         msg += f"效果：{item_info['desc']}"
 
     if _type == "丹药":
-        msg = f"{item_info['name']}\n"
+        msg = f"{item_info['name']}\r"
         msg += f"效果：{item_info['desc']}"
 
     return msg

@@ -150,7 +150,7 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {i} from user_xiuxian")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>sql_user_xiuxian有字段不存在，开始创建\n</yellow>")
+                logger.opt(colors=True).info("<yellow>sql_user_xiuxian有字段不存在，开始创建\r</yellow>")
                 sql = f"ALTER TABLE user_xiuxian ADD COLUMN {i} INTEGER DEFAULT 0;"
                 logger.opt(colors=True).info(f"<green>{sql}</green>")
                 c.execute(sql)
@@ -326,7 +326,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             self._create_user(user_id, args[0], args[1], args[2], args[3],
                               args[4])  # root, type, power, create_time, user_name
             self.conn.commit()
-            welcome_msg = f"必死之境机逢仙缘，修仙之路波澜壮阔！\n恭喜{args[4]}踏入仙途，你的灵根为：{args[0]},类型是：{args[1]},你的战力为：{args[2]}\n当前境界：求道者，所处位置：{place_name}"
+            welcome_msg = f"必死之境机逢仙缘，修仙之路波澜壮阔！\r恭喜{args[4]}踏入仙途，你的灵根为：{args[0]},类型是：{args[1]},你的战力为：{args[2]}\r当前境界：求道者，所处位置：{place_name}"
             return True, welcome_msg
         else:
             return False, f"您已迈入修仙世界，输入【我的修仙信息】获取数据吧！"
@@ -2074,8 +2074,8 @@ def get_weapon_info_msg(weapon_id, weapon_info=None):
         weapon_info['def_buff'] != 0 else ''
     zw_buff_msg = f"装备专属武器时提升伤害！！" if weapon_info['zw'] != 0 else ''
     mp_buff_msg = f"降低真元消耗{int(weapon_info['mp_buff'] * 100)}%！" if weapon_info['mp_buff'] != 0 else ''
-    msg += f"名字：{weapon_info['name']}\n"
-    msg += f"品阶：{weapon_info['level']}\n"
+    msg += f"名字：{weapon_info['name']}\r"
+    msg += f"品阶：{weapon_info['level']}\r"
     msg += f"效果：{atk_buff_msg}{crit_buff_msg}{crit_atk_msg}{def_buff_msg}{mp_buff_msg}{zw_buff_msg}"
     return msg
 
@@ -2093,8 +2093,8 @@ def get_armor_info_msg(armor_id, armor_info=None):
     def_buff_msg = f"提升{int(armor_info['def_buff'] * 100)}%减伤率！"
     atk_buff_msg = f"提升{int(armor_info['atk_buff'] * 100)}%攻击力！" if armor_info['atk_buff'] != 0 else ''
     crit_buff_msg = f"提升{int(armor_info['crit_buff'] * 100)}%会心率！" if armor_info['crit_buff'] != 0 else ''
-    msg += f"名字：{armor_info['name']}\n"
-    msg += f"品阶：{armor_info['level']}\n"
+    msg += f"名字：{armor_info['name']}\r"
+    msg += f"品阶：{armor_info['level']}\r"
     msg += f"效果：{def_buff_msg}{atk_buff_msg}{crit_buff_msg}"
     return msg
 

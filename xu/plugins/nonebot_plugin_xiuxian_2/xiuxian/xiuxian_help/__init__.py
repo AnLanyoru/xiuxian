@@ -91,7 +91,7 @@ __xiuxian_newer_help__ = f"""
 """
 
 __sect_help__ = f"""
-\n————宗门帮助————
+\r————宗门帮助————
 1：我的宗门
  - 查看当前所处宗门信息
 2：宗门列表
@@ -184,6 +184,8 @@ __tower_help__ = f"""
  - 消耗挑战积分兑换物品
 6：挑战之地规则详情
  - 获取位面挑战的详情规则
+7：结算积分
+ - 获取本周抵达最高层的对应积分
 ——tips——
 官方群914556251
 """.strip()
@@ -216,7 +218,7 @@ async def sect_help_(bot: Bot, event: GroupMessageEvent):
 @sect_help_control.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_help_control_(bot: Bot, event: GroupMessageEvent):
     """宗门管理帮助"""
-    msg = f"""\n———宗门管理菜单———
+    msg = f"""\r———宗门管理菜单———
 1：宗门职位变更
  - 长老以上职位可以改变宗门成员的职位等级
  - 【0 1 2 3 4】分别对应【宗主 长老 亲传 内门 外门】
@@ -236,7 +238,7 @@ async def sect_help_control_(bot: Bot, event: GroupMessageEvent):
 @sect_help_owner.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_help_owner_(bot: Bot, event: GroupMessageEvent):
     """宗主帮助"""
-    msg = f"""\n———宗主菜单———
+    msg = f"""\r———宗主菜单———
 1：宗门职位变更
  - 宗主可以改变宗门成员的职位等级
  - 【0 1 2 3 4】分别对应【宗主 长老 亲传 内门 外门】
@@ -266,7 +268,7 @@ async def sect_help_owner_(bot: Bot, event: GroupMessageEvent):
 @sect_help_member.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_help_member_(bot: Bot, event: GroupMessageEvent):
     """宗门管理帮助"""
-    msg = f"""\n————宗门指令帮助————
+    msg = f"""\r————宗门指令帮助————
 1：我的宗门
  - 查看当前所处宗门信息
 2：宗门捐献

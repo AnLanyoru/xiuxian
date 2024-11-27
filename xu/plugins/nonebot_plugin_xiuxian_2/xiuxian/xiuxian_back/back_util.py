@@ -173,43 +173,43 @@ def get_user_main_back_msg(user_id):
             l_tools_msg = get_tools_msg(l_tools_msg, user_back['goods_id'], user_back['goods_num'])
 
     if l_equipment_msg:
-        top_msg = "☆------我的装备------☆\n" + l_equipment_msg[0]
+        top_msg = "☆------我的装备------☆\r" + l_equipment_msg[0]
         l_msg.append(top_msg)
         for msg in l_equipment_msg[1:]:
             l_msg.append(msg)
 
     if l_skill_msg:
-        top_msg = "☆------拥有技能书------☆\n" + l_skill_msg[0]
+        top_msg = "☆------拥有技能书------☆\r" + l_skill_msg[0]
         l_msg.append(top_msg)
         for msg in l_skill_msg[1:]:
             l_msg.append(msg)
 
     if l_shenwu_msg:
-        top_msg = "☆------神物------☆\n" + l_shenwu_msg[0]
+        top_msg = "☆------神物------☆\r" + l_shenwu_msg[0]
         l_msg.append(top_msg)
         for msg in l_shenwu_msg[1:]:
             l_msg.append(msg)
 
     if l_xiulianitem_msg:
-        top_msg = "☆------修炼物品------☆\n" + l_xiulianitem_msg[0]
+        top_msg = "☆------修炼物品------☆\r" + l_xiulianitem_msg[0]
         l_msg.append(top_msg)
         for msg in l_xiulianitem_msg[1:]:
             l_msg.append(msg)
 
     if l_libao_msg:
-        top_msg = "☆------礼包------☆\n" + l_libao_msg[0]
+        top_msg = "☆------礼包------☆\r" + l_libao_msg[0]
         l_msg.append(top_msg)
         for msg in l_libao_msg[1:]:
             l_msg.append(msg)
 
     if l_tdqw_msg:
-        top_msg = "☆------天地奇物------☆\n" + l_tdqw_msg[0]
+        top_msg = "☆------天地奇物------☆\r" + l_tdqw_msg[0]
         l_msg.append(top_msg)
         for msg in l_tdqw_msg[1:]:
             l_msg.append(msg)
 
     if l_tools_msg:
-        top_msg = "☆------持有道具------☆\n" + l_tools_msg[0]
+        top_msg = "☆------持有道具------☆\r" + l_tools_msg[0]
         l_msg.append(top_msg)
         for msg in l_tools_msg[1:]:
             l_msg.append(msg)
@@ -275,7 +275,7 @@ def get_user_skill_back_msg(user_id):
         if user_back['goods_type'] == "技能":
             l_skill_msg = get_skill_msg(l_skill_msg, user_back['goods_id'], user_back['goods_num'])
     if l_skill_msg:
-        pull_skill.append("\n☆------拥有技能书------☆")
+        pull_skill.append("\r☆------拥有技能书------☆")
         for msg in l_skill_msg:
             pull_skill.append(msg)
     return pull_skill
@@ -314,7 +314,7 @@ def get_libao_msg(l_msg, goods_id, goods_num):
     获取背包内的礼包信息
     """
     item_info = items.get_data_by_item_id(goods_id)
-    msg = f"名字：{item_info['name']}\n"
+    msg = f"名字：{item_info['name']}\r"
     msg += f"拥有数量：{goods_num}"
     l_msg.append(msg)
     return l_msg
@@ -325,9 +325,9 @@ def get_tdqw_msg(l_msg, goods_id, goods_num):
     获取背包内的天地奇物信息
     """
     item_info = items.get_data_by_item_id(goods_id)
-    msg = f"名字：{item_info['name']}\n"
-    msg += f"介绍：{item_info['desc']}\n"
-    msg += f"蕴含天地精华：{item_info['buff']}\n"
+    msg = f"名字：{item_info['name']}\r"
+    msg += f"介绍：{item_info['desc']}\r"
+    msg += f"蕴含天地精华：{item_info['buff']}\r"
     msg += f"拥有数量：{goods_num}"
     l_msg.append(msg)
     return l_msg
@@ -338,8 +338,8 @@ def get_tools_msg(l_msg, goods_id, goods_num):
     获取背包内的道具信息
     """
     item_info = items.get_data_by_item_id(goods_id)
-    msg = f"名字：{item_info['name']}\n"
-    msg += f"介绍：{item_info['desc']}\n"
+    msg = f"名字：{item_info['name']}\r"
+    msg += f"介绍：{item_info['desc']}\r"
     msg += f"拥有数量：{goods_num}"
     l_msg.append(msg)
     return l_msg
@@ -401,10 +401,10 @@ def get_yaocai_msg(l_msg, goods_id, goods_num):
     获取背包内的药材信息
     """
     item_info = items.get_data_by_item_id(goods_id)
-    msg = f"名字：{item_info['name']}\n"
-    msg += f"品级：{item_info['level']}\n"
+    msg = f"名字：{item_info['name']}\r"
+    msg += f"品级：{item_info['level']}\r"
     msg += get_yaocai_info(item_info)
-    msg += f"\n拥有数量:{goods_num}"
+    msg += f"\r拥有数量:{goods_num}"
     l_msg.append(msg)
     return l_msg
 
@@ -414,9 +414,9 @@ def get_jlq_msg(l_msg, goods_id, goods_num):
     获取背包内的修炼物品信息，聚灵旗
     """
     item_info = items.get_data_by_item_id(goods_id)
-    msg = f"名字：{item_info['name']}\n"
+    msg = f"名字：{item_info['name']}\r"
     msg += f"效果：{item_info['desc']}"
-    msg += f"\n拥有数量:{goods_num}"
+    msg += f"\r拥有数量:{goods_num}"
     l_msg.append(msg)
     return l_msg
 
@@ -426,9 +426,9 @@ def get_ldl_msg(l_msg, goods_id, goods_num):
     获取背包内的炼丹炉信息
     """
     item_info = items.get_data_by_item_id(goods_id)
-    msg = f"名字：{item_info['name']}\n"
+    msg = f"名字：{item_info['name']}\r"
     msg += f"效果：{item_info['desc']}"
-    msg += f"\n拥有数量:{goods_num}"
+    msg += f"\r拥有数量:{goods_num}"
     l_msg.append(msg)
     return l_msg
 
@@ -440,7 +440,7 @@ def get_yaocai_info(yaocai_info):
     msg = f"主药 {YAOCAIINFOMSG[str(yaocai_info['主药']['h_a_c']['type'])]}"
     msg += f"{yaocai_info['主药']['h_a_c']['power']}"
     msg += f" {YAOCAIINFOMSG[str(yaocai_info['主药']['type'])]}"
-    msg += f"{yaocai_info['主药']['power']}\n"
+    msg += f"{yaocai_info['主药']['power']}\r"
     msg += f"药引 {YAOCAIINFOMSG[str(yaocai_info['药引']['h_a_c']['type'])]}"
     msg += f"{yaocai_info['药引']['h_a_c']['power']}"
     msg += f"辅药 {YAOCAIINFOMSG[str(yaocai_info['辅药']['type'])]}"
@@ -459,12 +459,12 @@ def get_equipment_msg(l_msg, user_id, goods_id, goods_num):
         msg = get_armor_info_msg(goods_id, item_info)
     elif item_info['item_type'] == '法器':
         msg = get_weapon_info_msg(goods_id, item_info)
-    msg += f"\n拥有数量:{goods_num}"
+    msg += f"\r拥有数量:{goods_num}"
     is_use = check_equipment_use_msg(user_id, goods_id)
     if is_use:
-        msg += f"\n已装备"
+        msg += f"\r已装备"
     else:
-        msg += f"\n可装备"
+        msg += f"\r可装备"
     l_msg.append(msg)
     return l_msg
 
@@ -484,7 +484,7 @@ def get_skill_msg(l_msg, goods_id, goods_num):
     elif item_info['item_type'] == '辅修功法':  # 辅修功法12
         msg = f"{item_info['level']}辅修功法-"
         msg += get_sub_info_msg(goods_id)[1]
-    msg += f"\n拥有数量:{goods_num}"
+    msg += f"\r拥有数量:{goods_num}"
     l_msg.append(msg)
     return l_msg
 
@@ -494,8 +494,8 @@ def get_elixir_msg(l_msg, goods_id, goods_num):
     获取背包内的丹药信息
     """
     item_info = items.get_data_by_item_id(goods_id)
-    msg = f"名字：{item_info['name']}\n"
-    msg += f"效果：{item_info['desc']}\n"
+    msg = f"名字：{item_info['name']}\r"
+    msg += f"效果：{item_info['desc']}\r"
     msg += f"拥有数量：{goods_num}"
     l_msg.append(msg)
     return l_msg
@@ -511,8 +511,8 @@ def get_shenwu_msg(l_msg, goods_id, goods_num):
     except KeyError:
         desc = "这个东西本来会报错让背包出不来，当你看到你背包有这个这个东西的时候请联系超管解决。"
 
-    msg = f"名字：{item_info['name']}\n"
-    msg += f"效果：{desc}\n"
+    msg = f"名字：{item_info['name']}\r"
+    msg += f"效果：{desc}\r"
     msg += f"拥有数量：{goods_num}"
     l_msg.append(msg)
     return l_msg
@@ -524,26 +524,26 @@ def get_item_msg(goods_id):
     """
     item_info = items.get_data_by_item_id(goods_id)
     if item_info['type'] == '丹药':
-        msg = f"名字：{item_info['name']}\n"
+        msg = f"名字：{item_info['name']}\r"
         msg += f"效果：{item_info['desc']}"
 
     elif item_info['item_type'] == '神物':
-        msg = f"名字：{item_info['name']}\n"
+        msg = f"名字：{item_info['name']}\r"
         msg += f"效果：{item_info['desc']}"
 
     elif item_info['item_type'] == '神通':
-        msg = f"名字：{item_info['name']}\n"
-        msg += f"品阶：{item_info['level']}\n"
+        msg = f"名字：{item_info['name']}\r"
+        msg += f"品阶：{item_info['level']}\r"
         msg += f"效果：{get_sec_msg(item_info)}"
 
     elif item_info['item_type'] == '功法':
-        msg = f"名字：{item_info['name']}\n"
-        msg += f"品阶：{item_info['level']}\n"
+        msg = f"名字：{item_info['name']}\r"
+        msg += f"品阶：{item_info['level']}\r"
         msg += f"效果：{get_main_info_msg(goods_id)[1]}"
 
     elif item_info['item_type'] == '辅修功法':  # 辅修功法11
-        msg = f"名字：{item_info['name']}\n"
-        msg += f"品阶：{item_info['level']}\n"
+        msg = f"名字：{item_info['name']}\r"
+        msg += f"品阶：{item_info['level']}\r"
         msg += f"效果：{get_sub_info_msg(goods_id)[1]}"
 
     elif item_info['item_type'] == '防具':
@@ -556,22 +556,22 @@ def get_item_msg(goods_id):
         msg = get_yaocai_info_msg(goods_id, item_info)
 
     elif item_info['item_type'] == "聚灵旗":
-        msg = f"名字：{item_info['name']}\n"
+        msg = f"名字：{item_info['name']}\r"
         msg += f"效果：{item_info['desc']}"
 
     elif item_info['item_type'] == "炼丹炉":
-        msg = f"名字：{item_info['name']}\n"
+        msg = f"名字：{item_info['name']}\r"
         msg += f"介绍：{item_info['desc']}"
 
     elif item_info['item_type'] == "道具":
-        msg = f"名字：{item_info['name']}\n"
+        msg = f"名字：{item_info['name']}\r"
         msg += f"介绍：{item_info['desc']}"
 
     elif item_info['item_type'] == "天地奇物":
-        msg = f"名字：{item_info['name']}\n"
-        msg += f"介绍：{item_info['desc']}\n"
-        msg += f"蕴含天地精华：{item_info['buff']}\n"
-        msg += "天地奇物可用于：\n直接使用：使用后获取奇物内蕴含的天地精华，发送天地精华来获得使用帮助\n作为素材：除了直接使用外，天地奇物还可用于锻造增强武器，升级丹炉，制造武器，制作防具等等......"
+        msg = f"名字：{item_info['name']}\r"
+        msg += f"介绍：{item_info['desc']}\r"
+        msg += f"蕴含天地精华：{item_info['buff']}\r"
+        msg += "天地奇物可用于：\r直接使用：使用后获取奇物内蕴含的天地精华，发送天地精华来获得使用帮助\r作为素材：除了直接使用外，天地奇物还可用于锻造增强武器，升级丹炉，制造武器，制作防具等等......"
 
     else:
         msg = '不支持的物品'
@@ -611,8 +611,8 @@ def get_item_msg_rank(goods_id):
 
 
 def get_yaocai_info_msg(goods_id, item_info):
-    msg = f"名字：{item_info['name']}\n"
-    msg += f"品级：{item_info['level']}\n"
+    msg = f"名字：{item_info['name']}\r"
+    msg += f"品级：{item_info['level']}\r"
     msg += get_yaocai_info(item_info)
     return msg
 
@@ -835,10 +835,10 @@ def get_use_tool_msg(user_id, goods_id, use_num) -> (str, bool):
             place_goal = random.choice(place_goal_list)
             place.set_now_place_id(user_id, place_goal)
             place_name = place.get_place_name(place_goal)
-            msg += f"\n霎时间天旋地转,回过神来道友竟被{item_info['name']}带到了【{place_name}】!!!"
+            msg += f"\r霎时间天旋地转,回过神来道友竟被{item_info['name']}带到了【{place_name}】!!!"
         if root_change:
             root_type = sql_message.update_root(user_id, 8)  # 更换灵根
-            msg += f"\n道友丹田一片翻腾，灵根转化为了{root_type}!!!"
+            msg += f"\r道友丹田一片翻腾，灵根转化为了{root_type}!!!"
         pass
     else:
         msg = f"{item_info['name']}使用失败！！可能暂未开放使用！！！"

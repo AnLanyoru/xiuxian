@@ -110,7 +110,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         bankinfo['savetime'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         savef(user_id, bankinfo)
         msg = (f"道友本次结息时间为：{timedeff}小时，"
-               f"获得灵石：{number_to(give_stone)}|{give_stone}枚!\n"
+               f"获得灵石：{number_to(give_stone)}|{give_stone}枚!\r"
                f"道友存入灵石{number_to(num)}|{num}枚，"
                f"当前所拥有灵石{number_to(userinfonowstone + give_stone)}|{userinfonowstone + give_stone}枚，"
                f"灵庄存有灵石{number_to(bankinfo['savestone'])}|{bankinfo['savestone']}枚")
@@ -130,7 +130,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         bankinfo['savestone'] -= num
         sql_message.update_ls(user_id, num + give_stone, 1)
         savef(user_id, bankinfo)
-        msg = (f"道友本次结息时间为：{timedeff}小时，获得灵石：{number_to(give_stone)}|{give_stone}枚!\n"
+        msg = (f"道友本次结息时间为：{timedeff}小时，获得灵石：{number_to(give_stone)}|{give_stone}枚!\r"
                f"取出灵石{number_to(num)}|{num}枚，当前所拥有灵石{number_to(userinfonowstone)}|{userinfonowstone}枚，"
                f"灵庄存有灵石{number_to(bankinfo['savestone'])}|{bankinfo['savestone']}枚!")
         await bot.send(event=event, message=msg)

@@ -57,7 +57,7 @@ __plugin_meta__ = PluginMetadata(
     name='修仙模拟器',
     description='',
     usage=(
-        "必死之境机逢仙缘，修仙之路波澜壮阔！\n"
+        "必死之境机逢仙缘，修仙之路波澜壮阔！\r"
         " 输入 < 修仙帮助 > 获取仙界信息"
     ),
     extra={

@@ -44,19 +44,19 @@ class OtherSet(XiuConfig):
         world_name = place.get_world_name(user_place)
         if user_level == "合道境后期":
             if user_world < 1:
-                msg = f"道友所在世界【{world_name}】天地法则限制道友无法突破\n【{world_name}】可承载的最高境界为{user_level}"
+                msg = f"道友所在世界【{world_name}】天地法则限制道友无法突破\r【{world_name}】可承载的最高境界为{user_level}"
                 return msg
             else:
                 pass
         elif user_level == "羽化境后期":
             if user_world < 2:
-                msg = f"道友所在世界【{world_name}】天地法则限制道友无法突破\n【{world_name}】可承载的最高境界为{user_level}"
+                msg = f"道友所在世界【{world_name}】天地法则限制道友无法突破\r【{world_name}】可承载的最高境界为{user_level}"
                 return msg
             else:
                 pass
         elif user_level == "仙帝境后期":
             if user_world < 3:
-                msg = f"道友所在世界【{world_name}】天地法则限制道友无法突破\n【{world_name}】可承载的最高境界为{user_level}"
+                msg = f"道友所在世界【{world_name}】天地法则限制道友无法突破\r【{world_name}】可承载的最高境界为{user_level}"
                 return msg
             else:
                 pass
@@ -119,8 +119,8 @@ class OtherSet(XiuConfig):
         数据示例：
         {"道号": None, "气血": None, "攻击": None, "真元": None, '会心':None}
         """
-        msg1 = "{}发起攻击，造成了{}伤害\n"
-        msg2 = "{}发起攻击，造成了{}伤害\n"
+        msg1 = "{}发起攻击，造成了{}伤害\r"
+        msg2 = "{}发起攻击，造成了{}伤害\r"
 
         play_list = []
         suc = None
@@ -132,12 +132,12 @@ class OtherSet(XiuConfig):
             player1_gj = int(round(random.uniform(0.95, 1.05), 2) * player1['攻击'])
             if random.randint(0, 100) <= player1['会心']:
                 player1_gj = int(player1_gj * player1['爆伤'])
-                msg1 = "{}发起会心一击，造成了{}伤害\n"
+                msg1 = "{}发起会心一击，造成了{}伤害\r"
 
             player2_gj = int(round(random.uniform(0.95, 1.05), 2) * player2['攻击'])
             if random.randint(0, 100) <= player2['会心']:
                 player2_gj = int(player2_gj * player2['爆伤'])
-                msg2 = "{}发起会心一击，造成了{}伤害\n"
+                msg2 = "{}发起会心一击，造成了{}伤害\r"
 
             play1_sh: int = int(player1_gj * (1 - player2['防御']))
             play2_sh: int = int(player2_gj * (1 - player1['防御']))
@@ -155,7 +155,7 @@ class OtherSet(XiuConfig):
 
             play_list.append(msg2.format(player2['道号'], number_to(play2_sh)))
             player1['气血'] = player1['气血'] - play2_sh
-            play_list.append(f"{player1['道号']}剩余血量{number_to(player1['气血'])}\n")
+            play_list.append(f"{player1['道号']}剩余血量{number_to(player1['气血'])}\r")
             XiuxianDateManage().update_user_hp_mp(player1['user_id'], player1['气血'], player1['真元'])
 
             if player1['气血'] <= 0:

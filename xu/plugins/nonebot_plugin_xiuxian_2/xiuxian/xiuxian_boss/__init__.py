@@ -183,7 +183,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     if user_info['hp'] <= user_info['exp'] / 10:
         time = leave_harm_time(user_id)
-        msg = f"重伤未愈，动弹不得！距离脱离危险还需要{time}分钟！\n"
+        msg = f"重伤未愈，动弹不得！距离脱离危险还需要{time}分钟！\r"
         msg += f"请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
         sql_message.update_user_stamina(user_id, 60, 1)
         await bot.send(event=event, message=msg)
@@ -268,7 +268,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
         msg = f"道友不敌{bossinfo['name']}，重伤逃遁，临逃前收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点{exp_msg} "
         if user_info['root'] == "器师" and boss_integral < 0:
-            msg += f"\n如果出现负积分，说明你境界太高了，玩器师就不要那么高境界了！！！"
+            msg += f"\r如果出现负积分，说明你境界太高了，玩器师就不要那么高境界了！！！"
         battle_flag[group_id] = False
         try:
             await send_msg_handler(bot, event, result)
@@ -316,7 +316,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         save_user_boss_fight_info(user_id, user_boss_fight_info)
         msg = f"恭喜道友击败{bossinfo['name']}，收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点!{exp_msg} {drops_msg}"
         if user_info['root'] == "器师" and boss_integral < 0:
-            msg += f"\n如果出现负积分，说明你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
+            msg += f"\r如果出现负积分，说明你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
         try:
             await send_msg_handler(bot, event, result)
         except ActionFailed:
@@ -379,7 +379,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         else:
             boss_name = boss["name"]
         if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg, boss_name=boss_name)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\r" + msg, boss_name=boss_name)
             await bot.send(event=event, message=MessageSegment.image(pic))
         else:
             await bot.send(event=event, message=msg)
@@ -387,7 +387,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     else:
         i = 1
         for boss in bosss:
-            bossmsgs += f"编号{i}、{boss['jj']}Boss:{boss['name']} \n"
+            bossmsgs += f"编号{i}、{boss['jj']}Boss:{boss['name']} \r"
             i += 1
         msg = bossmsgs
         await bot.send(event=event, message=msg)
@@ -466,8 +466,8 @@ async def boss_integral_info_(bot: Bot, event: GroupMessageEvent):
     l_msg = [f"道友目前拥有的世界积分：{user_boss_fight_info['boss_integral']}点"]
     if boss_integral_shop != {}:
         for k, v in boss_integral_shop.items():
-            msg = f"编号:{k}\n"
-            msg += f"描述：{v['desc']}\n"
+            msg = f"编号:{k}\r"
+            msg += f"描述：{v['desc']}\r"
             msg += f"所需世界积分：{v['cost']}点"
             l_msg.append(msg)
     else:
@@ -525,7 +525,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
         else:
             user_boss_fight_info['boss_integral'] -= total_cost
             save_user_boss_fight_info(user_id, user_boss_fight_info)
-            item_info = Items().get_data_by_item_id(item_id)
+            item_info = items.get_data_by_item_id(item_id)
             sql_message.send_back(user_id, item_id, item_info['name'], item_info['type'], quantity)  # 兑换指定数量
             msg = f"道友成功兑换获得：{item_info['name']}{quantity}个"
             await bot.send(event=event, message=msg)

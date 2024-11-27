@@ -210,7 +210,7 @@ def Cooldown(
 
         if stamina_cost:
             if user_info['user_stamina'] < stamina_cost and XiuConfig().stamina_open is True:
-                msg = f"你没有足够的体力，请等待体力恢复后再试！\n本次行动需要消耗：{stamina_cost}体力值\n当前体力值：{user_info['user_stamina']}/2400"
+                msg = f"你没有足够的体力，请等待体力恢复后再试！\r本次行动需要消耗：{stamina_cost}体力值\r当前体力值：{user_info['user_stamina']}/2400"
                 await bot.send(event=event, message=msg)
                 await matcher.finish()
             sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力

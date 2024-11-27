@@ -93,7 +93,7 @@ async def stop_move_(bot: Bot, event: GroupMessageEvent):
 
     is_type, msg = check_user_type(user_id, int(-1))  # 需要在移动中的用户
     if is_type:
-        msg = "\n道友飞速赶回了出发点！！"
+        msg = "\r道友飞速赶回了出发点！！"
         sql_message.do_work(user_id, 0)
     else:
         pass
@@ -148,18 +148,18 @@ async def get_map_(bot: Bot, event: GroupMessageEvent):
     place_id = place.get_now_place_id(user_id)
     world_name = place.get_world_name(place_id)
     world_id = place.get_world_id(place_id)
-    msg = f"\n————{world_name}地图————\n"
+    msg = f"\r————{world_name}地图————\r"
     place_dict = place.get_place_dict()
     for get_place_id, places in place_dict.items():
         place_world_id = places[1][2]
         if place_world_id == world_id:
             if place_id == get_place_id:
-                msg += f"地区ID:{get_place_id}【{places[0]}】位置:{places[1][:2]}<道友在这\n"
+                msg += f"地区ID:{get_place_id}【{places[0]}】位置:{places[1][:2]}<道友在这\r"
 
             else:
-                msg += f"地区ID:{get_place_id}【{places[0]}】位置:{places[1][:2]}\n"
+                msg += f"地区ID:{get_place_id}【{places[0]}】位置:{places[1][:2]}\r"
         else:
             pass
-    msg += "——————————\ntips: 发送【前往】+【目的地ID】来进行移动哦"
+    msg += "——————————\rtips: 发送【前往】+【目的地ID】来进行移动哦"
     await bot.send(event=event, message=msg)
     await get_map.finish()
