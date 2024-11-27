@@ -26,6 +26,7 @@ tower_start = on_command("进入挑战之地", aliases={"进入挑战"}, priorit
 tower_end = on_command("离开挑战之地", aliases={"离开挑战"}, priority=2, permission=GROUP, block=True)
 tower_info = on_command("查看挑战", aliases={"查看挑战信息"}, priority=1, permission=GROUP, block=True)
 tower_fight = on_command("开始挑战", aliases={"挑战开始"}, priority=3, permission=GROUP, block=True)
+tower_shop = on_command("挑战商店", priority=3, permission=GROUP, block=True)
 
 
 @tower_rule.handle(
@@ -46,6 +47,26 @@ async def tower_rule_(
            "每周天八点重置结算挑战积分次数")
     await bot.send(event, msg)
     await tower_rule.finish()
+
+
+@tower_shop.handle(
+    parameterless=[
+        Cooldown(
+            cd_time=3,
+            at_sender=False)])
+async def tower_shop_(
+        bot: Bot,                     # 机器人实例
+        event: GroupMessageEvent,     # 消息主体
+):
+    _, user_info, _ = check_user(event)
+    user_id = user_info['user_id']
+    shop_msg = tower_handle.get_tower_shop_info(user_id)
+    if not shop_msg:
+        msg = "道友还未参加过位面挑战！"
+        await bot.send(event=event, message=msg)
+        await tower_fight.finish()
+    await send_msg_handler(bot, event, shop_msg)
+    await tower_shop.finish()
 
 
 @tower_fight.handle(parameterless=[Cooldown(at_sender=False)])

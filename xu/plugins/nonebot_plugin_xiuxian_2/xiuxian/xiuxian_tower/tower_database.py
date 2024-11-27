@@ -8,6 +8,7 @@ import threading
 
 from ..xiuxian_place import place
 from ..xiuxian_utils.clean_utils import number_to_msg
+from .point_shop import shop_1, shop_2
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.xiuxian2_handle import sql_message
 
@@ -18,9 +19,10 @@ current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
 class Tower:
-    def __init__(self, name, place_id):
+    def __init__(self, name, place_id, shop_data: dict):
         self.name = name
         self.place = place_id
+        self.shop = shop_data
 
 
 class WorldTowerData:
@@ -35,13 +37,13 @@ class WorldTowerData:
         return cls._instance[xiuxian_num]
 
     def __init__(self):
-        fj_tower = Tower("灵虚古境", 3)
-        lj_tower = Tower("紫霄神渊", 19)
+        fj_tower = Tower("灵虚古境", 3, shop_1)
+        lj_tower = Tower("紫霄神渊", 19, shop_2)
         self.tower_data = {0: fj_tower, 1: lj_tower}
         self.sql_user_table_name = "user_tower_info"
         self.sql_tower_info_table_name = "world_tower"
         self.sql_col = ["user_id", "now_floor", "best_floor", "tower_point", "tower_place",
-                        "fight_log"]
+                        "weekly_point", "fight_log"]
         self.blob_data_list = ["fight_log"]
         if not self._has_init.get(xiuxian_num):
             self._has_init[xiuxian_num] = True
@@ -318,9 +320,9 @@ class TowerHandle(WorldTowerData):
         enemy_info = self.get_tower_floor_info(next_floor, tower.place)
         msg += (f"下区域道友将会遭遇\n"
                 f"【{enemy_info.get('name')}】\n"
-                f"气血：{enemy_info.get('hp')}\n"
-                f"真元：{enemy_info.get('mp')}\n"
-                f"攻击：{enemy_info.get('atk')}\n"
+                f"气血：{number_to_msg(enemy_info.get('hp'))}\n"
+                f"真元：{number_to_msg(enemy_info.get('mp'))}\n"
+                f"攻击：{number_to_msg(enemy_info.get('atk'))}\n"
                 )
         return msg
 
@@ -371,6 +373,29 @@ class TowerHandle(WorldTowerData):
             user_id)
                     )
         self.conn.commit()
+
+    def get_tower_shop_info(self, user_id):
+        """
+        获取通天塔商店
+        :param user_id:
+        :return: msg
+        """
+        user_tower_info = self.get_user_tower_info(user_id)
+        msg_list = []
+        if user_tower_info:
+            place_id = user_tower_info.get('tower_place')
+            point = user_tower_info.get('tower_point')
+            world_id = place.get_world_id(place_id)
+            tower = self.tower_data.get(world_id)
+            msg_list.append(f"【{tower.name}】积分兑换商店\r"
+                            f"当前拥有积分：{point}")
+            shop = tower.shop
+            for goods_no, goods in shop.items():
+                msg = (f"商品编号：{goods_no}\r"
+                       f"物品名称：{items.items.get(str(goods.get('item'))).get('name')}\r"
+                       f"兑换需要积分：{goods.get('price')}\r")
+                msg_list.append(msg)
+        return msg_list
 
 
 tower_handle = TowerHandle()
