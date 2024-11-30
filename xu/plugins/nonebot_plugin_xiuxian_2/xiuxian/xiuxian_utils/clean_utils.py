@@ -6,7 +6,8 @@ from urllib.parse import quote
 
 from nonebot.adapters.onebot.v11 import Message, GroupMessageEvent
 
-from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_utils.markdown_segment import MessageSegmentPlus
+from .. import NICKNAME
+from .markdown_segment import MessageSegmentPlus
 
 """
 纯函数工具
@@ -290,6 +291,8 @@ def main_md(title, text,
             cmd_see_2, cmd_2,
             cmd_see_3, cmd_3,
             cmd_see_4, cmd_4):
+    if NICKNAME == "枫林晚":
+        return title + '\r' + text
     param = [
         {
             "key": "title",
@@ -340,10 +343,12 @@ def msg_handler(*args):
 
     if len(args) == 3:
         name, uin, msgs = args
+        print(msgs)
         messages = '\r'.join(msgs)
         return messages
     elif len(args) == 1 and isinstance(args[0], list):
         messages = args[0]
+        print(messages)
         try:
             messages = '\r'.join([str(msg['data']['content']) for msg in messages])
         except TypeError:

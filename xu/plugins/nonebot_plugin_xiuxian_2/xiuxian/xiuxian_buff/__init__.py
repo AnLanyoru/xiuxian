@@ -17,7 +17,7 @@ from ..xiuxian_impart_pk import impart_pk_check
 from ..xiuxian_limit.limit_database import limit_handle
 from ..xiuxian_limit.limit_util import limit_check
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
-from ..xiuxian_utils.clean_utils import get_datetime_from_str, date_sub
+from ..xiuxian_utils.clean_utils import get_datetime_from_str, date_sub, main_md, msg_handler
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, get_player_info,
     save_player_info, UserBuffDate, get_main_info_msg,
@@ -269,9 +269,9 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         player2['level'] = user2['level']
 
         result, victor = Player_fight(player1, player2, 1, bot.self_id)
-        result = result
-        await send_msg_handler(bot, event, result)
+        text = msg_handler(result)
         msg = f"获胜的是{victor}"
+        msg = main_md(msg, text, '切磋其他人', '切磋', '修炼', '修炼', '闭关', '闭关', '修仙帮助', '修仙帮助')
         await bot.send(event=event, message=msg)
         await qc.finish()
     else:
@@ -381,6 +381,12 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 sql_message.update_power2(user_2_id)
                 limit_handle.update_user_log_data(user_1_id, msg)
                 limit_handle.update_user_log_data(user_2_id, msg)
+                msg = main_md(
+                    msg, '',
+                    '继续双修', f"双修{user_2['user_name']}",
+                    '双修', '双修',
+                    '修炼', '修炼',
+                    '修仙帮助', '修仙帮助')
                 await bot.send(event=event, message=msg)
                 await two_exp.finish()
     else:
@@ -470,6 +476,12 @@ async def in_closing_(bot: Bot, event: GroupMessageEvent):
     if is_type:  # 符合
         sql_message.in_closing(user_id, user_type)
         msg = "进入闭关状态，如需出关，发送【出关】！"
+    msg = main_md(
+            msg, '',
+            '出关', f"出关",
+            '虚神界闭关', '虚神界闭关',
+            '修炼', '修炼',
+            '修仙帮助', '修仙帮助')
     await bot.send(event=event, message=msg)
     await in_closing.finish()
 
@@ -525,6 +537,12 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         # 拼接提示
         msg = (f"{is_xu_world}闭关修炼结束，{is_full}共闭关{close_time}分钟，{time_msg}"
                f"本次闭关共增加修为：{number_to(exp)}|{exp}{result_msg[0]}{result_msg[1]}")
+    msg = main_md(
+        msg, str(now_time),
+        '修炼', '修炼',
+        '闭关', '闭关',
+        '虚神界闭关', '虚神界闭关',
+        '修仙帮助', '修仙帮助')
     await bot.send(event=event, message=msg)
     await out_closing.finish()
 
@@ -811,8 +829,16 @@ async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
     main_two = main_two_data['two_buff'] if main_two_data is not None else 0
 
     num = (two_exp_limit + impart_two_exp + main_two) - two_exp_num
+    text = '快去寻找你的道侣吧！'
     if num <= 0:
         num = 0
+        text = '感觉身体被掏空~~~'
     msg = f"道友剩余双修次数{num}次！"
+    msg = main_md(
+        msg, text,
+        '双修', '双修',
+        '修炼', '修炼',
+        '闭关', '闭关',
+        '修仙帮助', '修仙帮助')
     await bot.send(event=event, message=msg)
     await my_exp_num.finish()

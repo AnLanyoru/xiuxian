@@ -8,7 +8,7 @@ import threading
 
 from ..xiuxian_place import place
 from ..xiuxian_utils.clean_utils import number_to_msg
-from .point_shop import shop_1, shop_2
+from .point_shop import shop_1, shop_2, point_give_1, point_give_2
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.xiuxian2_handle import sql_message
 
@@ -19,10 +19,11 @@ current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
 class Tower:
-    def __init__(self, name, place_id, shop_data: dict):
+    def __init__(self, name, place_id, shop_data: dict, point_give):
         self.name = name
         self.place = place_id
         self.shop = shop_data
+        self.point_give = point_give
 
 
 class WorldTowerData:
@@ -37,8 +38,8 @@ class WorldTowerData:
         return cls._instance[xiuxian_num]
 
     def __init__(self):
-        fj_tower = Tower("灵虚古境", 3, shop_1)
-        lj_tower = Tower("紫霄神渊", 19, shop_2)
+        fj_tower = Tower("灵虚古境", 3, shop_1, point_give_1)
+        lj_tower = Tower("紫霄神渊", 19, shop_2, point_give_2)
         self.tower_data = {0: fj_tower, 1: lj_tower}
         self.sql_user_table_name = "user_tower_info"
         self.sql_tower_info_table_name = "world_tower"
@@ -88,6 +89,7 @@ class WorldTowerData:
       "best_floor" INTEGER DEFAULT 0,
       "tower_point" INTEGER DEFAULT 0,
       "tower_place" INTEGER DEFAULT 0,
+      "weekly_point" INTEGER DEFAULT 0,
       "fight_log" BLOB
       );""")
 
@@ -181,6 +183,7 @@ class WorldTowerData:
             best_floor: int,
             tower_point: int,
             tower_place: int,
+            weekly_point: int,
             fight_log: bytes):
         """
 
@@ -189,6 +192,7 @@ class WorldTowerData:
         :param best_floor:
         :param tower_point:
         :param tower_place:
+        :param weekly_point:
         :param fight_log:
         :return:
         """
@@ -203,6 +207,7 @@ class WorldTowerData:
                 f"best_floor=?, "
                 f"tower_point=?,"
                 f"tower_place=?, "
+                f"weekly_point=?, "
                 f"fight_log=? where "
                 f"user_id=?")
             cur.execute(sql, (
@@ -210,6 +215,7 @@ class WorldTowerData:
                 best_floor,
                 tower_point,
                 tower_place,
+                weekly_point,
                 fight_log,
                 user_id)
                         )
@@ -217,13 +223,14 @@ class WorldTowerData:
         else:
             # 判断是否存在，不存在则INSERT
             sql = f"""INSERT INTO {self.sql_user_table_name} (user_id, now_floor, best_floor, 
-            tower_point, tower_place, fight_log) VALUES (?,?,?,?,?,?)"""
+            tower_point, tower_place, weekly_point, fight_log) VALUES (?,?,?,?,?,?,?)"""
             cur.execute(sql, (
                 user_id,
                 now_floor,
                 best_floor,
                 tower_point,
                 tower_place,
+                weekly_point,
                 fight_log)
                         )
             is_new = True
@@ -318,24 +325,18 @@ class TowerHandle(WorldTowerData):
                f"第{floor}区域\r")
         next_floor = floor + 1
         enemy_info = self.get_tower_floor_info(next_floor, tower.place)
-        msg += (f"下区域道友将会遭遇\r"
+        text = (f"下区域道友将会遭遇\r"
                 f"【{enemy_info.get('name')}】\r"
                 f"气血：{number_to_msg(enemy_info.get('hp'))}\r"
                 f"真元：{number_to_msg(enemy_info.get('mp'))}\r"
                 f"攻击：{number_to_msg(enemy_info.get('atk'))}\r"
                 )
-        return msg
+        return msg, text
 
     def update_user_tower_info(self, user_info: dict, user_tower_info: dict):
         for blob_data in self.blob_data_list:
             user_tower_info[blob_data] = pickle.dumps(user_tower_info[blob_data])
-        user_id = user_info.get('user_id')
-        now_floor = user_tower_info.get('now_floor')
-        best_floor = user_tower_info.get('best_floor')
-        tower_point = user_tower_info.get('tower_point')
-        tower_place = user_tower_info.get('tower_place')
-        fight_log = user_tower_info.get('fight_log')
-        self.user_tower_info_make(user_id, now_floor, best_floor, tower_point, tower_place, fight_log)
+        self.user_tower_info_make(**user_tower_info)
 
     def check_user_tower_info(self, user_id):
         user_tower_info = self.get_user_tower_info(user_id)
@@ -351,6 +352,7 @@ class TowerHandle(WorldTowerData):
                                'best_floor': 0,
                                'tower_point': 0,
                                'tower_place': 0,
+                               'weekly_point': 0,
                                'fight_log': []}
             return user_tower_info
 
@@ -382,12 +384,13 @@ class TowerHandle(WorldTowerData):
         """
         user_tower_info = self.get_user_tower_info(user_id)
         msg_list = []
+        msg_head = ''
         if user_tower_info:
             place_id = user_tower_info.get('tower_place')
             point = user_tower_info.get('tower_point')
             world_id = place.get_world_id(place_id)
             tower = self.tower_data.get(world_id)
-            msg_list.append(f"【{tower.name}】积分兑换商店\r"
+            msg_head = (f"【{tower.name}】积分兑换商店\r"
                             f"当前拥有积分：{point}")
             shop = tower.shop
             for goods_no, goods in shop.items():
@@ -395,7 +398,7 @@ class TowerHandle(WorldTowerData):
                        f"物品名称：{items.items.get(str(goods.get('item'))).get('name')}\r"
                        f"兑换需要积分：{goods.get('price')}\r")
                 msg_list.append(msg)
-        return msg_list
+        return msg_list, msg_head
 
 
 tower_handle = TowerHandle()
