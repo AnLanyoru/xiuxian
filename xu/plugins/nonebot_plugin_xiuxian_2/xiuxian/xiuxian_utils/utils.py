@@ -9,6 +9,7 @@ import re
 
 import unicodedata
 
+from .clean_utils import simple_md
 from .other_set import OtherSet
 from .xiuxian2_handle import XiuxianDateManage, PLAYERSDATA
 from nonebot.adapters.onebot.v11 import (
@@ -70,30 +71,17 @@ def check_user_type(user_id, need_type):
     if user_type == need_type:  # 状态一致
         isType = True
     else:
-        if user_type == 1:
-            msg = "道友现在在闭关呢，小心走火入魔！"
-
-        elif user_type == 2:
-            msg = "道友现在在做悬赏令呢，小心走火入魔！"
-
-        elif user_type == 3:
-            msg = "道友现在正在秘境中，分身乏术！"
-
-        elif user_type == 4:
-            msg = "道友正在修炼中，请抱元守一，聚气凝神，勿要分心！\r若是调用修炼看到此消息，道友大概率需要：\r【停止修炼】！！！"
-
-        elif user_type == 5:
-            msg = "道友正在虚神界修炼中，请抱元守一，聚气凝神，勿要分心！"
-
-        elif user_type == 6:
-            msg = "道友正在进行位面挑战中，请全力以赴！！"
-
-        elif user_type == 0:
-            msg = "道友现在什么都没干呢~"
-
+        type_msgs = {1: simple_md("道友现在在闭关呢，小心走火入魔！若有要事，请先", "出关", "出关", "！"),
+                     2: simple_md("道友现在在做悬赏令呢！请先着手", "完成", "悬赏令结算", "当前悬赏！"),
+                     3: simple_md("道友现在正在", "秘境", "秘境结算", "中，分身乏术！"),
+                     4: simple_md("道友正在修炼中，请抱元守一，聚气凝神，勿要分心！\r如有要事，请先", "停止修炼", "停止修炼", "！！"),
+                     5: simple_md("道友正在虚神界修炼中，请抱元守一，聚气凝神，勿要分心！若有要事，请先", "出关", "出关", "！"),
+                     6: simple_md("道友正在进行", "位面挑战", "查看挑战", "中，请全力以赴！！"),
+                     0: "道友现在什么都没干呢~"}
+        if user_type in type_msgs:
+            msg = type_msgs[user_type]
         elif user_type == -1:
             # 前面添加赶路检测
-            user_cd_message = sql_message.get_user_cd(user_id)
             work_time = datetime.datetime.strptime(
                 user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
             )
@@ -109,6 +97,8 @@ def check_user_type(user_id, need_type):
                 place_id = move_info["to_id"]
                 place.set_now_place_id(user_id, place_id)
                 msg = f"道友成功抵达【{place_name}】！！！"
+        else:
+            msg = '未知状态错误！！！'
 
     return isType, msg
 

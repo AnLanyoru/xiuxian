@@ -1,7 +1,7 @@
 import re
 import random
 
-from ..xiuxian_limit import LimitData, limit_handle
+from ..xiuxian_limit.limit_database import limit_data, limit_handle
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, BuffJsonDate,
     get_main_info_msg, UserBuffDate, get_sec_msg
@@ -82,7 +82,7 @@ sect_rename = on_fullmatch("宗门改名", priority=5,  permission=GROUP, block=
 @weekly_work.scheduled_job("cron", day_of_week='mon', hour=4)
 async def weekly_work_():
 
-    LimitData().redata_limit_by_key('state')
+    limit_data.redata_limit_by_key('state')
     logger.opt(colors=True).info(f"<green>已更新周常事件</green>")
 
 

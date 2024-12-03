@@ -29,7 +29,7 @@ from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.utils import (
     check_user, number_to
 )
-from ..xiuxian_utils.clean_utils import get_strs_from_str
+from ..xiuxian_utils.clean_utils import get_strs_from_str, simple_md
 
 xiuxian_message = on_command("我的修仙信息", aliases={"我的存档", "我的信息", "存档", "修仙信息"}, priority=23, permission=GROUP, block=True)
 pic_test = on_command("测试图片", aliases={"图片测试"}, priority=23, permission=SUPERUSER, block=True)
@@ -161,25 +161,25 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent, args: Message = C
         await bot.send(event=event, message=MessageSegment.image(img_res))
         await xiuxian_message.finish()
     else:
-        msg = f"""        
-道号: {user_name}
-ID: {user_id}
-境界: {user_info['level']}
-修为: {number_to(user_info['exp'])}
-灵石: {number_to(user_info['stone'])}|{user_info['stone']}
-战力: {number_to(int(user_info['exp'] * level_rate * realm_rate))}
-灵根: {user_info['root']}
-({user_info['root_type']}+{int(level_rate * 100)}%)
-突破状态: {exp_meg} (概率：{jsondata.level_rate_data()[user_info['level']] + leveluprate + number}%)
-攻击力: {number_to(user_info['atk'])} (攻修等级{user_info['atkpractice']}级)
-所在宗门: {sectmsg} (职位: {sectzw})
-主修功法: {main_buff_name}
-辅修功法: {sub_buff_name}
-副修神通: {sec_buff_name}
-法器: {weapon_name}
-防具: {armor_name}
-注册位数: 道友是踏入修仙世界的第{int(user_num)}人
-修为排行: 道友的修为排在第{int(user_rank)}位
-灵石排行: 道友的灵石排在第{int(user_stone)}位
-"""
+        msg = (f"道号: {user_name}\r"
+               f"ID: {user_id}\r"
+               f"境界: {user_info['level']}\r"
+               f"修为: {number_to(user_info['exp'])}\r"
+               f"灵石: {number_to(user_info['stone'])}|{user_info['stone']}\r"
+               f"战力: {number_to(int(user_info['exp'] * level_rate * realm_rate))}\r"
+               f"灵根: {user_info['root']}\r"
+               f"({user_info['root_type']}+{int(level_rate * 100)}%)\r"
+               f"突破状态: {exp_meg} (概率：{jsondata.level_rate_data()[user_info['level']] + leveluprate + number}%)\r"
+               f"攻击力: {number_to(user_info['atk'])} (攻修等级{user_info['atkpractice']}级)\r"
+               f"所在宗门: {sectmsg} (职位: {sectzw})\r"
+               f"主修功法: {main_buff_name}\r"
+               f"辅修功法: {sub_buff_name}\r"
+               f"副修神通: {sec_buff_name}\r"
+               f"法器: {weapon_name}\r"
+               f"防具: {armor_name}\r"
+               f"注册位数: 道友是踏入修仙世界的第{int(user_num)}人\r"
+               f"修为排行: 道友的修为排在第{int(user_rank)}位\r"
+               f"灵石排行: 道友的灵石排在第{int(user_stone)}位\r")
+        msg = simple_md(msg, "查看图片版", "我的修仙信息图片版", "!")
         await bot.send(event=event, message=msg)
+        await xiuxian_message.finish()

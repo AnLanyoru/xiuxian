@@ -4,7 +4,7 @@ import math
 import operator
 from urllib.parse import quote
 
-from nonebot.adapters.onebot.v11 import Message, GroupMessageEvent
+from nonebot.adapters.onebot.v11 import Message
 
 from .. import NICKNAME
 from .markdown_segment import MessageSegmentPlus
@@ -286,6 +286,32 @@ def get_strs_from_str(msg: str) -> list:
     return strs
 
 
+def simple_md(msg_head, inlinecmd,
+              inlinecmd_url, msg_end):
+    if NICKNAME == "枫林晚":
+        return msg_head + inlinecmd + msg_end
+    param = [
+        {
+            "key": "msg_head",
+            "values": [f"{msg_head}"]
+        },
+        {
+            "key": "inlinecmd",
+            "values": [f"{inlinecmd}"]
+        },
+        {
+            "key": "inlinecmd_url",
+            "values": [f"{quote(inlinecmd_url)}"]
+        },
+        {
+            "key": "msg_end",
+            "values": [f"{msg_end}"]
+        }
+    ]
+    msg = MessageSegmentPlus.markdown_template("102368631_1732781247", param)
+    return msg
+
+
 def main_md(title, text,
             cmd_see, cmd,
             cmd_see_2, cmd_2,
@@ -339,16 +365,27 @@ def main_md(title, text,
     return msg
 
 
+def help_md(md_id, text):
+    if NICKNAME == "枫林晚":
+        return text
+    param = [
+        {
+            "key": "text",
+            "values": [f"{text}"]
+        }
+    ]
+    msg = MessageSegmentPlus.markdown_template(md_id, param)
+    return msg
+
+
 def msg_handler(*args):
 
     if len(args) == 3:
         name, uin, msgs = args
-        print(msgs)
         messages = '\r'.join(msgs)
         return messages
     elif len(args) == 1 and isinstance(args[0], list):
         messages = args[0]
-        print(messages)
         try:
             messages = '\r'.join([str(msg['data']['content']) for msg in messages])
         except TypeError:

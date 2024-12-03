@@ -10,7 +10,7 @@ from nonebot.adapters.onebot.v11 import (
 from .store_database import user_store
 from .. import XiuConfig
 from ..xiuxian_utils.clean_utils import get_args_num, get_paged_msg, number_to_msg, get_strs_from_str
-from ..xiuxian_utils.lay_out import Cooldown
+from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
 from nonebot.params import CommandArg, RawCommand
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.utils import (

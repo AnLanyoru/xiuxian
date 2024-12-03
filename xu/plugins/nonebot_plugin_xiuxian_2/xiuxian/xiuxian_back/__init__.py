@@ -11,7 +11,8 @@ from nonebot.adapters.onebot.v11 import (
 )
 from ..xiuxian_limit import limit_handle
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
-from ..xiuxian_utils.clean_utils import get_args_num, get_num_from_str, get_strs_from_str, get_paged_msg
+from ..xiuxian_utils.clean_utils import get_args_num, get_num_from_str, get_strs_from_str, get_paged_msg, main_md, \
+    msg_handler
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
 from nonebot.log import logger
@@ -21,13 +22,13 @@ from .back_util import (
     get_user_main_back_msg, check_equipment_can_use,
     get_use_equipment_sql, get_shop_data, save_shop,
     get_item_msg, get_item_msg_rank, check_use_elixir,
-    get_use_jlq_msg, get_no_use_equipment_sql, get_use_tool_msg, get_user_main_back_msg_easy
+    get_use_jlq_msg, get_no_use_equipment_sql, get_use_tool_msg, get_user_main_back_msg_easy, get_user_back_msg
 )
 from .backconfig import get_auction_config, savef_auction, remove_auction_item
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.utils import (
     check_user, send_msg_handler,
-    number_to
+    number_to, get_id_from_str
 )
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, get_weapon_info_msg, get_armor_info_msg,
@@ -60,6 +61,8 @@ shop_added_by_admin = on_command("系统坊市上架", priority=5, permission=SU
 shop_off = on_command("坊市下架", priority=5, permission=GROUP, block=True)
 shop_off_all = on_fullmatch("清空坊市", priority=3, permission=SUPERUSER, block=True)
 main_back = on_command('我的背包', aliases={'我的物品', '背包'}, priority=2, permission=GROUP, block=True)
+skill_back = on_command('功法背包', priority=2, permission=GROUP, block=True)
+check_back = on_command('别人的背包', aliases={'检查背包'}, priority=2, permission=SUPERUSER, block=True)
 use = on_command("使用", priority=15, permission=GROUP, block=True)
 no_use_zb = on_command("换装", aliases={"卸载"}, priority=5, permission=GROUP, block=True)
 buy = on_command("坊市购买", priority=5, block=True)
@@ -571,7 +574,6 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         msg = "请输入要炼化的物品等阶！"
         await bot.send(event=event, message=msg)
         await goods_re_root_fast.finish()
-        real_args = []
     msg = "快速炼金以下品阶物品：\r" + "|".join(args)
     price_sum = 0
     for goal_level, goal_level_name in zip(real_args, args):
@@ -698,12 +700,87 @@ async def main_back_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         page_all = 30
 
     if msg:
-        msg_head = f"\r{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"
-        msg = get_paged_msg(msg_list=msg, page=page, cmd=cmd, per_page_item=page_all, msg_head=msg_head)
+        text = get_paged_msg(msg_list=msg, page=page, cmd=cmd, per_page_item=page_all)
+        text = msg_handler(text)
+        msg = f"\r{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"
+        msg = main_md(
+            msg, text,
+            '下一页', f'我的背包{page+1}',
+            '丹药背包', '丹药背包',
+            '药材背包', '药材背包',
+            '背包帮助', '背包帮助')
     else:
-        msg = ["道友的背包空空如也！"]
-    await send_msg_handler(bot, event, '背包', bot.self_id, msg)
+        msg = "道友的背包空空如也！"
+    await bot.send(event, msg)
     await main_back.finish()
+
+
+@skill_back.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
+async def skill_back_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(), cmd: str = RawCommand()):
+    """我的背包
+    ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
+    "remake", "day_num", "all_num", "action_time", "state"]
+    """
+    _, user_info, _ = check_user(event)
+    user_id = user_info['user_id']
+
+    args = args.extract_plain_text()
+    page = get_args_num(args, 1)  # 背包页数
+    page = page if page else 1
+    msg = get_user_back_msg(user_id, ['技能'])
+    page_all = 30
+
+    if msg:
+        text = get_paged_msg(msg_list=msg, page=page, cmd=cmd, per_page_item=page_all)
+        text = msg_handler(text)
+        msg = f"\r{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"
+        msg = main_md(
+            msg, text,
+            '下一页', f'功法背包 {page+1}',
+            '丹药背包', '丹药背包',
+            '药材背包', '药材背包',
+            '背包帮助', '背包帮助')
+    else:
+        msg = "道友的背包空空如也！"
+    await bot.send(event, msg)
+    await skill_back.finish()
+
+
+@check_back.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
+async def check_back_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg(), cmd: str = RawCommand()):
+    """别人的背包
+    ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
+    "remake", "day_num", "all_num", "action_time", "state"]
+    """
+    _, user_info, _ = check_user(event)
+
+    args = args.extract_plain_text()
+    arg = get_strs_from_str(args)
+    user_id = get_id_from_str(args)
+    desc_on = True if "详情" in arg else False
+    page = get_args_num(args, 1)  # 背包页数
+    page = page if page else 1
+    if desc_on:
+        msg = get_user_main_back_msg(user_id)
+        page_all = 12
+    else:
+        msg = get_user_main_back_msg_easy(user_id)
+        page_all = 30
+
+    if msg:
+        text = get_paged_msg(msg_list=msg, page=page, cmd=cmd, per_page_item=page_all)
+        text = msg_handler(text)
+        msg = f"\r{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"
+        msg = main_md(
+            msg, text,
+            '下一页', f'我的背包{page+1}',
+            '丹药背包', '丹药背包',
+            '药材背包', '药材背包',
+            '背包帮助', '背包帮助')
+    else:
+        msg = "道友的背包空空如也！"
+    await bot.send(event, msg)
+    await check_back.finish()
 
 
 @no_use_zb.handle(parameterless=[Cooldown(at_sender=False)])

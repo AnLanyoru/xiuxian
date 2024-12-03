@@ -1,13 +1,13 @@
 import math
 import os
 from typing import Any, Tuple
-from nonebot import on_regex, require, on_command
+from nonebot import on_regex, require, on_command, logger
 from nonebot.params import RegexGroup
 
 from ..xiuxian_limit import limit_handle
 from ..xiuxian_move import read_move_data
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
-from ..xiuxian_utils.clean_utils import get_datetime_from_str, get_num_from_str
+from ..xiuxian_utils.clean_utils import get_datetime_from_str, get_num_from_str, main_md, simple_md
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -30,11 +30,11 @@ work = {}  # 悬赏令信息记录
 sql_message = XiuxianDateManage()  # sql类
 count = 6  # 免费次数
 
-# 重置悬赏令刷新次数（已改被动）
-# @resetrefreshnum.scheduled_job("cron", hour=3, minute=0)
-# async def resetrefreshnum_():
-#    sql_message.reset_work_num()
-#    logger.opt(colors=True).info(f"<green>用户悬赏令刷新次数重置成功</green>")
+
+@resetrefreshnum.scheduled_job("cron", hour=3, minute=0)
+async def resetrefreshnum_():
+   sql_message.reset_work_num()
+   logger.opt(colors=True).info(f"<green>用户悬赏令刷新次数重置成功</green>")
 
 
 last_work = on_command("最后的悬赏令", priority=15, block=True)
@@ -158,10 +158,10 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         await do_work.finish()
     user_type = user_cd_info['type']
     if user_type and user_type != 2:
-        msg_map = {1: "已经在闭关中，请输入【出关】结束后才能获取悬赏令！",
+        msg_map = {1: simple_md("已经在闭关中，请输入", "出关", "出关", "结束后才能获取悬赏令！"),
                    3: "道友在秘境中，请等待结束后才能获取悬赏令！",
                    4: "道友还在修炼中，请等待结束后才能获取悬赏令！",
-                   5: "道友还在虚神界修炼中，请等待结束后才能获取悬赏令！"
+                   5: simple_md("道友还在虚神界修炼中，请", "出关", "出关", "后获取悬赏令！")
                    }
         msg = msg_map.get(user_type)
         if not msg:
@@ -187,9 +187,17 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     if mode is None:  # 接取逻辑
         if (user_cd_info['scheduled_time'] is None) or (user_cd_info['type'] == 0):
             try:
-                msg = work[user_id].msg + "\r——————————————\r使用 悬赏令接取【序号】 接取对应悬赏令！"
+                msg = work[user_id].msg
+                title = "道友已有悬赏令:"
+
+                msg = main_md(
+                    title, msg,
+                    '接取 1', '悬赏令接取1',
+                    '接取 2', '悬赏令接取2',
+                    '接取 3', '悬赏令接取3',
+                    '悬赏令帮助', '悬赏令帮助')
             except KeyError:
-                msg = "没有查到你的悬赏令信息呢，请刷新！"
+                msg = simple_md("没有查到你的悬赏令信息呢，请", "刷新", "刷新", "！")
         elif user_cd_info['type'] == 2:
             work_time = datetime.strptime(
                 user_cd_info['create_time'], "%Y-%m-%d %H:%M:%S.%f"
@@ -199,9 +207,10 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             if exp_time < time2:
                 msg = f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
             else:
-                msg = f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
+                msg = simple_md(f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，已结束，请输入",
+                                "悬赏令结算","悬赏令结算","来结算任务信息！")
         else:
-            msg = "没有查到你的悬赏令信息呢，请刷新！"
+            msg = simple_md("没有查到你的悬赏令信息呢，请", "刷新", "刷新", "！")
         await bot.send(event=event, message=msg)
         await do_work.finish()
 
@@ -215,7 +224,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             if exp_time < time2:
                 msg = f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
             else:
-                msg = f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
+                msg = simple_md(f"进行中的悬赏令【{user_cd_info['scheduled_time']}】，已结束，请输入",
+                                "悬赏令结算","悬赏令结算","来结算任务信息！")
             await bot.send(event=event, message=msg)
             await do_work.finish()
         usernums = sql_message.get_work_num(user_id)
@@ -250,7 +260,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         work_msg = workhandle().do_work(0, level=user_level, exp=user_info['exp'], user_id=user_id)
         n = 1
         work_list = []
-        work_msg_f = f"☆------道友的个人悬赏令------☆\r"
+        title = '☆------道友的个人悬赏令------☆'
+        work_msg_f = ""
         for i in work_msg:
             work_list.append([i[0], i[3]])
             work_msg_f += f"{n}、{get_work_msg(i)}"
@@ -263,7 +274,14 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         work[user_id] = do_is_work(user_id)
         work[user_id].msg = work_msg_f
         work[user_id].world = work_list
-        msg = work[user_id].msg + "\r——————————————\r在10秒内直接回复我需要接取的悬赏令序号快速接取对应悬赏令！"
+        msg = work[user_id].msg
+
+        msg = main_md(
+            title, msg,
+            '接取 1', '悬赏令接取 1',
+            '接取 2', '悬赏令接取 2',
+            '接取 3', '悬赏令接取 3',
+            '悬赏令帮助', '悬赏令帮助')
         await bot.send(event=event, message=msg)
 
     elif mode == "终止":
@@ -372,37 +390,6 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         msg = __work_help__
         await bot.send(event=event, message=msg)
         await do_work.finish()
-
-
-@do_work.receive()
-async def get_work_num(bot: Bot, event: GroupMessageEvent):
-    # 这里曾经是风控模块，但是已经不再需要了
-    num = get_num_from_str(event.get_plaintext())
-
-    _, user_info, _ = check_user(event)
-
-    user_id = user_info.get('user_id')
-    is_type, msg = check_user_type(user_id, 0)  # 需要无状态的用户
-    if is_type:  # 接取逻辑
-        if not num:
-            msg = '请输入正确的任务序号'
-            await bot.send(event=event, message=msg)
-            await do_work.finish()
-        try:
-            work_num = 1
-            if work[user_id]:
-                work_num = int(num[0])  # 任务序号
-            try:
-                get_work = work[user_id].world[work_num - 1]
-                sql_message.do_work(user_id, 2, get_work[0])
-                del work[user_id]
-                msg = f"接取任务【{get_work[0]}】成功"
-            except IndexError:
-                msg = "没有这样的任务"
-        except KeyError:
-            msg = "没有查到你的悬赏令信息呢，请刷新！"
-    await bot.send(event=event, message=msg)
-    await do_work.finish()
 
 
 def get_work_msg(work_):

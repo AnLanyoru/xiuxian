@@ -129,7 +129,7 @@ class LimitData:
 
     @classmethod
     def close_dbs(cls):
-        LimitData().close()
+        limit_data.close()
 
     # 上面是数据库校验，别动
 
@@ -347,18 +347,21 @@ class LimitData:
         self.conn.commit()
 
 
+limit_data = LimitData()
+
+
 class LimitHandle:
     def __init__(self):
-        self.blob_data = LimitData().blob_data
+        self.blob_data = limit_data.blob_data
         self.msg_list = ['name', 'desc']
-        self.sql_limit = LimitData().sql_limit
+        self.sql_limit = limit_data.sql_limit
         self.keymap = {1: "stone_exp_up", 2: "send_stone", 3: "receive_stone", 4: "impart_pk",
                        5: "two_exp_up", 6: "offset_get", 7: "active_get", 8: "rift_protect"}
         pass
 
     def get_active_msg(self):
         """活动简要信息"""
-        idmap = LimitData().get_active_idmap()
+        idmap = limit_data.get_active_idmap()
         msg = "\r"
         if idmap:
             for name in idmap:
@@ -369,7 +372,7 @@ class LimitHandle:
 
     def get_offset_list(self):
         """补偿简要列表"""
-        idmap = LimitData().get_offset_idmap()
+        idmap = limit_data.get_offset_idmap()
         msg = "\r"
         if idmap:
             for name in idmap:
@@ -410,7 +413,7 @@ class LimitHandle:
         :param offset_id:
         :return:
         """
-        offset_info = LimitData().get_offset_by_id(offset_id)
+        offset_info = limit_data.get_offset_by_id(offset_id)
         offset_msg = self.change_offset_info_to_msg(offset_info)
         return offset_msg
 
@@ -420,7 +423,7 @@ class LimitHandle:
         :param user_id:
         :return:
         """
-        idmap = LimitData().get_offset_idmap()
+        idmap = limit_data.get_offset_idmap()
         offset_list = []
         for offset_name in idmap:
             offset_id = idmap[offset_name]
@@ -444,13 +447,13 @@ class LimitHandle:
         :return: 是否成功
         """
         limit_key = self.keymap[limit_num]  # 懒狗只想打数字
-        limit, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit, is_pass = limit_data.get_limit_by_user_id(user_id)
         goal_data = limit[limit_key]
         if update_type:
             update_data = -update_data
         goal_data += update_data
         limit[limit_key] = goal_data
-        LimitData().update_limit_data_with_key(limit, limit_key)
+        limit_data.update_limit_data_with_key(limit, limit_key)
         return True
 
     def reset_daily_limit(self, user_id):
@@ -469,7 +472,7 @@ class LimitHandle:
         limit_dict['last_time'] = now_time
         for key in self.blob_data:
             limit_dict[key] = {}
-        LimitData().update_limit_data(limit_dict)
+        limit_data.update_limit_data(limit_dict)
         pass
 
     def update_user_offset(self, user_id, offset_id: int) -> bool | tuple[bool, str]:
@@ -483,7 +486,7 @@ class LimitHandle:
         now_date = date.today()
         now_date_str = str(now_date)
         object_key = 'offset_get'  # 可变参数，记得修改方法
-        offset_info = LimitData().get_offset_by_id(offset_id)
+        offset_info = limit_data.get_offset_by_id(offset_id)
         daily = offset_info['daily_update']  # 是否日刷新
         start_time_str = offset_info['start_time']  # 开始日期
         start_time = datetime.strptime(start_time_str, "%Y-%m-%d") \
@@ -499,7 +502,7 @@ class LimitHandle:
             msg = "该补偿已过期！！！"
             return False, msg
 
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         offset_get = limit_dict[object_key]
         try:
             offset_state = offset_get.get(offset_id)
@@ -522,7 +525,7 @@ class LimitHandle:
                     offset_state[1] = now_date_str
                     offset_get[offset_id] = offset_state
                     limit_dict[object_key] = offset_get
-                    LimitData().update_limit_data_with_key(limit_dict, object_key)
+                    limit_data.update_limit_data_with_key(limit_dict, object_key)
                     return True, ''  # 返回检查成功
             else:
                 # 非日更检查是否为新补偿
@@ -530,7 +533,7 @@ class LimitHandle:
                     # 新补偿覆盖旧补偿数据
                     offset_get[offset_id] = [1, now_date_str]  # 数据为列表形式，格式为，[次数，日期]
                     limit_dict[object_key] = offset_get
-                    LimitData().update_limit_data_with_key(limit_dict, object_key)
+                    limit_data.update_limit_data_with_key(limit_dict, object_key)
                     return True, ''  # 返回检查成功
                     pass
                 msg = "道友已经领取过该补偿啦！！！！"
@@ -539,7 +542,7 @@ class LimitHandle:
             # 若无则初始化 返回True
             offset_get[offset_id] = [1, now_date_str]  # 数据为列表形式，格式为，[次数，日期]
             limit_dict[object_key] = offset_get
-            LimitData().update_limit_data_with_key(limit_dict, object_key)
+            limit_data.update_limit_data_with_key(limit_dict, object_key)
             return True, ''  # 返回检查成功
         return False, msg  # 流程均检查失败 返回检查失败
 
@@ -553,7 +556,7 @@ class LimitHandle:
         date = datetime.now().date()
         now_date = date.today()
         object_key = 'offset_get'  # 可变参数，记得修改方法
-        offset_info = LimitData().get_offset_by_id(offset_id)
+        offset_info = limit_data.get_offset_by_id(offset_id)
         daily = offset_info['daily_update']  # 是否日刷新
         start_time_str = offset_info['start_time']  # 开始日期
         start_time = datetime.strptime(start_time_str, "%Y-%m-%d") \
@@ -564,7 +567,7 @@ class LimitHandle:
         last_time = last_time.date()
         if start_time > now_date or last_time < now_date:
             return False
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         offset_get = limit_dict[object_key]
         offset_state = offset_get.get(offset_id)
         if offset_state:
@@ -600,7 +603,7 @@ class LimitHandle:
         now_date = datetime.now()
         now_date = now_date.replace(microsecond=0)
         object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
         try:
             logs = state_dict.get('log')
@@ -618,12 +621,12 @@ class LimitHandle:
         except:
             state_dict = {'log': logs}
         limit_dict[object_key] = state_dict
-        LimitData().update_limit_data_with_key(limit_dict, object_key)
+        limit_data.update_limit_data_with_key(limit_dict, object_key)
         return True
 
     def get_user_log_data(self, user_id):
         object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
         logs = state_dict.get('log')
         if logs:
@@ -641,7 +644,7 @@ class LimitHandle:
         now_date = datetime.now()
         now_date = now_date.replace(microsecond=0)
         object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
         try:
             logs = state_dict.get('shop_log')
@@ -659,12 +662,12 @@ class LimitHandle:
         except TypeError:
             state_dict = {'shop_log': logs}
         limit_dict[object_key] = state_dict
-        LimitData().update_limit_data_with_key(limit_dict, object_key)
+        limit_data.update_limit_data_with_key(limit_dict, object_key)
         return True
 
     def get_user_shop_log_data(self, user_id):
         object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
         try:
             logs = state_dict.get('shop_log')
@@ -685,7 +688,7 @@ class LimitHandle:
         # now_date = datetime.now()
         # now_date = now_date.replace(microsecond=0)
         object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
         try:
             logs = state_dict.get('week_donate_log')
@@ -700,12 +703,12 @@ class LimitHandle:
         except TypeError:
             state_dict = {'week_donate_log': logs}
         limit_dict[object_key] = state_dict
-        LimitData().update_limit_data_with_key(limit_dict, object_key)
+        limit_data.update_limit_data_with_key(limit_dict, object_key)
         return True
 
     def get_user_donate_log_data(self, user_id):
         object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
         try:
             logs = state_dict.get('week_donate_log')
@@ -724,7 +727,7 @@ class LimitHandle:
         :return: bool
         """
         object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
         logs = world_power
         try:
@@ -732,12 +735,12 @@ class LimitHandle:
         except TypeError:
             state_dict = {'world_power': logs}
         limit_dict[object_key] = state_dict
-        LimitData().update_limit_data_with_key(limit_dict, object_key)
+        limit_data.update_limit_data_with_key(limit_dict, object_key)
         return True
 
     def get_user_world_power_data(self, user_id):
         object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
         try:
             logs = state_dict.get('world_power')
@@ -749,13 +752,13 @@ class LimitHandle:
             return 0
 
     def get_user_rift_protect(self, user_id):
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         rift_protect = limit_dict['rift_protect']
         return rift_protect
 
     def get_back_fix_data(self, user_id):
         object_key = 'state'  # 可变参数，记得修改方法
-        limit_dict, is_pass = LimitData().get_limit_by_user_id(user_id)
+        limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
         state_dict = limit_dict[object_key]
         try:
             logs = state_dict.get('back_fix')
@@ -772,6 +775,6 @@ limit_handle = LimitHandle()
 try:
     @DRIVER.on_shutdown
     async def close_db():
-        LimitData().close()
+        limit_data.close()
 except:
     pass

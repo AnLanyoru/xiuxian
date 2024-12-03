@@ -248,7 +248,7 @@ def get_user_main_back_msg_easy(user_id):
                 l_types_sec_dict[item_type_sec].append(f"{level}{item['goods_name']} - "
                                                        f"数量：{item['goods_num']}{bind_msg}")
             for item_type_sec, l_items_sec_msg in l_types_sec_dict.items():
-                head_msg = f" - {item_type_sec}:\r" if item_type_sec != item_type else ''
+                head_msg = f" ~ {item_type_sec}:\r" if item_type_sec != item_type else ''
                 top_msg = head_msg + l_items_sec_msg[0]
                 l_items_msg.append(top_msg)
                 l_items_msg = operator.add(l_items_msg, l_items_sec_msg[1:])
@@ -259,6 +259,47 @@ def get_user_main_back_msg_easy(user_id):
         l_msg = operator.add(l_msg, l_items_msg[1:])
     return l_msg
 
+
+def get_user_back_msg(user_id, item_types: list):
+    """
+    获取背包内的指定物品信息
+    """
+    l_msg = []
+    user_backs = sql_message.get_back_msg(user_id)  # list(back)
+    if user_backs is None:
+        return l_msg
+    l_types_dict = {}
+    for user_back in user_backs:
+        goods_type = user_back.get('goods_type')
+        if not l_types_dict.get(goods_type):
+            l_types_dict[goods_type] = []
+        l_types_dict[goods_type].append(user_back)
+    l_types_msg_dict = {}
+    for item_type in item_types:
+        if l_items := l_types_dict.get(item_type):
+            l_items.sort(key=lambda k: int(items.items.get(str(k.get('goods_id')), {}).get('rank')))
+            l_items_msg = []
+            l_types_sec_dict = {}
+            for item in l_items:
+                item_info = items.get_data_by_item_id(item['goods_id'])
+                item_type_sec = item_info.get('item_type')
+                if not l_types_sec_dict.get(item_type_sec):
+                    l_types_sec_dict[item_type_sec] = []
+                level = f"{item_info.get('level')} - " if item_info.get('level') else ''
+                bind_msg = f"(绑定:{item['bind_num']})" if item['bind_num'] else ""
+                l_types_sec_dict[item_type_sec].append(f"{level}{item['goods_name']} - "
+                                                       f"数量：{item['goods_num']}{bind_msg}")
+            for item_type_sec, l_items_sec_msg in l_types_sec_dict.items():
+                head_msg = f" ~ {item_type_sec}:\r" if item_type_sec != item_type else ''
+                top_msg = head_msg + l_items_sec_msg[0]
+                l_items_msg.append(top_msg)
+                l_items_msg = operator.add(l_items_msg, l_items_sec_msg[1:])
+            l_types_msg_dict[item_type] = l_items_msg
+    for item_type, l_items_msg in l_types_msg_dict.items():
+        top_msg = f"☆------{item_type}------☆\r" + l_items_msg[0]
+        l_msg.append(top_msg)
+        l_msg = operator.add(l_msg, l_items_msg[1:])
+    return l_msg
 
 
 def get_user_skill_back_msg(user_id):

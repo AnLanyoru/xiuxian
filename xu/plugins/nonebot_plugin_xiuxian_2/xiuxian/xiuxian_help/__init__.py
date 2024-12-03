@@ -1,4 +1,5 @@
 from ..xiuxian_sect import get_config
+from ..xiuxian_utils.clean_utils import help_md
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage
 )
@@ -56,39 +57,6 @@ __xiuxian_notes__ = f"""
 官方群914556251
 """.strip()
 
-
-__xiuxian_newer_help__ = f"""
-—————修仙新手教程—————
-1：仙途奇缘
- - 获得修仙的第一桶灵石！！
-2：修仙签到
- - 每日签到获取一定量灵石！！
-3：修炼
- - 发送修炼并且等待，即可获取修为
-4：突破
- - 当修为达到上限时，或是当修为足够突破时
- - 发送 突破 来获取突破指引
-5： 悬赏令帮助
- - 每日发送： 悬赏令刷新 获取悬赏令
- - 悬赏令中可以获取修行所需的功法，修为，药材等等
-6：秘境帮助
- - 发送 探索秘境 消耗240点体力，进行一次探索秘境
- - 使用 秘境结算 来结算奖励
-7： 宗门帮助
- - 加入宗门寻求庇护，可以发送 宗门列表 来查看所有宗门
-不用担心你没有实力！！无论你的修为高低宗门都会庇护你的！！！
-8： 虚神界帮助
- - 每日发送 虚神界对决 获取思恋结晶
- - 发送 传承抽卡 来消耗思恋结晶进行抽卡！！
-9： 灵田帮助
- - 发送 灵田帮助 来开始赛博种田！！
-10：灵庄帮助
- - 存钱利滚利！！！
-11：灵宝楼帮助
- - 玩家直接物品交易场所，可提供玩家摆摊
-——tips——
-官方群914556251
-"""
 
 __sect_help__ = f"""
 \r————宗门帮助————
@@ -156,14 +124,12 @@ __store_help__ = f"""
  - 查看对应物品的最高求购价
 4：我的灵宝楼求购
  - 查看自身灵宝楼求购
-5：灵宝楼存灵石 数量
- - 存入灵石到灵宝楼，求购优先扣灵宝楼灵石
+5：灵宝楼取灵石 数量
+ - 从灵宝楼中取出灵石，收取20%手续费
 6：取消求购 物品名称
  - 下架你的求购物品
 ——tips——
 官方群914556251
-测试中
-暂不支持灵宝楼取出灵石
 """.strip()
 
 
@@ -194,7 +160,7 @@ __tower_help__ = f"""
 @help_in.handle(parameterless=[Cooldown(at_sender=False)])
 async def help_in_(bot: Bot, event: GroupMessageEvent):
     """修仙帮助"""
-    msg = __xiuxian_notes__
+    msg = help_md("102368631_1732793414", "测试中")
     await bot.send(event=event, message=msg)
     await help_in.finish()
 
@@ -202,7 +168,7 @@ async def help_in_(bot: Bot, event: GroupMessageEvent):
 @help_newer.handle(parameterless=[Cooldown(at_sender=False)])
 async def help_in_(bot: Bot, event: GroupMessageEvent):
     """修仙新手帮助"""
-    msg = __xiuxian_newer_help__
+    msg = help_md("102368631_1732795591", "测试中")
     await bot.send(event=event, message=msg)
     await help_newer.finish()
 

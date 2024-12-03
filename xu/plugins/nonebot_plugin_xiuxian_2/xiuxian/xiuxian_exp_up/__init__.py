@@ -20,7 +20,7 @@ from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.utils import (
     number_to, check_user, check_user_type
 )
-from ..xiuxian_utils.clean_utils import get_strs_from_str, main_md
+from ..xiuxian_utils.clean_utils import get_strs_from_str, main_md, simple_md
 from ..xiuxian_utils.lay_out import Cooldown
 
 sql_message = XiuxianDateManage()  # sql实例化至sql_massage
@@ -77,7 +77,8 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
     if not is_type:
-        if msg == "道友正在修炼中，请抱元守一，聚气凝神，勿要分心！\r若是调用修炼看到此消息，道友大概率需要：\r【停止修炼】！！！":
+        is_type, msg = check_user_type(user_id, 4)
+        if is_type:
             pass
         else:
             await bot.send(event=event, message=msg)
@@ -85,7 +86,7 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
     sql_message.in_closing(user_id, user_type)  # 进入修炼状态
     exp_time = 6  # 闭关时长计算(分钟) = second // 60
     sleep_time = exp_time * 10
-    msg = f"\r{user_info['user_name']}道友开始屏息凝神，感受道韵流动，进入{int(sleep_time)}秒修炼"
+    msg = simple_md(f"{user_info['user_name']}道友开始屏息凝神，感受道韵流动，进入{int(sleep_time)}秒", "修炼", "修炼", ".....")
     await bot.send(event=event, message=msg)
     await asyncio.sleep(sleep_time)
     user_mes = sql_message.get_user_info_with_id(user_id)  # 获取用户信息
@@ -133,8 +134,7 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
         result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)),
                                                          int(exp * mp_speed))
         sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
-        msg = f"\r{user_mes['user_name']}道友修炼结束，本次修炼触及瓶颈，共增加修为：{number_to(user_get_exp_max)}{result_msg[0]}{result_msg[1]}"
-        msg = main_md(msg, '本次修炼耗时60s', '开始突破', '突破', '查看状态', '我的状态', '查看目前信息', '我的修仙信息', '修仙帮助', '修仙帮助')
+        msg = simple_md(f"\r{user_mes['user_name']}道友修炼结束，本次修炼触及", "瓶颈", "突破", f"，共增加修为：{number_to(user_get_exp_max)}{result_msg[0]}{result_msg[1]}")
         await bot.send(event=event, message=msg)
         await exp_up.finish()
     else:
@@ -144,8 +144,7 @@ async def exp_up_(bot: Bot, event: GroupMessageEvent):
         result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)),
                                                          int(exp * mp_speed))
         sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
-        msg = f"\r{user_mes['user_name']}道友修炼结束，本次修炼增加修为：{number_to(exp)}{result_msg[0]}{result_msg[1]}"
-        msg = main_md(msg, '本次修炼耗时60s', '继续修炼', '修炼', '查看状态', '我的状态', '查看目前信息', '我的修仙信息', '修仙帮助', '修仙帮助')
+        msg = simple_md(f"\r{user_mes['user_name']}道友", "修炼", "修炼", f"结束，本次修炼增加修为：{number_to(exp)}{result_msg[0]}{result_msg[1]}")
         await bot.send(event=event, message=msg)
         await exp_up.finish()
 
@@ -233,8 +232,8 @@ async def world_rank_up_(bot: Bot, event: GroupMessageEvent, state: T_State):
         need_level = XiuConfig().break_world_need[now_world]
         break_rank = convert_rank(need_level)[0]
         if user_rank >= break_rank:
-            msg = (f"道友修为超凡，已然足矣踏破虚空离开【{now_world_name}】前往【{next_world_name}】"
-                   f"\r注意：突破位面后将不可回到【{now_world_name}】，确认踏破虚空请回复我：确认飞升")
+            msg = simple_md(f"道友修为超凡，已然足矣踏破虚空离开【{now_world_name}】前往【{next_world_name}】"
+                   f"\r注意：突破位面后将不可回到【{now_world_name}】，确认踏破虚空请回复我：", "确认飞升", "确认飞升", "!")
             state["world_up"] = next_world
             await bot.send(event=event, message=msg)
         else:
@@ -318,7 +317,7 @@ async def power_break_up_help_(bot: Bot, event: GroupMessageEvent):
 
     user_id = user_info['user_id']
     power = limit_handle.get_user_world_power_data(user_id)
-    msg = (f"道友体内拥有天地精华：{power}\r天地精华由使用天地奇物获得\r可以发送 吸收天地精华 将体内天地精华吸收！！\r增加少许修为与突破概率"
+    msg = simple_md(f"道友体内拥有天地精华：{power}\r天地精华由使用天地奇物获得\r可以发送 ", "吸收天地精华", "吸收天地精华", "将体内天地精华吸收！！\r增加少许修为与突破概率"
            f"\r天地精华还是练就顶级神通的必备能量！！\r请尽快使用天地精华，否则天地精华将会归于天地之间！！！")
     await bot.send(event=event, message=msg)
     await power_break_up_help.finish()

@@ -1344,36 +1344,12 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """获取用户悬赏令刷新次数
            拥有被动效果，检测隔日自动重置悬赏令刷新 次数
         """
-        now = time.localtime()
-        now_day = str(now.tm_year) + str(now.tm_mon) + str(now.tm_mday)
-        try:
-            """获取最后悬赏令日期"""
-            sql = f"SELECT work_num FROM user_xiuxian WHERE user_id=?"
-            date_cur = self.conn.cursor()
-            date_cur.execute(sql, (user_id,))
-            date_result = date_cur.fetchone()[0]
-            self.conn.commit()
-            if now_day != str(date_result)[:-1]:
-                """重置用户悬赏令刷新次数"""
-                work_num = now_day + "0"
-                sql = f"UPDATE user_xiuxian SET work_num=? WHERE user_id=?"
-                cur = self.conn.cursor()
-                cur.execute(sql, (work_num, user_id))
-                self.conn.commit()
-        except:
-            """插入最后悬赏令日期"""
-            work_num = int(now_day + "0")
-            """重置用户悬赏令刷新次数"""
-            sql = f"UPDATE user_xiuxian SET work_num=? WHERE user_id=?"
-            cur = self.conn.cursor()
-            cur.execute(sql, (work_num, user_id))
-            self.conn.commit()
         sql = f"SELECT work_num FROM user_xiuxian WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
-            work_num = int(str(result[0])[-1:])
+            work_num = int(result[0])
         else:
             work_num = 0
         return work_num

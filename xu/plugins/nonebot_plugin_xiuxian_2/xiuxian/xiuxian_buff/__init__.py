@@ -14,10 +14,10 @@ from nonebot.permission import SUPERUSER
 from .limit import CheckLimit, reset_send_stone, reset_stone_exp_up
 from ..xiuxian_exp_up.exp_up_def import exp_up_by_time
 from ..xiuxian_impart_pk import impart_pk_check
-from ..xiuxian_limit.limit_database import limit_handle
+from ..xiuxian_limit.limit_database import limit_handle, limit_data
 from ..xiuxian_limit.limit_util import limit_check
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
-from ..xiuxian_utils.clean_utils import get_datetime_from_str, date_sub, main_md, msg_handler
+from ..xiuxian_utils.clean_utils import get_datetime_from_str, date_sub, main_md, msg_handler, simple_md
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, get_player_info,
     save_player_info, UserBuffDate, get_main_info_msg,
@@ -59,6 +59,7 @@ ling_tian_up = on_fullmatch("灵田开垦", priority=5, permission=GROUP, block=
 del_exp_decimal = on_fullmatch("抑制黑暗动乱", priority=9, permission=GROUP, block=True)
 my_exp_num = on_fullmatch("我的双修次数", priority=9, permission=GROUP, block=True)
 a_test = on_fullmatch("测试保存", priority=9, permission=SUPERUSER, block=True)
+daily_work = on_fullmatch("日常中心", priority=9, permission=GROUP, block=True)
 
 
 # 每日0点重置用户双修次数
@@ -382,7 +383,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 limit_handle.update_user_log_data(user_1_id, msg)
                 limit_handle.update_user_log_data(user_2_id, msg)
                 msg = main_md(
-                    msg, '',
+                    "信息", msg,
                     '继续双修', f"双修{user_2['user_name']}",
                     '双修', '双修',
                     '修炼', '修炼',
@@ -475,13 +476,7 @@ async def in_closing_(bot: Bot, event: GroupMessageEvent):
     is_type, msg = check_user_type(user_id, 0)
     if is_type:  # 符合
         sql_message.in_closing(user_id, user_type)
-        msg = "进入闭关状态，如需出关，发送【出关】！"
-    msg = main_md(
-            msg, '',
-            '出关', f"出关",
-            '虚神界闭关', '虚神界闭关',
-            '修炼', '修炼',
-            '修仙帮助', '修仙帮助')
+        msg = simple_md('进入闭关状态如需出关，发送', '出关', "出关", '！')
     await bot.send(event=event, message=msg)
     await in_closing.finish()
 
@@ -633,23 +628,21 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     number = user_main_critatk["number"] if user_main_critatk is not None else 0
     now_place = place.get_place_name(place.get_now_place_id(user_id))
 
-    msg = f"""
-道号：{user_info['user_name']}
-气血:{number_to(user_info['hp'])}/{number_to(int((user_info['exp'] / 2) * (1 + main_hp_buff + impart_hp_per) * main_hp_rank))}({((user_info['hp'] / ((user_info['exp'] / 2) * (1 + main_hp_buff + impart_hp_per) * (main_hp_rank)))) * 100:.2f}%)
-真元:{number_to(user_info['mp'])}/{number_to(user_info['exp'])}({((user_info['mp'] / user_info['exp']) * 100):.2f}%)
-攻击:{number_to(user_info['atk'])}
-突破状态: {exp_meg}
-(概率：{jsondata.level_rate_data()[user_info['level']] + leveluprate + number}%)
-攻击修炼:{user_info['atkpractice']}级
-(提升攻击力{user_info['atkpractice'] * 4}%)
-修炼效率:{int(((level_rate * realm_rate) * (1 + main_buff_rate_buff)) * 100)}%
-会心:{crit_buff + int(impart_know_per * 100) + armor_crit_buff + main_crit_buff}%
-减伤率:{100 - (((100 - def_buff) * (100 - weapon_def) * (100 - main_def)) / 10000):.2f}%
-boss战增益:{int(boss_atk * 100)}%
-会心伤害增益:{int((1.5 + impart_burst_per + weapon_critatk + main_critatk) * 100)}%
-当前体力：{user_info['user_stamina']}
-所在位置：{now_place}
-"""
+    msg = simple_md(f"道号：{user_info['user_name']}\r"
+           f"气血:{number_to(user_info['hp'])}/{number_to(int((user_info['exp'] / 2) * (1 + main_hp_buff + impart_hp_per) * main_hp_rank))}({((user_info['hp'] / ((user_info['exp'] / 2) * (1 + main_hp_buff + impart_hp_per) * (main_hp_rank)))) * 100:.2f}%)\r"
+           f"真元:{number_to(user_info['mp'])}/{number_to(user_info['exp'])}({((user_info['mp'] / user_info['exp']) * 100):.2f}%)\r"
+           f"攻击:{number_to(user_info['atk'])}\r"
+           f"突破状态: {exp_meg}\r"
+           f"(概率：{jsondata.level_rate_data()[user_info['level']] + leveluprate + number}%)\r"
+           f"攻击修炼:{user_info['atkpractice']}级\r"
+           f"(提升攻击力{user_info['atkpractice'] * 4}%)\r"
+           f"修炼效率:{int(((level_rate * realm_rate) * (1 + main_buff_rate_buff)) * 100)}%\r"
+           f"会心:{crit_buff + int(impart_know_per * 100) + armor_crit_buff + main_crit_buff}%\r"
+           f"减伤率:{100 - (((100 - def_buff) * (100 - weapon_def) * (100 - main_def)) / 10000):.2f}%\r"
+           f"boss战增益:{int(boss_atk * 100)}%\r"
+           f"会心伤害增益:{int((1.5 + impart_burst_per + weapon_critatk + main_critatk) * 100)}%\r"
+           f"当前体力：{user_info['user_stamina']}\r"
+           f"所在位置：{now_place}\r", "日常状态", "日常中心", "查看")
     sql_message.update_last_check_info_time(user_id)
     await bot.send(event=event, message=msg)
     await mind_state.finish()
@@ -787,14 +780,13 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
 
     secbuffdata = UserBuffDate(user_id).get_user_sec_buff_data()
     secbuffmsg = get_sec_msg(secbuffdata) if get_sec_msg(secbuffdata) != '无' else ''
-    msg = f"""
-道友的主功法：{mainbuffdata["name"] if mainbuffdata is not None else '无'}
-{mainbuffmsg}
-道友的辅修功法：{subbuffdata["name"] if subbuffdata is not None else '无'}
-{subbuffmsg}
-道友的神通：{secbuffdata["name"] if secbuffdata is not None else '无'}
-{secbuffmsg}
-"""
+    msg = simple_md(f"道友的主功法：{mainbuffdata['name'] if mainbuffdata is not None else '无'}\r"
+           f"{mainbuffmsg}\r"
+           f"道友的辅修功法：{subbuffdata['name'] if subbuffdata is not None else '无'}\r"
+           f"{subbuffmsg}\r"
+           f"道友的神通：{secbuffdata['name'] if secbuffdata is not None else '无'}\r"
+           f"{secbuffmsg}\r",
+           "拥有功法", "功法背包", "查看")
 
     await bot.send(event=event, message=msg)
     await buffinfo.finish()
@@ -829,16 +821,41 @@ async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
     main_two = main_two_data['two_buff'] if main_two_data is not None else 0
 
     num = (two_exp_limit + impart_two_exp + main_two) - two_exp_num
-    text = '快去寻找你的道侣吧！'
-    if num <= 0:
-        num = 0
-        text = '感觉身体被掏空~~~'
-    msg = f"道友剩余双修次数{num}次！"
-    msg = main_md(
-        msg, text,
-        '双修', '双修',
-        '修炼', '修炼',
-        '闭关', '闭关',
-        '修仙帮助', '修仙帮助')
+    msg = simple_md(f"道友剩余", "双修", "双修", f"次数{num}次！")
     await bot.send(event=event, message=msg)
     await my_exp_num.finish()
+
+
+
+@daily_work.handle(parameterless=[Cooldown(at_sender=False)])
+async def daily_work_(bot: Bot, event: GroupMessageEvent):
+    """我的双修次数"""
+    # 这里曾经是风控模块，但是已经不再需要了
+    _, user_info, _ = check_user(event)
+
+    user_id = user_info['user_id']
+    two_exp_num = two_exp_cd.find_user(user_id)
+    impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+    impart_two_exp = impart_data['impart_two_exp'] if impart_data is not None else 0
+
+    main_two_data = UserBuffDate(user_id).get_user_main_buff_data()
+    main_two = main_two_data['two_buff'] if main_two_data is not None else 0
+
+    two_num = (two_exp_limit + impart_two_exp + main_two)
+    limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
+    impart_pk_num = limit_dict['impart_pk']
+    work_num = user_info["work_num"]
+    msg = f"今日日常完成情况"
+    text = (f"体力 {user_info['user_stamina']}/2400\r"
+            f"双修 {two_exp_num}/{two_num}\r"
+            f"悬赏令 {work_num}/6\r"
+            f"虚神界行动 {impart_pk_num}/1\r"
+            f"宗门丹药领取 {user_info['sect_elixir_get']}/1\r"
+            f"宗门任务完成 {user_info['sect_task']}/4")
+    msg = main_md(msg, text,
+                  "双修", "双修",
+                  "悬赏令", "悬赏令",
+                  "宗门丹药领取", "宗门丹药领取",
+                  "虚神界帮助", "虚神界帮助")
+    await bot.send(event=event, message=msg)
+    await daily_work.finish()

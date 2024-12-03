@@ -237,6 +237,27 @@ class WorldTowerData:
         self.conn.commit()
         return is_new
 
+    def reset_point_get(self):
+        cur = self.conn.cursor()
+        sql = (
+                f"UPDATE {self.sql_user_table_name} set "
+                f"weekly_point=0 where "
+                f"user_id is not NULL")
+        cur.execute(sql)
+        self.conn.commit()
+
+    def get_all_tower_user_id(self):
+        """获取全部用户id"""
+        sql = f"SELECT user_id FROM {self.sql_user_table_name}"
+        cur = self.conn.cursor()
+        cur.execute(sql, )
+        result = cur.fetchall()
+        if result:
+            return [row[0] for row in result]
+        else:
+            return None
+
+
 
 class TowerHandle(WorldTowerData):
     def create_enemy(self):
@@ -325,6 +346,9 @@ class TowerHandle(WorldTowerData):
                f"第{floor}区域\r")
         next_floor = floor + 1
         enemy_info = self.get_tower_floor_info(next_floor, tower.place)
+        if not enemy_info:
+            text = f"道友已抵达{tower.name}之底！！"
+            return msg,
         text = (f"下区域道友将会遭遇\r"
                 f"【{enemy_info.get('name')}】\r"
                 f"气血：{number_to_msg(enemy_info.get('hp'))}\r"
@@ -396,7 +420,7 @@ class TowerHandle(WorldTowerData):
             for goods_no, goods in shop.items():
                 msg = (f"商品编号：{goods_no}\r"
                        f"物品名称：{items.items.get(str(goods.get('item'))).get('name')}\r"
-                       f"兑换需要积分：{goods.get('price')}\r")
+                       f"兑换需要积分：{goods.get('price')}")
                 msg_list.append(msg)
         return msg_list, msg_head
 

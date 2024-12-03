@@ -1,6 +1,7 @@
 import random
 from nonebot.log import logger
 from nonebot import get_bots, get_bot, require
+from .clean_utils import simple_md
 from enum import IntEnum, auto
 from collections import defaultdict
 from asyncio import get_running_loop
@@ -88,12 +89,17 @@ def format_time(seconds: int) -> str:
         return f"{seconds}秒"
 
 
-def get_random_chat_notice():
-    return random.choice([
-        "等待{}，让我再歇会！",
-        "冷静一下，还有{}，让我再歇会！",
-        "时间还没到，还有{}，歇会歇会~~"
-    ])
+def get_random_chat_notice(isolate_level):
+    if isolate_level is CooldownIsolateLevel.USER:
+        return random.choice([
+            "等待{}，让我再歇会！",
+            "冷静一下，还有{}，让我再歇会！",
+            "时间还没到，还有{}，歇会歇会~~"
+        ])
+    else:
+        return random.choice([
+            "该指令忙碌中！！等待{}，让我再歇会！"
+        ])
 
 
 class CooldownIsolateLevel(IntEnum):
@@ -190,7 +196,7 @@ def Cooldown(
                     time = 1
                 formatted_time = format_time(time)
                 await bot.send(event=event,
-                               message=get_random_chat_notice().format(formatted_time))
+                               message=get_random_chat_notice(isolate_level).format(formatted_time))
                 await matcher.finish()
             else:
                 await matcher.finish()
@@ -204,7 +210,7 @@ def Cooldown(
         user_id = int(user_id)
         user_info = sql_message.get_user_info_with_id(user_id)
         if user_info is None and check_user is True:
-            msg = "修仙界没有道友的信息，请输入【踏入仙途】加入！"
+            msg = simple_md("修仙界没有道友的信息，请输入", "踏入仙途", "踏入仙途", "加入！")
             await bot.send(event=event, message=msg)
             await matcher.finish()
 
