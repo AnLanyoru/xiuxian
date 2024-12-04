@@ -4,8 +4,6 @@ from base64 import b64encode
 from io import BytesIO
 from pathlib import Path
 import random
-
-from PIL import Image
 from nonebot import on_command, on_fullmatch
 from nonebot.params import CommandArg
 from nonebot.adapters.onebot.v11 import (
@@ -33,12 +31,6 @@ xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
 cache_help = {}
 img_path = Path(f"{os.getcwd()}/data/xiuxian/卡图")
-
-'''
-pip install numpy
-pip install opencv-python
-'''
-
 
 def img2b64(out_img) -> str:
     """ 将图片转换为base64 """
@@ -198,6 +190,7 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     img_tp = impart_data_json.data_person_list(user_id)
     msg += (f"--道友{user_info['user_name']}的传承物资--\r"
             f"思恋结晶：{impart_data_draw['stone_num']}颗\r"
+            f"祈愿结晶：{impart_data_draw['pary_stone_num']}颗\r"
             f"抽卡次数：{impart_data_draw['wish']}/90次\r"
             f"传承卡图数量：{len(img_tp)}/106\r"
             f"余剩虚神界内闭关时间：{impart_data_draw['exp_day']}分钟\r")

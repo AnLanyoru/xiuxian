@@ -326,7 +326,7 @@ def main_md(title, text,
         },
         {
             "key": "text",
-            "values": [f"{text}"]
+            "values": [f"\r{text}\r"]
         },
         {
             "key": "cmd_1",
@@ -361,7 +361,7 @@ def main_md(title, text,
             "values": [f"{quote(cmd_4)}"]
         }
     ]
-    msg = MessageSegmentPlus.markdown_template("102368631_1732506401", param)
+    msg = MessageSegmentPlus.markdown_template("102368631_1733157137", param)
     return msg
 
 

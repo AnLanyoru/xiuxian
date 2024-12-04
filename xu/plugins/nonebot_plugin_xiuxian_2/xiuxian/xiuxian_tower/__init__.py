@@ -173,7 +173,7 @@ async def tower_point_get_(bot: Bot, event: GroupMessageEvent):
     text =  f"！本周最深抵达第{best_floor}区域，将可获取{point_get}积分！！"
     msg = main_md(
         msg, text,
-        '确认领取', '确认结算挑战积分',
+        '进入挑战', '进入挑战',
         '挑战商店', '挑战商店',
         '积分规则详情', '挑战之地规则详情',
         '挑战帮助', '挑战帮助')
@@ -196,9 +196,7 @@ async def tower_rule_(
            "如：灵虚古境挑战者飞升后进入紫霄神渊，将清空积分\r"
            "挑战层层连续进行，中途退出将直接结算本次挑战，记录最高抵达层数\r"
            "重新开始挑战将自最高层数记录的一半开始挑战\r"
-           "每周天八点重置结算挑战积分次数以及领取积分奖励楼层\r"
-           "请及时结算挑战积分\r"
-           "过时不候")
+           "每周天八点结算挑战积分以及重置周最高楼层\r")
     await bot.send(event, msg)
     await tower_rule.finish()
 
@@ -387,7 +385,7 @@ async def tower_end_(bot: Bot, event: GroupMessageEvent):
             msg, text,
             '再次挑战', '进入挑战',
             '挑战商店', '挑战商店',
-            '积分结算', '挑战积分结算',
+            '本周积分查看', '本周挑战积分',
             '挑战帮助', '挑战帮助')
         await bot.send(event=event, message=msg)
         await tower_end.finish()

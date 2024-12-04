@@ -17,6 +17,7 @@ from ..xiuxian_impart_pk import impart_pk_check
 from ..xiuxian_limit.limit_database import limit_handle, limit_data
 from ..xiuxian_limit.limit_util import limit_check
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
+from ..xiuxian_tower import tower_handle
 from ..xiuxian_utils.clean_utils import get_datetime_from_str, date_sub, main_md, msg_handler, simple_md
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, get_player_info,
@@ -320,7 +321,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 if is_type:
                     pass
                 else:
-                    msg = "对方" + msg[2:]
+                    msg = "对方正在忙碌中，暂时无法与道友双修！！"
                     await bot.send(event=event, message=msg)
                     await two_exp.finish()
                 is_pass, msg = limit_check.two_exp_limit_check(user_id_1=user_1_id, user_id_2=user_2_id)
@@ -532,12 +533,12 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         # 拼接提示
         msg = (f"{is_xu_world}闭关修炼结束，{is_full}共闭关{close_time}分钟，{time_msg}"
                f"本次闭关共增加修为：{number_to(exp)}|{exp}{result_msg[0]}{result_msg[1]}")
-    msg = main_md(
-        msg, str(now_time),
-        '修炼', '修炼',
-        '闭关', '闭关',
-        '虚神界闭关', '虚神界闭关',
-        '修仙帮助', '修仙帮助')
+        msg = main_md(
+            msg, str(now_time),
+            '修炼', '修炼',
+            '闭关', '闭关',
+            '虚神界闭关', '虚神界闭关',
+            '修仙帮助', '修仙帮助')
     await bot.send(event=event, message=msg)
     await out_closing.finish()
 
@@ -845,13 +846,46 @@ async def daily_work_(bot: Bot, event: GroupMessageEvent):
     limit_dict, is_pass = limit_data.get_limit_by_user_id(user_id)
     impart_pk_num = limit_dict['impart_pk']
     work_num = user_info["work_num"]
+    if int(user_info['blessed_spot_flag']) == 0:
+        farm = f"无灵田生长中"
+    else:
+        mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
+        GETCONFIG = {
+            "time_cost": 47,  # 单位小时
+            "加速基数": 0.10
+        }
+        last_time = mix_elixir_info['收取时间']
+        if last_time != 0:
+            nowtime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # str
+            timedeff = round((datetime.strptime(nowtime, '%Y-%m-%d %H:%M:%S')
+                              - datetime.strptime(last_time,'%Y-%m-%d %H:%M:%S')).total_seconds() / 3600,2)
+            if timedeff >= round(GETCONFIG['time_cost'] * (1 - (GETCONFIG['加速基数'] * mix_elixir_info['药材速度'])), 2):
+                farm = "可收取！！"
+            else:
+                next_get_time = round(GETCONFIG['time_cost'] * (1 - (GETCONFIG['加速基数'] * mix_elixir_info['药材速度'])),
+                                      2) - timedeff
+                farm = f"{round(next_get_time, 2)}小时后成熟"
+        else:
+            farm = '未知生长状态'
+    user_tower_info = tower_handle.check_user_tower_info(user_id)
+    if user_tower_info:
+        had_get = user_tower_info.get('weekly_point')
+        if had_get:
+            tower_msg = f"抵达 第{had_get}区域"
+        else:
+            tower_msg = f"尚未挑战"
+    else:
+        tower_msg = f"尚未挑战"
     msg = f"今日日常完成情况"
-    text = (f"体力 {user_info['user_stamina']}/2400\r"
+    text = (f"签到 {user_info['is_sign']}/1\r"
+            f"体力 {user_info['user_stamina']}/2400\r"
             f"双修 {two_exp_num}/{two_num}\r"
             f"悬赏令 {work_num}/6\r"
             f"虚神界行动 {impart_pk_num}/1\r"
             f"宗门丹药领取 {user_info['sect_elixir_get']}/1\r"
-            f"宗门任务完成 {user_info['sect_task']}/4")
+            f"宗门任务完成 {user_info['sect_task']}/4\r"
+            f"灵田当前状态 {farm}\r"
+            f"本周位面挑战{tower_msg}")
     msg = main_md(msg, text,
                   "双修", "双修",
                   "悬赏令", "悬赏令",

@@ -1,4 +1,5 @@
 import random
+import time
 
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -34,7 +35,6 @@ all_end = on_command("重置状态", aliases={"重置闭关状态", "重置悬�
                      permission=GROUP, block=True)
 active_gift = on_command("神州大地齐欢腾，祝福祖国永太平", priority=12, permission=GROUP, block=True)
 hp_set = on_command("设置血量", priority=1, permission=GROUP, block=True)
-hp_set_2 = on_command("设置血量2", priority=1, permission=GROUP, block=True)
 
 
 @hp_set.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
@@ -51,20 +51,6 @@ async def hp_set_(bot: Bot, event: GroupMessageEvent):
     await bot.send(event=event, message=msg)
     await hp_set.finish()
 
-
-@hp_set_2.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
-async def hp_set_2_(bot: Bot, event: GroupMessageEvent):
-    """修炼"""
-
-    _, user_info, _ = check_user(event)
-
-    user_id = user_info['user_id']
-    mp = user_info['mp']
-
-    sql_message.update_user_hp_mp(user_id, 1000, mp)
-    msg = f"已将请求传递至数据库, 传递值hp:1000,mp:{mp}"
-    await bot.send(event=event, message=msg)
-    await hp_set_2.finish()
 
 @exp_up.handle(parameterless=[Cooldown(cd_time=60, at_sender=False)])
 async def exp_up_(bot: Bot, event: GroupMessageEvent):

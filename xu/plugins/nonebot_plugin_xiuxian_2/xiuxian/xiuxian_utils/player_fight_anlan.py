@@ -47,16 +47,47 @@ def final_user_data(user_data, columns):
     return user_dict
 
 
+class Increase:
+    def __init__(self):
+        """
+        增益字段 (也可以是减益)
+        """
+        self.atk = 0
+        self.crit = 0
+        self.burst = 0
+        self.hp_steal = 0
+        self.mp_steal = 0
+
+
 class FightMember:
-    def __init__(self, fight_info, team):
+    def __init__(self, name, hp, hp_max, mp, mp_max, atk, crit, burst, define, main_skill: list, sub_skill: list, team):
+        """请使用规范的解包操作进行实例化"""
         self.team = team
-        self.name = fight_info.get('name', '未知对象')
-        self.hp = fight_info.get('hp', 0)
-        self.mp = fight_info.get('mp', 0)
-        self.atk = fight_info.get('atk', 0)
-        self.crit = fight_info.get('crit', 0)
-        self.burst = fight_info.get('burst', 0)
-        self.main_skill = fight_info.get('main_skill', [])
+        self.name = name
+        self.hp = hp
+        self.hp_max = hp_max
+        self.mp = mp
+        self.mp_msx = mp_max
+        self.atk = atk
+        self.crit = crit
+        self.burst = burst
+        self.define = define
+        self.main_skill = main_skill
+        self.sub_skill = sub_skill
+        self.buffs = []
+        self.increase = Increase()
+
+    def active(self, enemy, msg):
+        # buff生效
+        for buff in (self.buffs + self.main_skill + self.sub_skill):
+            buff.act(self, enemy, msg)
+        if self.main_skill:
+            for skill in self.main_skill:
+                skill.act(self, enemy, msg)
+        if self.sub_skill:
+            for sub in self.sub_skill:
+                sub.act(self, enemy, msg)
+        return msg
 
 
 class PlayerFight:
@@ -107,9 +138,9 @@ def get_fight(pre_fight_dict: dict, max_turn: int = 20):
                 msg += f"{fight_player.nane}方胜利！"
                 winner = fight_player.team
                 break
-            enemy = random.choice(enemy_list)
-            msg, fight_dict = fight_player.atk(fight_dict, enemy, msg)
-            msg, fight_dict = fight_player.sub_buff_act(enemy, msg)
+            enemy_id = random.choice(enemy_list)
+            enemy = fight_dict[enemy_id]
+            msg= fight_player.active(enemy, msg)
             if kill_user := fight_player.turn_kill:
                 loser.append(kill_user)
                 fight_dict[kill_user].status = 0

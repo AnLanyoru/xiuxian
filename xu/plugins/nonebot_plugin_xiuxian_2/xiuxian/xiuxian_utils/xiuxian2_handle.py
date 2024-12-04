@@ -1355,9 +1355,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         return work_num
 
     def update_work_num(self, user_id, work_num):
-        now = time.localtime()
-        now_day = str(now.tm_year) + str(now.tm_mon) + str(now.tm_mday)
-        work_num = int(now_day + str(work_num))
         sql = f"UPDATE user_xiuxian SET work_num=? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (work_num, user_id,))
@@ -1650,6 +1647,7 @@ class XIUXIAN_IMPART_BUFF:
     "impart_reap_per" integer DEFAULT 0,
     "impart_two_exp" integer DEFAULT 0,
     "stone_num" integer DEFAULT 0,
+    "pray_stone_num" integer DEFAULT 0,
     "exp_day" integer DEFAULT 0,
     "wish" integer DEFAULT 0
     );""")
@@ -1897,6 +1895,24 @@ class XIUXIAN_IMPART_BUFF:
             self.conn.commit()
             return True
 
+    def update_pray_stone_num(self, impart_num, user_id, type_):
+        """
+        更新祈愿结晶数量
+        1加 2减
+        """
+        if type_ == 1:
+            cur = self.conn.cursor()
+            sql = f"UPDATE xiuxian_impart SET pray_stone_num=pray_stone_num+? WHERE user_id=?"
+            cur.execute(sql, (impart_num, user_id))
+            self.conn.commit()
+            return True
+        if type_ == 2:
+            cur = self.conn.cursor()
+            sql = f"UPDATE xiuxian_impart SET pray_stone_num=pray_stone_num-? WHERE user_id=?"
+            cur.execute(sql, (impart_num, user_id))
+            self.conn.commit()
+            return True
+
     def update_impart_stone_all(self, impart_stone):
         """所有用户增加结晶"""
         cur = self.conn.cursor()
@@ -1919,7 +1935,6 @@ class XIUXIAN_IMPART_BUFF:
         cur.execute(sql, (impart_num, user_id))
         self.conn.commit()
         return True
-
 
 def leave_harm_time(user_id):
     hp_speed = 25

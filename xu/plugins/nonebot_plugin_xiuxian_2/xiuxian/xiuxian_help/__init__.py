@@ -160,7 +160,7 @@ __tower_help__ = f"""
 @help_in.handle(parameterless=[Cooldown(at_sender=False)])
 async def help_in_(bot: Bot, event: GroupMessageEvent):
     """修仙帮助"""
-    msg = help_md("102368631_1732793414", "测试中")
+    msg = help_md("102368631_1733157336", "测试中")
     await bot.send(event=event, message=msg)
     await help_in.finish()
 
@@ -168,7 +168,7 @@ async def help_in_(bot: Bot, event: GroupMessageEvent):
 @help_newer.handle(parameterless=[Cooldown(at_sender=False)])
 async def help_in_(bot: Bot, event: GroupMessageEvent):
     """修仙新手帮助"""
-    msg = help_md("102368631_1732795591", "测试中")
+    msg = help_md("102368631_1733157618", "测试中")
     await bot.send(event=event, message=msg)
     await help_newer.finish()
 
