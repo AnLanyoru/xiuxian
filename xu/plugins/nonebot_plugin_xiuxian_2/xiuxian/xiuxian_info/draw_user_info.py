@@ -4,19 +4,22 @@ except ImportError:
     import json
 import asyncio    
 from nonebot.log import logger
-from io import BytesIO    
 from PIL import Image, ImageDraw, ImageFont
 from aiohttp import ClientSession
 from pathlib import Path
 from .download import get_avatar_by_user_id_and_save
-from .send_image_tool import convert_img
+from .send_image_tool import convert_img, pic_compress
 
 TEXT_PATH = Path() / "data" / "xiuxian" / "info_img"
 
-first_color = (242, 250, 242)
+# first_color = (242, 250, 242)
+first_color = (191, 191, 191)
 second_color = (57, 57, 57)
 
 FONT_ORIGIN_PATH = Path() / "data" / "xiuxian" / "font" / "SourceHanSerifCN-Heavy.otf"
+
+
+
 
 
 def font_origin(size: int) -> ImageFont.FreeTypeFont:
@@ -51,7 +54,7 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
             img = img.resize((based_w, img_h)).crop((0, crop_t, based_w, crop_t + based_h))
         img.resize((based_w, based_h), Image.Resampling.LANCZOS)
         # 贴一层黑色遮罩
-        img.paste(i := Image.new("RGBA", (based_w, based_h), (0, 0, 0, 128)), mask=i)
+        # img.paste(i := Image.new("RGBA", (based_w, based_h), (0, 0, 0, 28)), mask=i)
     except:
         pass
     # 获取用户头像圆框
@@ -142,6 +145,7 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
     for key, value in DETAIL_paihang.items():
         tasks4.append(_draw_ph_info_line(img, key, value, DETAIL_paihang))
     await asyncio.gather(*tasks4)
+    # img = pic_compress(img)
     res = await convert_img(img)
     return res
 

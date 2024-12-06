@@ -13,7 +13,7 @@ from .old_rift_info import old_rift_info
 from .. import DRIVER
 from ..xiuxian_limit import limit_handle
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
-from ..xiuxian_utils.clean_utils import get_strs_from_str
+from ..xiuxian_utils.clean_utils import get_strs_from_str, simple_md
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
@@ -183,9 +183,9 @@ async def explore_rift_(bot: Bot, event: GroupMessageEvent):
         else:
             far, start_place, to_place = place.get_distance(place_id, world_rift[world_id].place)
             sql_message.update_user_stamina(user_id, 240, 1)
-            msg = (f"\r道友所在位置没有秘境出世!!\r"
+            msg = simple_md(f"\r道友所在位置没有秘境出世!!\r"
                    f"当前位面【{world_name}】的秘境【{world_rift[world_id].name}】在距你{far:.1f}万里的：【{to_place}】\r"
-                   f"可以发送【前往 {to_place}】来前去秘境所在位置探索哦！")
+                   f"请", "前往", f"前往 {to_place}", "秘境所在位置探索！")
             await bot.send(event=event, message=msg)
             await explore_rift.finish()
 

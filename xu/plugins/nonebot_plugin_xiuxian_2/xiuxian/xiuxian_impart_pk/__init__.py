@@ -81,7 +81,7 @@ async def impart_pray_(bot: Bot, event: GroupMessageEvent):
         await impart_pray.finish()
     await impart_check(user_id)
     impart_pk.update_impart_pk_num(user_id)
-    await xiuxian_impart.update_pray_stone_num(1, user_id, 1)
+    xiuxian_impart.update_pray_stone_num(1, user_id, 1)
     tag = random.choice(["福签，运势亨通", "平签，多喜乐，常安宁", "祸签，福祸相依"])
     combined_msg = f"\r进入虚神界进行祈愿，求得一{tag}，获得祈愿结晶一颗"
     await bot.send(event=event, message=combined_msg)

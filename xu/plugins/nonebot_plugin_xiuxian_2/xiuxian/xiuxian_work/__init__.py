@@ -31,7 +31,7 @@ sql_message = XiuxianDateManage()  # sql类
 count = 6  # 免费次数
 
 
-@resetrefreshnum.scheduled_job("cron", hour=1, minute=0)
+@resetrefreshnum.scheduled_job("cron", hour=0, minute=0)
 async def resetrefreshnum_():
    sql_message.reset_work_num()
    logger.opt(colors=True).info(f"<green>用户悬赏令刷新次数重置成功</green>")
@@ -266,7 +266,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         msg = work[user_id].msg
 
         msg = main_md(
-            title+msg, '使用下发按钮可快速接取',
+            title+msg, '使用下方按钮可快速接取',
             '接取 1', '悬赏令接取1',
             '接取 2', '悬赏令接取2',
             '接取 3', '悬赏令接取3',
@@ -317,7 +317,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         msg = work[user_id].msg
 
         msg = main_md(
-            title+msg, '使用下发按钮可快速接取',
+            title+msg, '使用下方按钮可快速接取',
             '接取 1', '悬赏令接取1',
             '接取 2', '悬赏令接取2',
             '接取 3', '悬赏令接取3',
@@ -373,6 +373,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     else:
                         msg += "!"
                     limit_handle.update_user_log_data(user_id, msg)
+                    msg = simple_md(msg + "\r继续", "接取悬赏令", "悬赏令刷新", "。")
                     await bot.send(event=event, message=msg)
                     await do_work.finish()
 
@@ -391,6 +392,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     else:  # 失败
                         msg += "!"
                         limit_handle.update_user_log_data(user_id, msg)
+                    msg = simple_md(msg + "\r继续", "接取悬赏令", "悬赏令刷新", "。")
                     await bot.send(event=event, message=msg)
                     await do_work.finish()
         else:
@@ -415,7 +417,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     sql_message.do_work(user_id, 2, get_work[0])
                     del work[user_id]
                     msg = f"接取任务【{get_work[0]}】成功"
-
+                    msg = simple_md(msg + "请待完成后", "结算", "悬赏令结算", "！")
                 except IndexError:
                     msg = "没有这样的任务"
 

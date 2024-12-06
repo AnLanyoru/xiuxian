@@ -131,8 +131,8 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
     num = get_num_from_str(arg)
     num = int(num[0]) if num else 1
     impart_data_draw = await impart_check(user_id)
-    fail_msg = [f"道友思恋结晶不足{num}个！！无法进行{num}次抽卡!"] if impart_data_draw.get('stone_num', 0) < num else ''
-    fail_msg += f"{num}次抽卡也太多拉！！100次100次慢慢来吧！！" if 100 < num else fail_msg
+    fail_msg = [f"道友思恋结晶不足{num}个！！无法进行{num}次抽卡!"] if impart_data_draw.get('stone_num', 0) < num else []
+    fail_msg += f"{num}次抽卡也太多拉！！100次100次慢慢来吧！！" if 100 < num else []
     if fail_msg:
         await bot.send(event=event, message='\r'.join(fail_msg))
         await impart_draw_fast.finish()
@@ -190,7 +190,7 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     img_tp = impart_data_json.data_person_list(user_id)
     msg += (f"--道友{user_info['user_name']}的传承物资--\r"
             f"思恋结晶：{impart_data_draw['stone_num']}颗\r"
-            f"祈愿结晶：{impart_data_draw['pary_stone_num']}颗\r"
+            f"祈愿结晶：{impart_data_draw['pray_stone_num']}颗\r"
             f"抽卡次数：{impart_data_draw['wish']}/90次\r"
             f"传承卡图数量：{len(img_tp)}/106\r"
             f"余剩虚神界内闭关时间：{impart_data_draw['exp_day']}分钟\r")

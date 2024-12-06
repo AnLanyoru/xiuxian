@@ -431,5 +431,4 @@ class Rift:
         self.place = 0
         self.rank = 0
         self.count = 0
-        self.l_user_id = []
         self.time = 0
