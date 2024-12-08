@@ -1,6 +1,8 @@
 import random
+import time
+
 from nonebot.log import logger
-from nonebot import get_bots, get_bot, require
+from nonebot import require
 from .clean_utils import simple_md
 from enum import IntEnum, auto
 from collections import defaultdict
@@ -10,7 +12,8 @@ from nonebot.matcher import Matcher
 from nonebot.params import Depends
 from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
-from ..xiuxian_config import XiuConfig, JsonConfig
+from .. import DRIVER
+from ..xiuxian_config import XiuConfig
 from .xiuxian2_handle import XiuxianDateManage
 
 sql_message = XiuxianDateManage()
@@ -22,17 +25,16 @@ auto_recover_hp = require("nonebot_plugin_apscheduler").scheduler
 limit_all_data: Dict[str, Any] = {}
 limit_message_num = XiuConfig().message_limit
 limit_message_time = XiuConfig().message_limit_time
+cmd_lock = {}
 
-#
-# @auto_recover_hp.scheduled_job('interval', minutes=1)
-# def auto_recover_hp_():
-#     """
-#     不要使用会变得不幸
-#     :return:
-#     """
-#     # sql_message.auto_recover_hp()
-#     pass
-#
+
+@DRIVER.on_startup
+def cmd_lock_start_():
+    global cmd_lock
+
+
+def set_cmd_lock(user_id, lock_time: int):
+    cmd_lock[str(user_id)] = lock_time
 
 
 @limit_all_message.scheduled_job('interval', seconds=limit_message_time)
@@ -60,6 +62,31 @@ def limit_all_run(user_id: str):
     num = limit_all_data[user_id]["num"]
     tip = limit_all_data[user_id]["tip"]
     num += 1
+    if num > limit_message_num and tip is False:
+        tip = True
+        limit_all_data[user_id]["num"] = num
+        limit_all_data[user_id]["tip"] = tip
+        return True
+    if num > limit_message_num and tip is True:
+        limit_all_data[user_id]["num"] = num
+        return False
+    else:
+        limit_all_data[user_id]["num"] = num
+        return None
+
+
+
+def limit_all_run_strong(user_id: str):
+    user_id = str(user_id)
+    user_limit_data = limit_all_data.get(user_id)
+    if user_limit_data:
+        pass
+    else:
+        limit_all_data[user_id] = {"num": 0,
+                                   "tip": False}
+    num = limit_all_data[user_id]["num"]
+    tip = limit_all_data[user_id]["tip"]
+    num += 30
     if num > limit_message_num and tip is False:
         tip = True
         limit_all_data[user_id]["num"] = num
@@ -117,23 +144,17 @@ def Cooldown(
         isolate_level: CooldownIsolateLevel = CooldownIsolateLevel.USER,
         parallel: int = 1,
         stamina_cost: int = 0,
-        check_user: bool = True
+        check_user: bool = True,
+        parallel_block: bool = False
 ) -> None:
-    """依赖注入形式的命令冷却
-
-    用法:
-        ```python
-        @matcher.handle(parameterless=[Cooldown(cooldown=11.4514, ...)])
-        async def handle_command(matcher: Matcher, message: Message):
-            ...
-        ```
-
-    参数:
+    """
+    依赖注入形式的命令冷却
         cd_time: 命令冷却间隔
         at_sender: 是否at
         isolate_level: 命令冷却的隔离级别, 参考 `CooldownIsolateLevel`
         parallel: 并行执行的命令数量
         stamina_cost: 每次执行命令消耗的体力值
+        strong_block: 强阻断
     """
     if not isinstance(isolate_level, CooldownIsolateLevel):
         raise ValueError(
@@ -149,19 +170,25 @@ def Cooldown(
             del running[key]
             del time_sy[key]
         return
-
     async def dependency(bot: Bot, matcher: Matcher, event: MessageEvent):
         user_id = str(event.get_user_id())
         limit_type = limit_all_run(user_id)
         # 发言限制，请前往xiuxian_config设置
         if limit_type is True:
-            too_fast_notice = f"道友的发言频率超过了每{format_time(limit_message_time)}{limit_message_num}条限制，缓会儿！！"
+            too_fast_notice = f"道友的指令太迅速了，让我缓会儿！！"
             await bot.send(event=event, message=too_fast_notice)
             await matcher.finish()
         elif limit_type is False:
             await matcher.finish()
         else:
             pass
+        if lock_time := cmd_lock.get(user_id):
+            if time.time() < (lock_time + 60):
+                print(lock_time)
+                too_fast_notice = f"道友的指令还在执行中！！"
+                await bot.send(event=event, message=too_fast_notice)
+                await matcher.finish()
+            set_cmd_lock(user_id, 0)
 
         # 消息长度限制
         message = event.raw_message
@@ -191,10 +218,10 @@ def Cooldown(
             key = CooldownIsolateLevel.GLOBAL.name
         if running[key] <= 0:
             if cd_time >= 1.5:
-                time = int(cd_time - (loop.time() - time_sy[key]))
-                if time <= 1:
-                    time = 1
-                formatted_time = format_time(time)
+                the_time = int(cd_time - (loop.time() - time_sy[key]))
+                if the_time <= 1:
+                    the_time = 1
+                formatted_time = format_time(the_time)
                 await bot.send(event=event,
                                message=get_random_chat_notice(isolate_level).format(formatted_time))
                 await matcher.finish()
@@ -204,6 +231,8 @@ def Cooldown(
             time_sy[key] = int(loop.time())
             running[key] -= 1
             loop.call_later(cd_time, lambda: increase(key))
+        if parallel_block:
+            set_cmd_lock(user_id, int(time.time()))
 
         # 用户检查
 

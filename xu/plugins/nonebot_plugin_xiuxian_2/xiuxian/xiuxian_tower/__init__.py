@@ -1,5 +1,6 @@
 import asyncio
 import operator
+from datetime import datetime
 
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
@@ -84,6 +85,7 @@ async def tower_point_get_reset_(
         point_get = tower.point_give.get(had_get, 0)
         tower_handle.update_user_tower_info(user_id, user_tower_info)
         tower_handle.update_user_tower_point(user_id, point_get)
+        print("用户：", user_id, "积分：", point_get)
         await asyncio.sleep(0.2)
     logger.opt(colors=True).info(f"<green>发放塔积分完毕！！！</green>")
     msg = '发放塔积分完毕！！'
@@ -101,6 +103,13 @@ async def tower_shop_buy_(
         event: GroupMessageEvent,     # 消息主体
         args: Message = CommandArg()  # 命令参数
 ):
+    time_now = datetime.now()
+    day_now = time_now.weekday()
+    hour_now = time_now.hour
+    if (day_now == 6) and (hour_now == 20):
+        msg = f'结算挑战积分中，请稍后再试'
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
     """挑战积分兑换"""
     _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
@@ -154,6 +163,13 @@ async def tower_shop_buy_(
 @tower_point_get.handle(parameterless=[Cooldown(at_sender=False)])
 async def tower_point_get_(bot: Bot, event: GroupMessageEvent):
     """结算挑战积分"""
+    time_now = datetime.now()
+    day_now = time_now.weekday()
+    hour_now = time_now.hour
+    if (day_now == 6) and (hour_now == 20):
+        msg = f'结算挑战积分中，请稍后再试'
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
 
     _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
@@ -210,6 +226,13 @@ async def tower_shop_(
         bot: Bot,                     # 机器人实例
         event: GroupMessageEvent,     # 消息主体
 ):
+    time_now = datetime.now()
+    day_now = time_now.weekday()
+    hour_now = time_now.hour
+    if (day_now == 6) and (hour_now == 20):
+        msg = f'结算挑战积分中，请稍后再试'
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
     _, user_info, _ = check_user(event)
     user_id = user_info['user_id']
     shop_msg, msg = tower_handle.get_tower_shop_info(user_id)
@@ -231,6 +254,13 @@ async def tower_shop_(
 @tower_fight.handle(parameterless=[Cooldown(at_sender=False)])
 async def tower_fight_(bot: Bot, event: GroupMessageEvent):
     """进行挑战"""
+    time_now = datetime.now()
+    day_now = time_now.weekday()
+    hour_now = time_now.hour
+    if (day_now == 6) and (hour_now == 20):
+        msg = f'结算挑战积分中，请稍后再试'
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
 
     _, user_info, _ = check_user(event)
 
@@ -280,6 +310,13 @@ async def tower_fight_(bot: Bot, event: GroupMessageEvent):
 @tower_start.handle(parameterless=[Cooldown(at_sender=False)])
 async def tower_start_(bot: Bot, event: GroupMessageEvent):
     """进入挑战之地"""
+    time_now = datetime.now()
+    day_now = time_now.weekday()
+    hour_now = time_now.hour
+    if (day_now == 6) and (hour_now == 20):
+        msg = f'结算挑战积分中，请稍后再试'
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
 
     _, user_info, _ = check_user(event)
 
@@ -337,6 +374,13 @@ async def tower_start_(bot: Bot, event: GroupMessageEvent):
 @tower_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def tower_info_(bot: Bot, event: GroupMessageEvent):
     """查看挑战"""
+    time_now = datetime.now()
+    day_now = time_now.weekday()
+    hour_now = time_now.hour
+    if (day_now == 6) and (hour_now == 20):
+        msg = f'结算挑战积分中，请稍后再试'
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
 
     _, user_info, _ = check_user(event)
 
@@ -360,6 +404,13 @@ async def tower_info_(bot: Bot, event: GroupMessageEvent):
 @tower_end.handle(parameterless=[Cooldown(at_sender=False)])
 async def tower_end_(bot: Bot, event: GroupMessageEvent):
     """离开挑战之地"""
+    time_now = datetime.now()
+    day_now = time_now.weekday()
+    hour_now = time_now.hour
+    if (day_now == 6) and (hour_now == 20):
+        msg = f'结算挑战积分中，请稍后再试'
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
 
     _, user_info, _ = check_user(event)
 

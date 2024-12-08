@@ -232,7 +232,13 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
         elif rift_type == "宝物":
             msg = get_treasure_info(user_info, rift_rank)
         elif rift_type == "掉血事件":
-            msg = get_dxsj_info("掉血事件", user_info)
+            protect_item = sql_message.get_item_by_good_id_and_user_id(user_id, 660001)
+            protect_item = protect_item if protect_item else {}
+            if protect_item.get("goods_num", 0) > 0:
+                sql_message.update_back_j(user_id, 660001, 1)
+                msg = "道友踏入秘境一番探索，正要进入一处险境寻宝，怀中一物却轰然碎裂，一道念头自心中升起：不可进入！出秘境后方才得知，方才欲探之地有不少修士折损了修为。"
+            else:
+                msg = get_dxsj_info("掉血事件", user_info)
         limit_handle.update_user_log_data(user_id, msg)
         await bot.send(event=event, message=msg)
         await complete_rift.finish()

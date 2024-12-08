@@ -10,6 +10,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed, Message
 )
+from nonebot.permission import SUPERUSER
 
 from ..xiuxian_utils.clean_utils import get_strs_from_str, get_args_num, get_paged_msg
 from ..xiuxian_utils.lay_out import Cooldown
@@ -42,6 +43,7 @@ yaocai_get = on_command("灵田收取", aliases={"灵田结算"}, priority=8, pe
 my_mix_elixir_info = on_fullmatch("我的炼丹信息", priority=6, permission=GROUP, block=True)
 mix_elixir_sqdj_up = on_fullmatch("升级收取等级", priority=6, permission=GROUP, block=True)
 mix_elixir_dykh_up = on_fullmatch("升级丹药控火", priority=6, permission=GROUP, block=True)
+yaocai_get_op = on_command("op灵田收取", aliases={"op灵田结算"}, priority=8, permission=SUPERUSER, block=True)
 
 __elixir_help__ = f"""
 炼丹帮助信息:
@@ -64,6 +66,36 @@ __mix_elixir_help__ = f"""
 2、主药和药引控制炼丹时的冷热调和,冷热失和则炼不出丹药
 3、草药的类型控制产出丹药的类型
 """
+
+
+@yaocai_get_op.handle(parameterless=[Cooldown(stamina_cost=0, at_sender=False)])
+async def yaocai_get_op_(bot: Bot, event: GroupMessageEvent):
+    """灵田收取"""
+
+    _, user_info, _ = check_user(event)
+
+    user_id = user_info['user_id']
+    yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(convert_rank(user_info['level'])[0],
+                                                                    ['药材'])
+    num = 100
+    msg = ''
+    if not yaocai_id_list:
+        sql_message.send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
+        msg += f"道友成功收获药材：恒心草 {num} 个！\r"
+    else:
+        give_dict = {}
+        while num := num -1:
+            item_id = random.choice(yaocai_id_list)
+            try:
+                give_dict[item_id] += 1
+            except LookupError:
+                give_dict[item_id] = 1
+        for k, v in give_dict.items():
+            goods_info = items.get_data_by_item_id(k)
+            msg += f"道友成功收获药材：{goods_info['name']} {v} 个！\r"
+            sql_message.send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
+    await bot.send(event=event, message=msg)
+    await yaocai_get_op.finish()
 
 
 @mix_elixir_sqdj_up.handle(parameterless=[Cooldown(at_sender=False)])

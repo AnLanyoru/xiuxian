@@ -12,7 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 from ..xiuxian_limit import limit_handle
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
 from ..xiuxian_utils.clean_utils import get_args_num, get_num_from_str, get_strs_from_str, get_paged_msg, main_md, \
-    msg_handler
+    msg_handler, three_md
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
 from nonebot.log import logger
@@ -75,6 +75,7 @@ xiuxian_stone = on_fullmatch("灵石", priority=4, permission=GROUP, block=True)
 master_rename = on_command("超管改名", priority=2, permission=SUPERUSER, block=True)
 check_items = on_command("查看", aliases={"查", "查看物品", "查看效果", "详情"}, priority=25, permission=GROUP, block=True)
 back_fix = on_fullmatch("背包修复", priority=1, permission=GROUP, block=True)
+test_md = on_command("测试模板", priority=25, permission=SUPERUSER, block=True)
 
 __back_help__ = f"""
 指令：
@@ -95,7 +96,17 @@ __back_help__ = f"""
 """.strip()
 
 
-@back_fix.handle(parameterless=[Cooldown(at_sender=False)])
+@test_md.handle()
+async def md_test_(bot: Bot, event: GroupMessageEvent):
+    msg = three_md(
+        '<qqbot-cmd-input text="', '指令1指令0" /> a[aa', '悬赏令接取1', "测试",
+        '指令2', '悬赏令接取2', "测试",
+        '指令3', '悬赏令接取3', "测试",
+                             )
+    await bot.send(event, msg)
+    await test_md.finish()
+
+@back_fix.handle(parameterless=[Cooldown(at_sender=False, parallel_block=True)])
 async def back_help_(bot: Bot, event: GroupMessageEvent):
     """背包修复"""
     _, user_info, _ = check_user(event)
@@ -538,13 +549,13 @@ async def skill_back_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     if msg:
         text = get_paged_msg(msg_list=msg, page=page, cmd=cmd, per_page_item=page_all)
         text = msg_handler(text)
-        msg = f"\r{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"
+        msg = f"{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"
         msg = main_md(
             msg, text,
-            '下一页', f'功法背包 {page+1}',
+            '背包帮助', '背包帮助',
             '丹药背包', '丹药背包',
             '药材背包', '药材背包',
-            '背包帮助', '背包帮助')
+            '下一页', f'功法背包 {page+1}')
     else:
         msg = "道友的背包空空如也！"
     await bot.send(event, msg)

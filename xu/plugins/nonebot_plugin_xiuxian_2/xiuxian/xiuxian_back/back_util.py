@@ -248,7 +248,7 @@ def get_user_main_back_msg_easy(user_id):
                 l_types_sec_dict[item_type_sec].append(f"{level}{item['goods_name']} - "
                                                        f"数量：{item['goods_num']}{bind_msg}")
             for item_type_sec, l_items_sec_msg in l_types_sec_dict.items():
-                head_msg = f" ~ {item_type_sec}:\r" if item_type_sec != item_type else ''
+                head_msg = f"✨{item_type_sec}✨\r" if item_type_sec != item_type else ''
                 top_msg = head_msg + l_items_sec_msg[0]
                 l_items_msg.append(top_msg)
                 l_items_msg = operator.add(l_items_msg, l_items_sec_msg[1:])
@@ -309,7 +309,7 @@ def get_user_skill_back_msg(user_id):
     l_skill_msg = []
     l_msg = [{'type': 'node', 'data': {'name': '技能背包', 'uin': 0, 'content': '道友还未拥有技能书'}}]
     pull_skill = []
-    user_backs = sql_message.get_back_skill_msg(user_id, "技能")  # list(back)
+    user_backs = sql_message.get_back_goal_type_msg(user_id, "技能")  # list(back)
     if user_backs is None:
         return l_msg
     for user_back in user_backs:

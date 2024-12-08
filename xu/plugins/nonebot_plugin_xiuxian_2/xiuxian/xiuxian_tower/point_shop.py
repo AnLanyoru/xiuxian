@@ -2,63 +2,63 @@
 shop_1 = {
     1: {
         "item": 30647,
-        "price": 180
+        "price": 120
     },
     2: {
         "item": 30619,
-        "price": 180
+        "price": 120
     },
     3: {
         "item": 9937,
-        "price": 150
+        "price": 100
     },
     4: {
         "item": 8931,
-        "price": 150
+        "price": 90
     },
     5: {
         "item": 15409,
-        "price": 150
+        "price": 90
     },
     6: {
         "item": 15465,
-        "price": 120
+        "price": 70
     },
     7: {
         "item": 15463,
-        "price": 120
+        "price": 70
     },
     8: {
         "item": 15509,
-        "price": 120
+        "price": 70
     },
     9: {
         "item": 15507,
-        "price": 120
+        "price": 70
     },
     10: {
         "item": 15356,
-        "price": 60
+        "price": 40
     },
     11: {
         "item": 8921,
-        "price": 60
+        "price": 40
     },
     12: {
         "item": 15406,
-        "price": 60
+        "price": 40
     },
     13: {
         "item": 25010,
-        "price": 50
+        "price": 40
     },
     14: {
         "item": 610004,
-        "price": 40
+        "price": 30
     },
     15: {
         "item": 640001,
-        "price": 40
+        "price": 30
     },
     16: {
         "item": 1999,
@@ -130,6 +130,10 @@ shop_2 = {
     16: {
         "item": 1999,
         "price": 15
+    },
+    17: {
+        "item": 660001,
+        "price": 60
     }
 }
 

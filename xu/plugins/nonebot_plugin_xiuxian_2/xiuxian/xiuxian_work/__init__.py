@@ -7,7 +7,7 @@ from nonebot.params import RegexGroup
 from ..xiuxian_limit import limit_handle
 from ..xiuxian_move import read_move_data
 from xu.plugins.nonebot_plugin_xiuxian_2.xiuxian.xiuxian_place import place
-from ..xiuxian_utils.clean_utils import get_datetime_from_str, get_num_from_str, main_md, simple_md, number_to
+from ..xiuxian_utils.clean_utils import get_datetime_from_str, get_num_from_str, main_md, simple_md, number_to, three_md
 from ..xiuxian_utils.lay_out import Cooldown
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -181,21 +181,20 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                 sql_message.do_work(user_id, 0)
                 place_id = move_info["to_id"]
                 place.set_now_place_id(user_id, place_id)
+                place_name = place.get_place_name(place_id)
+                msg = f"道友成功抵达 {place_name}！"
         await bot.send(event=event, message=msg)
         await do_work.finish()
 
     if mode is None:  # 接取逻辑
         if (user_cd_info['scheduled_time'] is None) or (user_cd_info['type'] == 0):
             try:
-                msg = work[user_id].msg
-                title = "道友已有悬赏令:"
-
-                msg = main_md(
-                    title, msg,
-                    '接取 1', '悬赏令接取1',
-                    '接取 2', '悬赏令接取2',
-                    '接取 3', '悬赏令接取3',
-                    '悬赏令帮助', '悬赏令帮助')
+                work_msg_f = work[user_id].msg
+                msg = three_md(
+                "--道友的悬赏令--\r", '1、', '悬赏令接取1', work_msg_f[0],
+                '2、', '悬赏令接取2', work_msg_f[1],
+                '3、', '悬赏令接取3', work_msg_f[2],
+                                 )
             except KeyError:
                 msg = simple_md("没有查到你的悬赏令信息呢，请", "刷新", "悬赏令刷新", "！")
         elif user_cd_info['type'] == 2:
@@ -250,27 +249,22 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                 await bot.send(event=event, message=msg)
                 await do_work.finish()
         work_msg = workhandle().do_work(0, level=user_level, exp=user_info['exp'], user_id=user_id)
-        n = 1
         work_list = []
         title = '☆--道友的个人悬赏令--☆\r'
-        work_msg_f = ""
+        work_msg_f = []
         for i in work_msg:
             work_list.append([i[0], i[3]])
-            work_msg_f += f"{n}、{get_work_msg(i)}"
-            n += 1
-        work_msg_f += f"(悬赏令每日次数：{count}, 今日余剩新次数：{freenum}次)"
+            work_msg_f.append(get_work_msg(i))
+        count_msg = f"(悬赏令每日次数：{count}, 今日余剩刷新次数：{freenum}次)"
         sql_message.update_work_num(user_id, usernums + 1)
         work[user_id] = do_is_work(user_id)
         work[user_id].msg = work_msg_f
         work[user_id].world = work_list
-        msg = work[user_id].msg
-
-        msg = main_md(
-            title+msg, '使用下方按钮可快速接取',
-            '接取 1', '悬赏令接取1',
-            '接取 2', '悬赏令接取2',
-            '接取 3', '悬赏令接取3',
-            '悬赏令帮助', '悬赏令帮助')
+        msg = three_md(
+            title, '1、', '悬赏令接取1', work_msg_f[0],
+            '2、', '悬赏令接取2', work_msg_f[1],
+            '3、', '悬赏令接取3', work_msg_f[2] + count_msg,
+            )
         await bot.send(event=event, message=msg)
 
 
@@ -302,26 +296,21 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             await do_work.finish()
 
         work_msg = workhandle().do_work(0, level=user_level, exp=user_info['exp'], user_id=user_id)
-        n = 1
         work_list = []
         title = '☆--道友的个人悬赏令--☆\r'
-        work_msg_f = ""
+        work_msg_f = []
         for i in work_msg:
             work_list.append([i[0], i[3]])
-            work_msg_f += f"{n}、{get_work_msg(i)}"
-            n += 1
-        work_msg_f += f"\r(道友消耗悬赏衙牌一枚，成功刷新悬赏令，余剩衙牌{goods_num - 1}枚)"
+            work_msg_f.append(get_work_msg(i))
+        count_msg = f"\r(道友消耗悬赏衙牌一枚，成功刷新悬赏令，余剩衙牌{goods_num - 1}枚)"
         work[user_id] = do_is_work(user_id)
         work[user_id].msg = work_msg_f
         work[user_id].world = work_list
-        msg = work[user_id].msg
-
-        msg = main_md(
-            title+msg, '使用下方按钮可快速接取',
-            '接取 1', '悬赏令接取1',
-            '接取 2', '悬赏令接取2',
-            '接取 3', '悬赏令接取3',
-            '悬赏令帮助', '悬赏令帮助')
+        msg = three_md(
+            title, '1、', '悬赏令接取1', work_msg_f[0],
+            '2、', '悬赏令接取2', work_msg_f[1],
+            '3、', '悬赏令接取3', work_msg_f[2] + count_msg,
+                                 )
         await bot.send(event=event, message=msg)
 
     elif mode == "终止":
@@ -435,5 +424,5 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
 
 
 def get_work_msg(work_):
-    msg = f"{work_[0]},完成机率{work_[1]}\r基础报酬{number_to(work_[2])}修为,预计需{work_[3]}分钟\r{work_[4]}\r"
+    msg = f"{work_[0]}\r完成机率🎲{work_[1]}%\r基础报酬💗{number_to(work_[2])}修为,预计需⏳{work_[3]}分钟\r{work_[4]}\r"
     return msg

@@ -26,6 +26,13 @@ class OLD_RIFT_INFO(object):
         with open(self.data_path, 'wb') as f:
             pickle.dump(self.data, f)
 
+    def __save_none(self):
+        """
+        :return:保存
+        """
+        with open(self.data_path, 'wb') as f:
+            pickle.dump({}, f)
+
     def save_rift(self, group_rift):
         """
         保存rift
@@ -40,8 +47,7 @@ class OLD_RIFT_INFO(object):
         读取rift信息
         """
         world_rift = self.data
-        self.data = {}
-        self.__save()
+        self.__save_none()
         return world_rift
 
 

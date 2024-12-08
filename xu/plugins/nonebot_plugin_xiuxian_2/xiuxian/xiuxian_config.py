@@ -81,7 +81,7 @@ class XiuConfig:
         self.sql_user_auctions = [""]
         # 上面是数据库校验,别动
         self.message_limit_time = 60  # 消息限制重置间隔
-        self.message_limit = 35  # 消息限制间隔内最大发送信息条数
+        self.message_limit = 30  # 消息限制间隔内最大发送信息条数
         self.level = convert_rank('求道者')[1]  # 境界列表，别动
         self.img = False  # 是否使用图片发送消息
         self.user_info_image = False  # 是否使用图片发送个人信息

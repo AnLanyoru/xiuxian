@@ -1128,9 +1128,9 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             results.append(back_dict)
         return results
 
-    def get_back_skill_msg(self, user_id, goods_type):
+    def get_back_goal_type_msg(self, user_id, goods_type):
         """
-        获取用户背包内技能信息
+        获取用户背包内指定类型物品信息
         :param user_id: 用户虚拟值
         :param goods_type: type = str 目标物品类型
         :return: type = list | None
@@ -1451,6 +1451,24 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         删除物品
         """
         sql_str = f"DELETE FROM back WHERE user_id={user_id} and goods_id={goods_id}"
+        cur = self.conn.cursor()
+        cur.execute(sql_str)
+        self.conn.commit()
+
+    def bind_item(self, user_id, goods_id):
+        """
+        绑定物品
+        """
+        sql_str = f"UPDATE back set bind_num=goods_num WHERE user_id={user_id} and goods_id={goods_id}"
+        cur = self.conn.cursor()
+        cur.execute(sql_str)
+        self.conn.commit()
+
+    def break_bind_item(self, user_id, goods_id):
+        """
+        解绑物品
+        """
+        sql_str = f"UPDATE back set bind_num=0 WHERE user_id={user_id} and goods_id={goods_id}"
         cur = self.conn.cursor()
         cur.execute(sql_str)
         self.conn.commit()

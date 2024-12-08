@@ -7,7 +7,7 @@ from urllib.parse import quote
 from nonebot.adapters.onebot.v11 import Message
 
 from .. import NICKNAME
-from .markdown_segment import MessageSegmentPlus
+from .markdown_segment import MessageSegmentPlus, markdown_param
 
 """
 纯函数工具
@@ -322,7 +322,7 @@ def main_md(title, text,
     param = [
         {
             "key": "title",
-            "values": [f"{title}"]
+            "values": [f"{title}\r\r"]
         },
         {
             "key": "text",
@@ -361,7 +361,7 @@ def main_md(title, text,
             "values": [f"{quote(cmd_4)}"]
         }
     ]
-    msg = MessageSegmentPlus.markdown_template("102368631_1733157137", param)
+    msg = MessageSegmentPlus.markdown_template("102368631_1733316601", param)
     return msg
 
 
@@ -376,6 +376,55 @@ def help_md(md_id, text):
     ]
     msg = MessageSegmentPlus.markdown_template(md_id, param)
     return msg
+
+
+def three_md(text_1,
+             cmd_see_1, cmd_1, text_2,
+             cmd_see_2, cmd_2, text_3,
+             cmd_see_3, cmd_3, text_4):
+    param = [
+        {
+            "key": "data_1",
+            "values": [f"{text_1}"]
+        },
+        {
+            "key": "cmd_1",
+            "values": [f"{cmd_see_1}"]
+        },
+        {
+            "key": "cmd_1_url",
+            "values": [f"{quote(cmd_1)}"]
+        },
+        {
+            "key": "data_2",
+            "values": [f"{text_2}"]
+        },
+        {
+            "key": "cmd_2",
+            "values": [f"{cmd_see_2}"]
+        },
+        {
+            "key": "cmd_2_url",
+            "values": [f"{quote(cmd_2)}"]
+        },
+        {
+            "key": "data_3",
+            "values": [f"{text_3}"]
+        },
+        {
+            "key": "cmd_3",
+            "values": [f"{cmd_see_3}"]
+        },
+        {
+            "key": "cmd_3_url",
+            "values": [f"{quote(cmd_3)}"]
+        },
+        {
+            "key": "data_4",
+            "values": [f"{text_4}"]
+        }
+    ]
+    return MessageSegmentPlus.markdown_template("102368631_1733318207", param)
 
 
 def msg_handler(*args):

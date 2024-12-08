@@ -18,7 +18,7 @@ class workhandle(XiuxianJsonDate):
                     item_msg = '!'
                 else:
                     item_info = items.get_data_by_item_id(v[3])
-                    item_msg = f"可能额外获得：{item_info['level']}:{item_info['name']}!"
+                    item_msg = f"可能额外获得:🎁{item_info['level']}:{item_info['name']}!"
                 get_work_list.append([k, v[0], v[1], v[2], item_msg])
             savef(user_id, json.dumps(data, ensure_ascii=False))
             return get_work_list

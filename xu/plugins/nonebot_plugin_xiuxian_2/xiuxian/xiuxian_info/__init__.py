@@ -176,10 +176,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent, args: Message = C
                f"辅修功法: {sub_buff_name}\r"
                f"副修神通: {sec_buff_name}\r"
                f"法器: {weapon_name}\r"
-               f"防具: {armor_name}\r"
-               f"注册位数: 道友是踏入修仙世界的第{int(user_num)}人\r"
-               f"修为排行: 道友的修为排在第{int(user_rank)}位\r"
-               f"灵石排行: 道友的灵石排在第{int(user_stone)}位\r")
+               f"防具: {armor_name}\r")
         msg = simple_md(msg, "查看图片版", "我的修仙信息图片版", "!")
         await bot.send(event=event, message=msg)
         await xiuxian_message.finish()

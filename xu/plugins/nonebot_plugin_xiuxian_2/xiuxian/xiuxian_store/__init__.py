@@ -1,4 +1,6 @@
 import asyncio
+import time
+
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -10,7 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 from .store_database import user_store
 from .. import XiuConfig
 from ..xiuxian_utils.clean_utils import get_args_num, get_paged_msg, number_to_msg, get_strs_from_str
-from ..xiuxian_utils.lay_out import Cooldown, CooldownIsolateLevel
+from ..xiuxian_utils.lay_out import Cooldown, set_cmd_lock
 from nonebot.params import CommandArg, RawCommand
 from ..xiuxian_utils.item_json import items
 from ..xiuxian_utils.utils import (
@@ -20,6 +22,7 @@ from ..xiuxian_utils.utils import (
 from ..xiuxian_utils.xiuxian2_handle import sql_message
 
 store_sell_lock = asyncio.Lock()
+break_bind = []
 
 check_user_want_item = on_command("灵宝楼求购查看", aliases={"查看灵宝楼求购", "个人摊位查看"}, priority=2, permission=GROUP, block=True)
 user_sell_to = on_command("灵宝楼出售", aliases={"个人摊位出售", "灵宝楼寄售"}, priority=2, permission=GROUP, block=True)
@@ -29,13 +32,59 @@ user_want_funds = on_command("灵宝楼存灵石", aliases={"个人摊位存灵�
 user_funds_extract = on_command("灵宝楼取灵石", aliases={"个人摊位取灵石", "摊位取灵石", "取资金"}, priority=2, permission=GROUP, block=True)
 remove_want_item = on_command("取消灵宝楼求购", aliases={"取消求购"}, priority=2, permission=GROUP, block=True)
 fast_sell_items = on_command("灵宝楼快速出售", aliases={"个人摊位快速出售"}, priority=2, permission=GROUP, block=True)
+bind_break = on_command("物品解绑", priority=2, permission=GROUP, block=True)
+
+
+@bind_break.handle(
+    parameterless=[
+        Cooldown(
+            cd_time=24000,
+            at_sender=False,
+            parallel_block=True)])
+async def bind_break_(
+        bot: Bot,                     # 机器人实例
+        event: GroupMessageEvent,     # 消息主体
+):
+    """
+    物品解绑
+    """
+    # 获取用户数据
+    _, user_info, _ = check_user(event)
+    user_id = user_info["user_id"]
+    # 提取命令详情
+    if user_id in break_bind:
+        msg = '道友已解绑过物品！！'
+        await bot.send(event, msg)
+        set_cmd_lock(user_id, 0)
+        await bind_break.finish()
+    break_bind.append(user_id)
+    msg = '开始为道友解绑物品，请稍后.....'
+    await bot.send(event, msg)
+    for item_type in ["技能", "装备"]:
+        user_backs = sql_message.get_back_goal_type_msg(user_id, item_type)  # list(back)
+        if not user_backs:
+            continue
+        for back_item in user_backs:
+            item_info = items.get_data_by_item_id(back_item['goods_id'])
+            item_rank = item_info['rank']
+            if item_rank == 1000:
+                continue
+            item_id = back_item['goods_id']
+            sql_message.break_bind_item(user_id, item_id)
+            set_cmd_lock(user_id, int(time.time()))
+            await asyncio.sleep(0.5)
+    msg = '道友的物品解绑完成啦！'
+    await bot.send(event, msg)
+    set_cmd_lock(user_id, 0)
+    await bind_break.finish()
 
 
 @fast_sell_items.handle(
     parameterless=[
         Cooldown(
             cd_time=30,
-            at_sender=False)])
+            at_sender=False,
+            parallel_block=True)])
 async def fast_sell_items_(
         bot: Bot,                     # 机器人实例
         event: GroupMessageEvent,     # 消息主体
@@ -53,10 +102,12 @@ async def fast_sell_items_(
     if not want_user_id:
         msg = "请输正确的道号来快速向对应道友出售物品！！！"
         await bot.send(event=event, message=msg)
+        set_cmd_lock(user_id, 0)
         await fast_sell_items.finish()
     if want_user_id == user_id:
         msg = "请不要向自己出售物品！！！"
         await bot.send(event=event, message=msg)
+        set_cmd_lock(user_id, 0)
         await fast_sell_items.finish()
     args = get_strs_from_str(strs)
     want_user_name = args[0]
@@ -80,12 +131,15 @@ async def fast_sell_items_(
                         or buff_type == goal_level
                         or item_type == goal_level) and goods_num > 0:
                     sell_list.append(back)
-        msg = f"向{want_user_name}道友快速出售以下类型物品：\r" + "|".join(args)
+        msg = f"开始向{want_user_name}道友快速出售以下类型物品：\r" + "|".join(args) + "请等待...."
+        await bot.send(event, msg)
+        msg = '出售结果如下'
     else:
         # 无参数
         sell_list = []
         msg = f"请指定你要向{want_user_name}道友出售的物品的类型！！"
         await bot.send(event, msg)
+        set_cmd_lock(user_id, 0)
         await fast_sell_items.finish()
     sell_msg = []
     price_sum = 0
@@ -126,10 +180,12 @@ async def fast_sell_items_(
         sql_message.update_ls(user_id, get_stone, 1)
         price_sum += get_stone
         item_type = items.items.get(str(item_id)).get('type')
-        sql_message.send_back(want_user_id, item_id, item_name, item_type, sell_item_num, 1)
+        sql_message.send_back(want_user_id, item_id, item_name, item_type, sell_item_num, 0)
         sell_msg.append(f"【{item_name}】{sell_item_num}个 获取了{get_stone}灵石")
+        set_cmd_lock(user_id, int(time.time()))
+        await asyncio.sleep(0.5)
     if sell_msg:
-        msg += f"\r成功向{want_user_name}道友出售了：\r" + '\r'.join(sell_msg)
+        msg += f"\r成功向{want_user_name}道友出售了：\r" + '\r'.join(sell_msg) + f'\r总计: {number_to(price_sum)}灵石'
     elif not want_pass:
         msg += f"\r对方对道友的物品没有需求！"
     elif not funds_pass:
@@ -138,6 +194,7 @@ async def fast_sell_items_(
         msg += f"\r对方无法收下道友的全部物品！！"
 
     await bot.send(event, msg)
+    set_cmd_lock(user_id, 0)
     await fast_sell_items.finish()
 
 
@@ -339,7 +396,7 @@ async def user_sell_to_(
         sql_message.update_back_j(user_id, item_id, num=sell_item_num)
         sql_message.update_ls(user_id, get_stone, 1)
         item_type = items.items.get(str(item_id)).get('type')
-        sql_message.send_back(want_user_id, item_id, item_name, item_type, sell_item_num, 1)
+        sql_message.send_back(want_user_id, item_id, item_name, item_type, sell_item_num, 0)
         msg = f"成功通过向灵宝楼向{want_user_name}道友出售了：\r{item_name}{sell_item_num}个\r获取了{get_stone}灵石"
 
         await bot.send(event, msg)

@@ -202,20 +202,13 @@ def get_dxsj_info(rift_type, user_info):
     value = random.choice(STORY[rift_type]['cost'][cost_type]['value'])
     if cost_type == "exp":
         exp = int(user_info['exp'] * value)
-        user_id = user_info['user_id']
-        user_msg = XiuxianDateManage().get_user_info_with_id(user_id)
-        user_buff_data = UserBuffDate(user_id)
-        main_buff_data = user_buff_data.get_user_main_buff_data()
-        impart_data = xiuxian_impart.get_user_info_with_id(user_id)
-        impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
-        main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
-        hpcost = int((exp / 2) * (1 + main_hp_buff + impart_hp_per) * jsondata.level_data()[user_msg['level']]["HP"])
+        sql_message.update_j_exp(user_info['user_id'], exp)
 
-        nowhp = user_info['hp'] - hpcost if (user_info['hp'] - (exp / 2)) > 0 else 1
+        nowhp = user_info['hp'] - (exp / 2) if (user_info['hp'] - (exp / 2)) > 0 else 1
         nowmp = user_info['mp'] - exp if (user_info['mp'] - exp) > 0 else 1
         sql_message.update_user_hp_mp(user_info['user_id'], nowhp, nowmp)  # 修为掉了，血量、真元也要掉
 
-        msg = random.choice(STORY[rift_type]['desc']).format(f"修为减少了：{number_to(exp)}|{exp}点！")
+        msg = random.choice(STORY[rift_type]['desc']).format(f"修为减少了：{exp}点！")
     elif cost_type == "hp":
         cost_hp = int((user_info['exp'] / 2) * value)
         now_hp = user_info['hp'] - cost_hp
