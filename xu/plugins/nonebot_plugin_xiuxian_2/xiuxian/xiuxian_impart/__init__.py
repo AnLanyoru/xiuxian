@@ -132,7 +132,7 @@ async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = 
     num = int(num[0]) if num else 1
     impart_data_draw = await impart_check(user_id)
     fail_msg = [f"道友思恋结晶不足{num}个！！无法进行{num}次抽卡!"] if impart_data_draw.get('stone_num', 0) < num else []
-    fail_msg += f"{num}次抽卡也太多拉！！100次100次慢慢来吧！！" if 100 < num else []
+    fail_msg += [f"{num}次抽卡也太多拉！！100次100次慢慢来吧！！"] if 100 < num else []
     if fail_msg:
         await bot.send(event=event, message='\r'.join(fail_msg))
         await impart_draw_fast.finish()

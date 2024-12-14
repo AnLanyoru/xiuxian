@@ -214,6 +214,18 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         await do_work.finish()
 
     if mode == "刷新":  # 刷新逻辑
+        try:
+            work_msg_f = work[user_id].msg
+            await bot.send(event, "道友已有悬赏令！！！下一条消息将发出道友当前悬赏令信息，如未发出，请反馈管理！！")
+            msg = three_md(
+                "--道友的悬赏令--\r", '1、', '悬赏令接取1', work_msg_f[0],
+                '2、', '悬赏令接取2', work_msg_f[1],
+                '3、', '悬赏令接取3', work_msg_f[2],
+            )
+            await bot.send(event, msg)
+            await do_work.finish()
+        except KeyError:
+            pass
         if user_cd_info['type'] == 2:
             work_time = datetime.strptime(
                 user_cd_info['create_time'], "%Y-%m-%d %H:%M:%S.%f"
@@ -269,6 +281,18 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
 
 
     if mode == "道具刷新":  # 刷新逻辑
+        try:
+            work_msg_f = work[user_id].msg
+            await bot.send(event, "道友已有悬赏令！！！下一条消息将发出道友当前悬赏令信息，如未发出，请反馈管理！！")
+            msg = three_md(
+                "--道友的悬赏令--\r", '1、', '悬赏令接取1', work_msg_f[0],
+                '2、', '悬赏令接取2', work_msg_f[1],
+                '3、', '悬赏令接取3', work_msg_f[2],
+            )
+            await bot.send(event, msg)
+            await do_work.finish()
+        except KeyError:
+            pass
         if user_cd_info['type'] == 2:
             work_time = datetime.strptime(
                 user_cd_info['create_time'], "%Y-%m-%d %H:%M:%S.%f"

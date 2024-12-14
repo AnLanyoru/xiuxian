@@ -12,8 +12,7 @@ from .send_image_tool import convert_img
 
 TEXT_PATH = Path() / "data" / "xiuxian" / "info_img"
 
-# first_color = (242, 250, 242)
-first_color = (191, 191, 191)
+first_color = (242, 250, 242)
 second_color = (57, 57, 57)
 
 FONT_ORIGIN_PATH = Path() / "data" / "xiuxian" / "font" / "SourceHanSerifCN-Heavy.otf"
@@ -136,16 +135,13 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
     paihang_draw.text((w, h), paihangword, first_color, font_40, 'lm')
     img.paste(paihang, (100, 1873), paihang)
 
-    DETAIL_paihang = {}
-    DETAIL_paihang['注册位数'] = DETAIL_MAP['注册位数']
-    DETAIL_paihang['修为排行'] = DETAIL_MAP['修为排行']
-    DETAIL_paihang['灵石排行'] = DETAIL_MAP['灵石排行']
+    DETAIL_paihang = {'注册位数': DETAIL_MAP['注册位数'], '修为排行': DETAIL_MAP['修为排行'],
+                      '灵石排行': DETAIL_MAP['灵石排行']}
 
     tasks4 = []
     for key, value in DETAIL_paihang.items():
         tasks4.append(_draw_ph_info_line(img, key, value, DETAIL_paihang))
     await asyncio.gather(*tasks4)
-    # img = pic_compress(img)
     res = await convert_img(img)
     return res
 

@@ -35,6 +35,8 @@ def workmake(work_level, exp, user_level):
             item_id = 0
         else:
             item_id = random.choice(item_id)
+        if work_name in work_json:
+            work_name = "和凌云一起" + work_name
         work_json[work_name] = [rate, level_price_data["award"], int(level_price_data["time"] * isOut), item_id,
                                 success_msg, fail_msg]
         i += 1
