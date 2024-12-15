@@ -180,7 +180,7 @@ async def fast_sell_items_(
         sql_message.update_ls(user_id, get_stone, 1)
         price_sum += get_stone
         item_type = items.items.get(str(item_id)).get('type')
-        sql_message.send_back(want_user_id, item_id, item_name, item_type, sell_item_num, 0)
+        await sql_message.send_back(want_user_id, item_id, item_name, item_type, sell_item_num, 0)
         sell_msg.append(f"【{item_name}】{sell_item_num}个 获取了{get_stone}灵石")
         set_cmd_lock(user_id, int(time.time()))
         await asyncio.sleep(0.5)
@@ -396,7 +396,7 @@ async def user_sell_to_(
         sql_message.update_back_j(user_id, item_id, num=sell_item_num)
         sql_message.update_ls(user_id, get_stone, 1)
         item_type = items.items.get(str(item_id)).get('type')
-        sql_message.send_back(want_user_id, item_id, item_name, item_type, sell_item_num, 0)
+        await sql_message.send_back(want_user_id, item_id, item_name, item_type, sell_item_num, 0)
         msg = f"成功通过向灵宝楼向{want_user_name}道友出售了：\r{item_name}{sell_item_num}个\r获取了{get_stone}灵石"
 
         await bot.send(event, msg)

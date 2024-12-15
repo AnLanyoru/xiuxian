@@ -304,7 +304,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             drops_msg = " "
         elif boss_rank < convert_rank('合道境中期')[0]:
             drops_msg = f"boss的遗骸上好像有什么东西， 凑近一看居然是{drops_info['name']}！ "
-            sql_message.send_back(user_info['user_id'], drops_info['id'], drops_info['name'], drops_info['type'], 1)
+            await sql_message.send_back(user_info['user_id'], drops_info['id'], drops_info['name'], drops_info['type'], 1)
         else:
             drops_msg = " "
 
@@ -526,7 +526,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
             user_boss_fight_info['boss_integral'] -= total_cost
             save_user_boss_fight_info(user_id, user_boss_fight_info)
             item_info = items.get_data_by_item_id(item_id)
-            sql_message.send_back(user_id, item_id, item_info['name'], item_info['type'], quantity)  # 兑换指定数量
+            await sql_message.send_back(user_id, item_id, item_info['name'], item_info['type'], quantity)  # 兑换指定数量
             msg = f"道友成功兑换获得：{item_info['name']}{quantity}个"
             await bot.send(event=event, message=msg)
             await boss_integral_use.finish()

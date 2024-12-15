@@ -1362,7 +1362,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur.execute(sql, (work_num, user_id,))
         self.get_db().commit()
 
-    def send_back(self, user_id, goods_id, goods_name, goods_type, goods_num, bind_flag=0):
+    async def send_back(self, user_id, goods_id, goods_name, goods_type, goods_num, bind_flag=0):
         """
         插入物品至背包
         :param user_id: 用户qq

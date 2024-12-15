@@ -198,7 +198,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
             limit_handle.update_user_limit(user_id, 8, 9)
         msg = msg + msg_handler(result)
     elif rift_type == "宝物":
-        msg = get_treasure_info(user_info, rift_rank)
+        msg = await get_treasure_info(user_info, rift_rank)
     elif rift_type == "掉血事件":
         protect_item = sql_message.get_item_by_good_id_and_user_id(user_id, 660001)
         protect_item = protect_item if protect_item else {}

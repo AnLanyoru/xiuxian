@@ -123,7 +123,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
 @impart_draw_fast.handle(parameterless=[Cooldown(cd_time=5, at_sender=False)])
 async def impart_draw_fast_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    """传承抽卡多次"""
+    """传承抽卡"""
 
     _, user_info, _ = check_user(event)
     user_id = user_info['user_id']

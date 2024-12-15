@@ -146,7 +146,7 @@ async def tower_shop_buy_(
         await tower_shop_buy.finish()
     tower_handle.update_user_tower_point(user_id, goods_price, 1)
     if item_id:
-        sql_message.send_back(user_id, item_id, item_name, item['type'], goods_num, 1)
+        await sql_message.send_back(user_id, item_id, item_name, item['type'], goods_num, 1)
     last_point = point - goods_price
     msg = f"成功兑换{item_name}{goods_num}个"
     text =  f"消耗{goods_price}积分，余剩{last_point}积分"
@@ -325,50 +325,49 @@ async def tower_start_(bot: Bot, event: GroupMessageEvent):
     if not is_type:
         await bot.send(event=event, message=msg)
         await tower_start.finish()
+    place_id = user_info.get('place_id')
+    world_id = place.get_world_id(place_id)
+    world_name = place.get_world_name(place_id)
+    try:
+        tower_handle.tower_data[world_id]
+    except KeyError:
+        msg = f'道友所在位面【{world_name}】尚未有位面挑战，敬请期待!'
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
+    if place_id == (tower_place := tower_handle.tower_data[world_id].place):
+        user_tower_info = tower_handle.check_user_tower_info(user_id)
+        old_tower_place = user_tower_info['tower_place']
+        if not operator.eq(old_tower_place, tower_place):
+            user_tower_info['tower_place'] = tower_place
+            user_tower_info['tower_point'] = 0
+            user_tower_info['best_floor'] = 0
+            user_tower_info['weekly_point'] = 0 if user_tower_info['weekly_point'] != -1 else -1
+        user_tower_info['now_floor'] = int(operator.floordiv(user_tower_info['best_floor'], 1.2))
+        msg = f"道友进入位面挑战【{tower_handle.tower_data[world_id].name}】！"
+        text = "使用 查看挑战 来查看当前挑战信息！"
+        sql_message.do_work(user_id, 6)
+        tower_handle.update_user_tower_info(user_info, user_tower_info)
+        msg = main_md(
+            msg, text,
+            '开始挑战', '开始挑战',
+            '查看挑战', '查看挑战',
+            '终止挑战', '离开挑战',
+            '挑战帮助', '挑战帮助')
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
     else:
-        place_id = user_info.get('place_id')
-        world_id = place.get_world_id(place_id)
-        world_name = place.get_world_name(place_id)
-        try:
-            tower_handle.tower_data[world_id]
-        except KeyError:
-            msg = f'道友所在位面【{world_name}】尚未有位面挑战，敬请期待!'
-            await bot.send(event=event, message=msg)
-            await tower_start.finish()
-        if place_id == (tower_place := tower_handle.tower_data[world_id].place):
-            user_tower_info = tower_handle.check_user_tower_info(user_id)
-            old_tower_place = user_tower_info['tower_place']
-            if not operator.eq(old_tower_place, tower_place):
-                user_tower_info['tower_place'] = tower_place
-                user_tower_info['tower_point'] = 0
-                user_tower_info['best_floor'] = 0
-                user_tower_info['weekly_point'] = 0 if user_tower_info['weekly_point'] != -1 else -1
-            user_tower_info['now_floor'] = int(operator.floordiv(user_tower_info['best_floor'], 2))
-            msg = f"道友进入位面挑战【{tower_handle.tower_data[world_id].name}】！"
-            text = "使用 查看挑战 来查看当前挑战信息！"
-            sql_message.do_work(user_id, 6)
-            tower_handle.update_user_tower_info(user_info, user_tower_info)
-            msg = main_md(
-                msg, text,
-                '开始挑战', '开始挑战',
-                '查看挑战', '查看挑战',
-                '终止挑战', '离开挑战',
-                '挑战帮助', '挑战帮助')
-            await bot.send(event=event, message=msg)
-            await tower_start.finish()
-        else:
-            far, start_place, to_place = place.get_distance(place_id, tower_handle.tower_data[world_id].place)
-            msg = f"\r道友所在位置没有位面挑战!!\r"
-            text = (f"当前位面【{world_name}】的位面挑战【{tower_handle.tower_data[world_id].name}】在距你{far:.1f}万里的：【{to_place}】\r"
-                   f"可以发送【前往 {to_place}】来前去位面挑战所在位置挑战！")
-            msg = main_md(
-                msg, text,
-                f'前往 {to_place}', f'前往 {to_place}',
-                '进入挑战', '进入挑战',
-                '挑战商店', '挑战商店',
-                '挑战帮助', '挑战帮助')
-            await bot.send(event=event, message=msg)
-            await tower_start.finish()
+        far, start_place, to_place = place.get_distance(place_id, tower_handle.tower_data[world_id].place)
+        msg = f"\r道友所在位置没有位面挑战!!\r"
+        text = (f"当前位面【{world_name}】的位面挑战【{tower_handle.tower_data[world_id].name}】在距你{far:.1f}万里的：【{to_place}】\r"
+               f"可以发送【前往 {to_place}】来前去位面挑战所在位置挑战！")
+        msg = main_md(
+            msg, text,
+            f'前往 {to_place}', f'前往 {to_place}',
+            '进入挑战', '进入挑战',
+            '挑战商店', '挑战商店',
+            '挑战帮助', '挑战帮助')
+        await bot.send(event=event, message=msg)
+        await tower_start.finish()
 
 
 @tower_info.handle(parameterless=[Cooldown(at_sender=False)])

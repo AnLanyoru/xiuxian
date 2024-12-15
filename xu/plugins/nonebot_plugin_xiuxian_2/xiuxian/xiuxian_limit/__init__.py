@@ -85,7 +85,7 @@ async def offset_get_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
             item_name = item_info['name']
             item_type = item_info['type']
             item_num = items_info[int(item_id)]
-            sql_message.send_back(user_id, item_id, item_name, item_type, item_num, 1)
+            await sql_message.send_back(user_id, item_id, item_name, item_type, item_num, 1)
             msg += f"\r{item_name} {item_num}个！"
         else:
             msg += f"\r不存在的物品 0个"

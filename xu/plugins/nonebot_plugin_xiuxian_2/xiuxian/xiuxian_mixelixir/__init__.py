@@ -80,7 +80,7 @@ async def yaocai_get_op_(bot: Bot, event: GroupMessageEvent):
     num = 100
     msg = ''
     if not yaocai_id_list:
-        sql_message.send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
+        await sql_message.send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
         msg += f"道友成功收获药材：恒心草 {num} 个！\r"
     else:
         give_dict = {}
@@ -93,7 +93,7 @@ async def yaocai_get_op_(bot: Bot, event: GroupMessageEvent):
         for k, v in give_dict.items():
             goods_info = items.get_data_by_item_id(k)
             msg += f"道友成功收获药材：{goods_info['name']} {v} 个！\r"
-            sql_message.send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
+            await sql_message.send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
     await bot.send(event=event, message=msg)
     await yaocai_get_op.finish()
 
@@ -193,7 +193,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
             num = mix_elixir_info['灵田数量'] + mix_elixir_info['收取等级'] + impart_reap_per + reap_buff
             msg = ''
             if not yaocai_id_list:
-                sql_message.send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
+                await sql_message.send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
                 msg += f"道友成功收获药材：恒心草 {num} 个！\r"
             else:
                 i = 1
@@ -209,7 +209,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
                 for k, v in give_dict.items():
                     goods_info = items.get_data_by_item_id(k)
                     msg += f"道友成功收获药材：{goods_info['name']} {v} 个！\r"
-                    sql_message.send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
+                    await sql_message.send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
             mix_elixir_info['收取时间'] = nowtime
             save_player_info(user_id, mix_elixir_info, "mix_elixir_info")
             await bot.send(event=event, message=msg)
@@ -425,7 +425,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                 num = 1 + ldl_info['buff'] + mix_elixir_info['丹药控火'] + impart_mix_per + main_dan  # 炼丹数量提升
                 msg = f"恭喜道友成功炼成丹药：{goods_info['name']}{num}枚"
                 # 背包sql
-                sql_message.send_back(user_id, id, goods_info['name'], "丹药", num)  # 将炼制的丹药加入背包
+                await sql_message.send_back(user_id, id, goods_info['name'], "丹药", num)  # 将炼制的丹药加入背包
                 sql_message.update_back_j(user_id, zhuyao_goods_id, zhuyao_num)  # 将消耗的药材从背包中减去
                 sql_message.update_back_j(user_id, fuyao_goods_id, fuyao_num)
                 sql_message.update_back_j(user_id, yaoyin_goods_id, yaoyin_num)
